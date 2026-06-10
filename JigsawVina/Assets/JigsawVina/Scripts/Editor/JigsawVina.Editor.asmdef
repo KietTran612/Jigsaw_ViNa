@@ -3,7 +3,10 @@
     "rootNamespace": "JigsawVina.Editor",
     "references": [
         "JigsawVina",
-        "UnityEditor.TestTools.TestRunner"
+        "UnityEditor.TestTools.TestRunner",
+        "VContainer",
+        "Unity.TextMeshPro",
+        "Unity.ugui"
     ],
     "includePlatforms": [
         "Editor"
