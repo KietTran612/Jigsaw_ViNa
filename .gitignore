@@ -1,1 +1,48 @@
 /.agent/scratch
+[L|l]ibrary/
+[T|t]emp/
+[O|o]bj/
+[B|b]uild/
+[B|b]uilds/
+[L|l]ogs/
+[U|u]ser[S|s]ettings/
+
+# Memory Captures
+*.shadertest
+*.pfx
+*.cltch
+
+# Personal settings
+.vs/
+.idea/
+.superpowers/
+.gradle/
+.recommenders/
+*.suo
+*.user
+*.userosscache
+*.sln
+*.csproj
+*.unityproj
+*.booproj
+*.svd
+*.pdb
+*.opendb
+*.tlog
+
+# Local Unity MCP tooling
+**/Packages/io.realvirtual.mcp/
+**/Assets/.mcp_auth_token
+**/Assets/StreamingAssets/realvirtual-MCP
+
+# Crashlytics generated file
+crashlytics-build.properties
+
+# OS generated files
+.DS_Store
+Thumbs.db
+.screenshots
+**/Assets/Packages
+**/Assets/Packages.meta
+**/Assets/TextMesh Pro
+**/Assets/TextMesh Pro.meta

@@ -1,0 +1,19 @@
+{
+    "name": "JigsawVina.Editor",
+    "rootNamespace": "JigsawVina.Editor",
+    "references": [
+        "JigsawVina",
+        "UnityEditor.TestTools.TestRunner"
+    ],
+    "includePlatforms": [
+        "Editor"
+    ],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": true,
+    "defineConstraints": [],
+    "versionDefines": [],
+    "noEngineReferences": false
+}

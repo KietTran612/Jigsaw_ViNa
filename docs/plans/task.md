@@ -1,11 +1,16 @@
-# Task Tracker
-
-## Current
-
-- No active task.
+| Implementation Task | Status | Notes |
+| :--- | :---: | :--- |
+| **Task 0: Configure Assembly Definitions** | [x] | Created JigsawVina, JigsawVina.Tests, and JigsawVina.Editor assembly definitions to define dependencies. |
+| **Task 1: Core Data Models & Save System** | [x] | Created PlayerSave, immutable PictureConfig, ISaveDataService, SaveDataService, and SaveDataServiceTests. Merged PictureConfig into PlayerSave.cs to resolve compilation issues. |
+| **Task 2: Global Services & Shared Session State** | [x] | Created IStaticDataService, StaticDataService, GameSessionService, SceneLoader, and GameSessionServiceTests. Removed stray unused StaticDataService field during review. |
+| **Task 3: VContainer Project Scope** | [x] | Set up ProjectLifetimeScope for global VContainer dependency injection and registered save/static data/session/scene loader services. |
+| **Task 4: Home Scene UI & Presenters** | [ ] | Implement PictureSelectView/Presenter, DifficultySelectView/Presenter, HomeLifetimeScope, and HomeFlowController. |
+| **Task 5: Gameplay Scene UI, Progression Logic & Tests** | [ ] | Implement PuzzlePlayingView/Presenter, RewardSummaryView/Presenter, GameplayLifetimeScope, GameplayFlowController, and ProgressionTests. |
+| **Task 6: Unity Scene Wire Up & Manual Run** | [ ] | Setup VContainer settings, build settings, scenes hierarchy, and verify the full vertical slice flow in Play Mode. |
 
 ## Completed
 
+- Fixed `.gitignore` to support Unity subfolder `JigsawVina/` and ensure nested local build/temporary/MCP-tooling files are correctly ignored.
 - Created the initial `docs/plans/` planning workflow files.
 - Reviewed `AGENTS.md` setup after removing copied project references.
 - Reviewed initial Jigsaw Việt Nam rules, data design, and sample JSON docs for project kickoff discussion.

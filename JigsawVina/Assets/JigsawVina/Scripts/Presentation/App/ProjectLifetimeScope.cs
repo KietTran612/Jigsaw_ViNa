@@ -1,0 +1,17 @@
+using VContainer;
+using VContainer.Unity;
+using JigsawVina.Core.Services;
+
+namespace JigsawVina.Presentation.App
+{
+    public class ProjectLifetimeScope : LifetimeScope
+    {
+        protected override void Configure(IContainerBuilder builder)
+        {
+            builder.Register<SaveDataService>(Lifetime.Singleton).AsImplementedInterfaces();
+            builder.Register<StaticDataService>(Lifetime.Singleton).AsImplementedInterfaces();
+            builder.Register<GameSessionService>(Lifetime.Singleton);
+            builder.Register<SceneLoader>(Lifetime.Singleton);
+        }
+    }
+}

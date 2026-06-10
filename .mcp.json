@@ -3,7 +3,11 @@
     "UnityMCP": {
       "command": "D:/soflware/Unity/Source/Jigsaw_ViNa/JigsawVina/Assets/StreamingAssets/realvirtual-MCP/python/python.exe",
       "args": [
-        "D:/soflware/Unity/Source/Jigsaw_ViNa/Assets/JigsawVina/StreamingAssets/realvirtual-MCP/unity_mcp_server.py"
+        "D:/soflware/Unity/Source/Jigsaw_ViNa/JigsawVina/Assets/StreamingAssets/realvirtual-MCP/unity_mcp_server.py",
+        "--mode",
+        "stdio",
+        "--project-path",
+        "D:/soflware/Unity/Source/Jigsaw_ViNa/JigsawVina/Assets"
       ]
     }
   }

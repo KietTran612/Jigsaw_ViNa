@@ -39,6 +39,8 @@ After completing any task that changes or adds scripts, wait for Unity to finish
 
 When Unity Editor state, Play Mode, scene setup, Console logs, validation runners, or screenshots are needed, prefer Unity MCP when it is available instead of guessing from files alone.
 
+Agents must call Unity MCP tools directly when the host exposes them, such as `mcp__unity.editor_get_status`, `mcp__unity.editor_read_log`, or the equivalent direct MCP tool namespace in the current agent host. Do not create Python/WebSocket helper scripts for normal Unity MCP operations when direct MCP tools are available.
+
 Use Unity MCP for:
 
 - checking compile/import status and Console/Editor logs;
@@ -47,7 +49,7 @@ Use Unity MCP for:
 - invoking scene setup only when the task requires scene regeneration;
 - capturing camera/game snapshots for visual review.
 
-Do not use Unity MCP for simple file reads, code search, docs-only changes, or git inspection. If Unity MCP is unavailable, note that clearly and continue with the best local fallback. Any temporary MCP helper scripts should stay under `.agent/scratch/` or `C:\tmp` and must not be committed unless explicitly promoted by the user.
+Do not use Unity MCP for simple file reads, code search, docs-only changes, or git inspection. If Unity MCP is unavailable, note that clearly and continue with the best local fallback. Temporary MCP helper scripts are allowed only as a fallback/debug bridge when direct MCP tools are not available or fail in a way that must be diagnosed. Any temporary MCP helper scripts should stay under `.agent/scratch/` or `C:\tmp` and must not be committed unless explicitly promoted by the user.
 
 ## Verification Scope Policy
 
