@@ -8,5 +8,7 @@ namespace JigsawVina.Core.Services
         IReadOnlyList<PictureConfig> GetAllPictures();
         PictureConfig GetPictureById(int id);
         PictureDifficultyConfig GetPictureDifficulty(int pictureId, int difficultyId);
+        ItemDto GetItemById(int id);
+        IReadOnlyList<ItemDto> GetAllItems();
     }
 }

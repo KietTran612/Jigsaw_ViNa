@@ -14,6 +14,14 @@
 | **Task 11: Win and Reward Flow Integration** | [x] | Persist rewards before win animation and verify duplicate protection through PlayMode tests. |
 | **Task 12: Original Image Opacity Control** | [x] | Replaced preview toggle with a 0-100% slider, defaulting to 20%, and regenerated Gameplay scene wiring. |
 | **Task 13: Tray Shuffle & Invalid Drop Feedback** | [x] | Shuffled tray pieces and added red shake/outline feedback for incorrect placement; manually verified by user. |
+| **Task 14: Extend Core Models & Setup DTOs** | [x] | Extend PlayerSave, PictureDifficultyConfig, GameSessionService, and create StaticDataDto. |
+| **Task 15: Write Failing Unit & Integration Tests** | [x] | Create StaticDataServiceTests and extend ProgressionTests to verify JSON parsing, validations, and rewards. |
+| **Task 16: Implement JSON loading, validation, and reward logic** | [x] | Implement StaticDataService, update IStaticDataService, and RewardSummaryPresenter to reward first-clear coins/hints/items. |
+| **Task 17: Implement Game Data Editor Window** | [x] | Create JigsawVinaGameDataEditor window to scan folders, customize difficulty settings, pre-fill from disk, and write to JSON. |
+| **Task 18: Integrate Presentation Asset Loading** | [x] | Update PuzzlePlayingPresenter to load board textures dynamically from configured static data paths. |
+| **Task 19: Tab-bar selection & Collapsible difficulties in Game Data Editor** | [x] | Implement a two-tab view, collapsible foldouts, clickable images to ping files, Sprite Editor integration buttons, and bordered frame styling in JigsawVinaGameDataEditor.cs. |
+| **Task 20: Bulk Add Pictures from Folder in Game Data Editor** | [x] | Support direct selection of multiple picture folders in the Project tab and Drag-and-Drop capability, auto-configuring assets and logging duplicate main texture names. |
+
 
 ## Completed
 

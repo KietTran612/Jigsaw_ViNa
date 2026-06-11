@@ -7,6 +7,7 @@ namespace JigsawVina.Core.Services
         public float LastElapsedTimeSeconds { get; set; }
         public int LastStarCount { get; set; }
         public bool IsRewardProcessed { get; set; }
+        public int LastCoinEarned { get; set; }
 
         public void SetSelectedPicture(int pictureId)
         {

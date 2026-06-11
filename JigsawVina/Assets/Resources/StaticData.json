@@ -1,0 +1,113 @@
+{
+    "schema_version": 1,
+    "data_version": 1,
+    "categories": [
+        {
+            "id": 1,
+            "id_string": "vietnam_landscapes",
+            "display_name": "Phong Cảnh Việt Nam"
+        }
+    ],
+    "pictures": [
+        {
+            "id": 1,
+            "id_string": "house_oldvillage_1",
+            "display_name": "House OldVillage 1",
+            "category_id": 1,
+            "asset_path": "Textures/Pictures/Picture_1/MAIN_House_OldVillage_1",
+            "difficulty_unlock_policy": "sequential"
+        }
+    ],
+    "items": [
+        {
+            "id": 101,
+            "id_string": "bananatree_1",
+            "display_name": "BananaTree 1",
+            "item_type": "key_item",
+            "asset_path": "Textures/Pictures/Picture_1/BananaTree_1"
+        },
+        {
+            "id": 102,
+            "id_string": "bicycle_1",
+            "display_name": "Bicycle 1",
+            "item_type": "key_item",
+            "asset_path": "Textures/Pictures/Picture_1/Bicycle_1"
+        },
+        {
+            "id": 103,
+            "id_string": "hanging_dried_crop_bundle_decor_1",
+            "display_name": "Hanging dried crop bundle decor 1",
+            "item_type": "key_item",
+            "asset_path": "Textures/Pictures/Picture_1/Hanging_dried_crop_bundle_decor_1"
+        },
+        {
+            "id": 104,
+            "id_string": "haystack_hut_1",
+            "display_name": "Haystack Hut 1",
+            "item_type": "key_item",
+            "asset_path": "Textures/Pictures/Picture_1/Haystack_Hut_1"
+        },
+        {
+            "id": 105,
+            "id_string": "pottedplant_foreground_1",
+            "display_name": "PottedPlant Foreground 1",
+            "item_type": "key_item",
+            "asset_path": "Textures/Pictures/Picture_1/PottedPlant_Foreground_1"
+        },
+        {
+            "id": 106,
+            "id_string": "waterjar_large_1",
+            "display_name": "WaterJar Large 1",
+            "item_type": "key_item",
+            "asset_path": "Textures/Pictures/Picture_1/WaterJar_Large_1"
+        },
+        {
+            "id": 107,
+            "id_string": "old_village_north_001",
+            "display_name": "old village north 001",
+            "item_type": "key_item",
+            "asset_path": "Textures/Pictures/Picture_1/old_village_north_001"
+        }
+    ],
+    "picture_difficulties": [
+        {
+            "picture_id": 1,
+            "difficulty_id": 0,
+            "display_name": "Dễ",
+            "grid_columns": 6,
+            "grid_rows": 4,
+            "piece_count": 24,
+            "star_reward": 1,
+            "first_clear_coin": 30,
+            "first_clear_hint": 0,
+            "replay_coin": 10,
+            "first_clear_reward_item_ids": []
+        },
+        {
+            "picture_id": 1,
+            "difficulty_id": 1,
+            "display_name": "Trung bình",
+            "grid_columns": 8,
+            "grid_rows": 6,
+            "piece_count": 48,
+            "star_reward": 2,
+            "first_clear_coin": 60,
+            "first_clear_hint": 0,
+            "replay_coin": 20,
+            "first_clear_reward_item_ids": []
+        },
+        {
+            "picture_id": 1,
+            "difficulty_id": 2,
+            "display_name": "Khó",
+            "grid_columns": 12,
+            "grid_rows": 8,
+            "piece_count": 96,
+            "star_reward": 3,
+            "first_clear_coin": 120,
+            "first_clear_hint": 0,
+            "replay_coin": 40,
+            "first_clear_reward_item_ids": []
+        }
+    ]
+}

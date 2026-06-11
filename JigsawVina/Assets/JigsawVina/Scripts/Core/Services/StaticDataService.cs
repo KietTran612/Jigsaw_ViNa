@@ -1,27 +1,163 @@
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using JigsawVina.Core.Data;
+using UnityEngine;
 
 namespace JigsawVina.Core.Services
 {
     public class StaticDataService : IStaticDataService
     {
-        private readonly List<PictureConfig> _pictures = new()
-        {
-            // Picture 1: Ho Guom, Picture 2: Vinh Ha Long
-            new PictureConfig(1, "ho_guom", "H\u1ed3 G\u01b0\u01a1m", "Textures/ho_guom"),
-            new PictureConfig(2, "ha_long", "V\u1ecbnh H\u1ea1 Long", "Textures/ha_long")
-        };
+        private const string StaticDataResourcePath = "GameData/jigsaw_vina_game_data";
+        private List<PictureConfig> _pictures = new();
+        private List<ItemDto> _items = new();
+        private Dictionary<int, ItemDto> _itemsById = new();
+        private Dictionary<(int PictureId, int DifficultyId), PictureDifficultyConfig> _difficulties = new();
 
-        private readonly Dictionary<(int PictureId, int DifficultyId), PictureDifficultyConfig> _difficulties = new()
+        public StaticDataService() : this(true)
         {
-            [(1, 0)] = new PictureDifficultyConfig(1, 0, "D\u1ec5", 6, 4, 1),
-            [(1, 1)] = new PictureDifficultyConfig(1, 1, "Trung b\u00ecnh", 8, 6, 2),
-            [(1, 2)] = new PictureDifficultyConfig(1, 2, "Kh\u00f3", 12, 8, 3),
-            [(2, 0)] = new PictureDifficultyConfig(2, 0, "D\u1ec5", 6, 4, 1),
-            [(2, 1)] = new PictureDifficultyConfig(2, 1, "Trung b\u00ecnh", 8, 6, 2),
-            [(2, 2)] = new PictureDifficultyConfig(2, 2, "Kh\u00f3", 12, 8, 3)
-        };
+        }
+
+        public StaticDataService(bool loadImmediately)
+        {
+            if (loadImmediately)
+            {
+                LoadFromJSON();
+            }
+        }
+
+        public void LoadFromJSON()
+        {
+            var textAsset = Resources.Load<TextAsset>(StaticDataResourcePath);
+            if (textAsset == null)
+            {
+                LoadFallbackData();
+                return;
+            }
+            LoadFromText(textAsset.text);
+            if (_pictures.Count == 0)
+            {
+                LoadFallbackData();
+            }
+        }
+
+        private void LoadFallbackData()
+        {
+            _pictures = new List<PictureConfig>
+            {
+                new PictureConfig(1, "ho_guom", "Hồ Gươm", "Textures/ho_guom"),
+                new PictureConfig(2, "ha_long", "Vịnh Hạ Long", "Textures/ha_long")
+            };
+
+            _difficulties = new Dictionary<(int, int), PictureDifficultyConfig>
+            {
+                [(1, 0)] = new PictureDifficultyConfig(1, 0, "Dễ", 6, 4, 1, 30, 0, 10, new List<int>()),
+                [(1, 1)] = new PictureDifficultyConfig(1, 1, "Trung bình", 8, 6, 2, 60, 0, 20, new List<int>()),
+                [(1, 2)] = new PictureDifficultyConfig(1, 2, "Khó", 12, 8, 3, 120, 0, 40, new List<int>()),
+                [(2, 0)] = new PictureDifficultyConfig(2, 0, "Dễ", 6, 4, 1, 30, 0, 10, new List<int>()),
+                [(2, 1)] = new PictureDifficultyConfig(2, 1, "Trung bình", 8, 6, 2, 60, 0, 20, new List<int>()),
+                [(2, 2)] = new PictureDifficultyConfig(2, 2, "Khó", 12, 8, 3, 120, 0, 40, new List<int>())
+            };
+
+            _items = new List<ItemDto>();
+            _itemsById = new Dictionary<int, ItemDto>();
+        }
+
+        public void LoadFromText(string jsonText)
+        {
+            var dto = JsonUtility.FromJson<StaticDataDto>(jsonText);
+            if (dto == null) return;
+
+            // Defensive null initialization for missing JSON fields
+            if (dto.pictures == null) dto.pictures = new List<PictureDto>();
+            if (dto.items == null) dto.items = new List<ItemDto>();
+            if (dto.picture_difficulties == null) dto.picture_difficulties = new List<PictureDifficultyDto>();
+
+            ValidateStaticData(dto);
+
+            _items = dto.items;
+            _itemsById = _items.ToDictionary(i => i.id);
+
+            _pictures = dto.pictures.Select(p => new PictureConfig(
+                p.id, 
+                p.id_string, 
+                p.display_name, 
+                p.asset_path
+            )).ToList();
+
+            _difficulties = new Dictionary<(int, int), PictureDifficultyConfig>();
+            foreach (var diff in dto.picture_difficulties)
+            {
+                var key = (diff.picture_id, diff.difficulty_id);
+                var config = new PictureDifficultyConfig(
+                    diff.picture_id,
+                    diff.difficulty_id,
+                    diff.display_name,
+                    diff.grid_columns,
+                    diff.grid_rows,
+                    diff.star_reward,
+                    diff.first_clear_coin,
+                    diff.first_clear_hint,
+                    diff.replay_coin,
+                    diff.first_clear_reward_item_ids
+                );
+                _difficulties[key] = config;
+            }
+        }
+
+        private void ValidateStaticData(StaticDataDto dto)
+        {
+            var picIds = new HashSet<int>();
+            var picIdStrings = new HashSet<string>();
+            if (dto.pictures != null)
+            {
+                foreach (var p in dto.pictures)
+                {
+                    if (string.IsNullOrEmpty(p.id_string))
+                        throw new InvalidOperationException($"Picture ID {p.id} has empty or null id_string.");
+                    if (!picIds.Add(p.id))
+                        throw new InvalidOperationException($"Duplicate Picture ID found: {p.id}");
+                    if (!picIdStrings.Add(p.id_string))
+                        throw new InvalidOperationException($"Duplicate Picture ID String found: {p.id_string}");
+                }
+            }
+
+            var itemIds = new HashSet<int>();
+            var itemIdStrings = new HashSet<string>();
+            if (dto.items != null)
+            {
+                foreach (var item in dto.items)
+                {
+                    if (string.IsNullOrEmpty(item.id_string))
+                        throw new InvalidOperationException($"Item ID {item.id} has empty or null id_string.");
+                    if (!itemIds.Add(item.id))
+                        throw new InvalidOperationException($"Duplicate Item ID found: {item.id}");
+                    if (!itemIdStrings.Add(item.id_string))
+                        throw new InvalidOperationException($"Duplicate Item ID String found: {item.id_string}");
+                }
+            }
+
+            if (dto.picture_difficulties != null)
+            {
+                foreach (var diff in dto.picture_difficulties)
+                {
+                    if (!picIds.Contains(diff.picture_id))
+                        throw new InvalidOperationException($"Difficulty references missing picture: {diff.picture_id}");
+
+                    if (diff.grid_columns * diff.grid_rows != diff.piece_count)
+                        throw new InvalidOperationException($"Difficulty Grid size does not match piece count for picture {diff.picture_id}");
+
+                    if (diff.first_clear_reward_item_ids != null)
+                    {
+                        foreach (var rewardId in diff.first_clear_reward_item_ids)
+                        {
+                            if (!itemIds.Contains(rewardId))
+                                throw new InvalidOperationException($"Difficulty rewards missing item ID: {rewardId}");
+                        }
+                    }
+                }
+            }
+        }
 
         public IReadOnlyList<PictureConfig> GetAllPictures() => _pictures;
 
@@ -46,5 +182,16 @@ namespace JigsawVina.Core.Services
             throw new KeyNotFoundException(
                 $"Difficulty with ID {difficultyId} was not configured for picture {pictureId}.");
         }
+
+        public ItemDto GetItemById(int id)
+        {
+            if (_itemsById.TryGetValue(id, out var item))
+            {
+                return item;
+            }
+            return null;
+        }
+
+        public IReadOnlyList<ItemDto> GetAllItems() => _items;
     }
 }

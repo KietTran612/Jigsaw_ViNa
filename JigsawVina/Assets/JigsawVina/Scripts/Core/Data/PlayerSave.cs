@@ -34,5 +34,6 @@ namespace JigsawVina.Core.Data
         public int Coins;
         public int Hints;
         public List<CompletedPuzzleData> CompletedPuzzles = new();
+        public List<int> OwnedItemIds = new();
     }
 }

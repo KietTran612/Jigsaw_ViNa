@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using JigsawVina.Core.Data;
 using JigsawVina.Core.Services;
 using JigsawVina.Presentation.Screens;
@@ -92,6 +93,85 @@ namespace JigsawVina.Tests
             Assert.AreEqual(1, save.CompletedPuzzles.Count);
             Assert.AreEqual(15f, save.CompletedPuzzles[0].BestTimeSeconds);
             Assert.AreEqual(2, save.CompletedPuzzles[0].BestStar);
+        }
+
+        [Test]
+        public void ProcessRewards_FirstClear_AwardsFirstClearCoinsHintsAndItems()
+        {
+            var saveService = new MockSaveDataService();
+            saveService.SaveData.Coins = 100;
+            saveService.SaveData.Hints = 2;
+
+            var session = new GameSessionService();
+            session.SetSelectedPicture(1);
+            session.SetSelectedDifficulty(1);
+
+            var staticDataService = new StaticDataService(false);
+            var json = @"{
+                ""pictures"": [
+                    { ""id"": 1, ""id_string"": ""pic1"", ""display_name"": ""Pic 1"", ""asset_path"": ""Textures/pic1"" }
+                ],
+                ""items"": [
+                    { ""id"": 101, ""id_string"": ""item1"", ""display_name"": ""Item 1"", ""item_type"": ""key_item"", ""asset_path"": ""Items/item1"" }
+                ],
+                ""picture_difficulties"": [
+                    { ""picture_id"": 1, ""difficulty_id"": 1, ""display_name"": ""Medium"", ""grid_columns"": 8, ""grid_rows"": 6, ""piece_count"": 48, ""star_reward"": 2, ""first_clear_coin"": 60, ""first_clear_hint"": 3, ""replay_coin"": 20, ""first_clear_reward_item_ids"": [101] }
+                ]
+            }";
+            staticDataService.LoadFromText(json);
+
+            var presenter = new RewardSummaryPresenter(null, session, saveService, staticDataService);
+            presenter.ProcessRewardsAndDisplay(12f);
+
+            var save = saveService.Load();
+            Assert.AreEqual(1, save.CompletedPuzzles.Count);
+            Assert.AreEqual(100 + 60, save.Coins); // 100 base + 60 first clear
+            Assert.AreEqual(2 + 3, save.Hints);   // 2 base + 3 hints
+            Assert.Contains(101, save.OwnedItemIds); // Rewarded item
+            Assert.AreEqual(60, session.LastCoinEarned);
+        }
+
+        [Test]
+        public void ProcessRewards_Replay_AwardsReplayCoinsOnly()
+        {
+            var saveService = new MockSaveDataService();
+            saveService.SaveData.Coins = 100;
+            saveService.SaveData.Hints = 2;
+            saveService.SaveData.OwnedItemIds = new List<int> { 101 };
+            saveService.SaveData.CompletedPuzzles.Add(new CompletedPuzzleData
+            {
+                PictureId = 1,
+                DifficultyId = 1,
+                BestTimeSeconds = 30f,
+                BestStar = 1
+            });
+
+            var session = new GameSessionService();
+            session.SetSelectedPicture(1);
+            session.SetSelectedDifficulty(1);
+
+            var staticDataService = new StaticDataService(false);
+            var json = @"{
+                ""pictures"": [
+                    { ""id"": 1, ""id_string"": ""pic1"", ""display_name"": ""Pic 1"", ""asset_path"": ""Textures/pic1"" }
+                ],
+                ""items"": [
+                    { ""id"": 101, ""id_string"": ""item1"", ""display_name"": ""Item 1"", ""item_type"": ""key_item"", ""asset_path"": ""Items/item1"" }
+                ],
+                ""picture_difficulties"": [
+                    { ""picture_id"": 1, ""difficulty_id"": 1, ""display_name"": ""Medium"", ""grid_columns"": 8, ""grid_rows"": 6, ""piece_count"": 48, ""star_reward"": 2, ""first_clear_coin"": 60, ""first_clear_hint"": 3, ""replay_coin"": 20, ""first_clear_reward_item_ids"": [101] }
+                ]
+            }";
+            staticDataService.LoadFromText(json);
+
+            var presenter = new RewardSummaryPresenter(null, session, saveService, staticDataService);
+            presenter.ProcessRewardsAndDisplay(15f);
+
+            var save = saveService.Load();
+            Assert.AreEqual(1, save.CompletedPuzzles.Count);
+            Assert.AreEqual(100 + 20, save.Coins); // Replay coin only
+            Assert.AreEqual(2, save.Hints);        // Hints not awarded on replay
+            Assert.AreEqual(20, session.LastCoinEarned);
         }
     }
 }

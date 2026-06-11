@@ -57,6 +57,11 @@ namespace JigsawVina.Presentation.Screens
             _texture = Resources.Load<Texture2D>(picture.AssetPath);
             if (_texture == null)
             {
+                // Fallback to absolute/legacy if resources fails
+                _texture = Resources.Load<Texture2D>("Textures/" + picture.AssetPath);
+            }
+            if (_texture == null)
+            {
                 _texture = new Texture2D(400, 300);
             }
 

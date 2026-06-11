@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using JigsawVina.Core.Data;
 using JigsawVina.Core.Services;
 
@@ -32,7 +33,6 @@ namespace JigsawVina.Presentation.Screens
         {
             var config = _staticDataService.GetPictureDifficulty(_sessionService.SelectedPictureId, _sessionService.SelectedDifficultyId);
             int stars = config.StarReward;
-            int coins = stars * 10;
 
             _sessionService.LastStarCount = stars;
             _sessionService.LastElapsedTimeSeconds = elapsedTimeSeconds;
@@ -40,14 +40,18 @@ namespace JigsawVina.Presentation.Screens
             if (!_sessionService.IsRewardProcessed)
             {
                 var save = _saveDataService.Load();
-                save.Coins += coins;
 
                 var existing = save.CompletedPuzzles.Find(p =>
                     p.PictureId == _sessionService.SelectedPictureId &&
                     p.DifficultyId == _sessionService.SelectedDifficultyId);
 
+                int coins = 0;
                 if (existing != null)
                 {
+                    // Replay reward
+                    coins = config.ReplayCoin > 0 ? config.ReplayCoin : (stars * 10);
+                    save.Coins += coins;
+
                     // Update with best records
                     if (_sessionService.LastElapsedTimeSeconds < existing.BestTimeSeconds || existing.BestTimeSeconds <= 0)
                     {
@@ -60,6 +64,26 @@ namespace JigsawVina.Presentation.Screens
                 }
                 else
                 {
+                    // First Clear reward
+                    coins = config.FirstClearCoin > 0 ? config.FirstClearCoin : (stars * 10);
+                    save.Coins += coins;
+                    save.Hints += config.FirstClearHint;
+
+                    if (config.FirstClearRewardItemIds != null)
+                    {
+                        if (save.OwnedItemIds == null)
+                        {
+                            save.OwnedItemIds = new List<int>();
+                        }
+                        foreach (var itemId in config.FirstClearRewardItemIds)
+                        {
+                            if (!save.OwnedItemIds.Contains(itemId))
+                            {
+                                save.OwnedItemIds.Add(itemId);
+                            }
+                        }
+                    }
+
                     save.CompletedPuzzles.Add(new CompletedPuzzleData
                     {
                         PictureId = _sessionService.SelectedPictureId,
@@ -69,6 +93,7 @@ namespace JigsawVina.Presentation.Screens
                     });
                 }
 
+                _sessionService.LastCoinEarned = coins;
                 _saveDataService.Save(save);
                 _sessionService.IsRewardProcessed = true;
             }
@@ -78,8 +103,7 @@ namespace JigsawVina.Presentation.Screens
         {
             if (_view != null)
             {
-                int coins = _sessionService.LastStarCount * 10;
-                _view.DisplayReward(_sessionService.LastStarCount, coins);
+                _view.DisplayReward(_sessionService.LastStarCount, _sessionService.LastCoinEarned);
             }
         }
     }
