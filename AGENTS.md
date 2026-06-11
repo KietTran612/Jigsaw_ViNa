@@ -55,6 +55,10 @@ Do not use Unity MCP for simple file reads, code search, docs-only changes, or g
 
 Do not run the full validation suite by default. Choose the smallest verification scope that proves the changed behavior.
 
+- By default, run only the specific test case, test class, or filtered validation route for the core behavior currently being changed.
+- Do not run an entire EditMode suite, PlayMode suite, combined test suite, or broad project validation route merely because a menu item or runner is available.
+- Run all tests only when the user explicitly asks for all tests, requests release/final milestone validation, or explicitly approves a proposed broad validation scope.
+- If the available runner cannot target the relevant test narrowly, do not fall back to running the whole suite. Use compile/log checks and the narrowest non-test validation available, then record the targeted test as not run.
 - Docs-only changes: no Unity validation required.
 - Non-Unity helper or scratch changes: no Unity validation unless they affect Unity execution.
 - Unity script changes: wait for Unity compile/import, then check the Console/Editor log for compiler errors.

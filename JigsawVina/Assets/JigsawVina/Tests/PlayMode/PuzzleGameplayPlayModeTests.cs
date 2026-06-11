@@ -42,6 +42,11 @@ namespace JigsawVina.Tests
             var canvasGo = new GameObject("Canvas", typeof(Canvas), typeof(CanvasScaler), typeof(GraphicRaycaster));
             canvasGo.transform.SetParent(_root.transform);
             _canvas = canvasGo.GetComponent<Canvas>();
+            _canvas.renderMode = RenderMode.ScreenSpaceOverlay;
+            var scaler = canvasGo.GetComponent<CanvasScaler>();
+            scaler.uiScaleMode = CanvasScaler.ScaleMode.ScaleWithScreenSize;
+            scaler.referenceResolution = new Vector2(1920f, 1080f);
+            scaler.matchWidthOrHeight = 0.5f;
 
             // Setup Board Container (Position at world zero, size 800x600)
             var boardContainer = new GameObject("BoardContainer", typeof(RectTransform));
@@ -109,6 +114,51 @@ namespace JigsawVina.Tests
             yield return null;
 
             Assert.AreEqual(24, _view.TrayContent.childCount);
+            Assert.AreEqual(0.2f, _view.BoardView.PreviewImage.color.a, 0.001f);
+
+            bool orderChanged = false;
+            for (int i = 0; i < _view.TrayContent.childCount; i++)
+            {
+                if (_view.TrayContent.GetChild(i).GetComponent<PuzzlePieceView>().Index != i)
+                {
+                    orderChanged = true;
+                    break;
+                }
+            }
+            Assert.IsTrue(orderChanged);
+        }
+
+        [UnityTest]
+        public IEnumerator PuzzlePlay_DragPreservesPointerOffsetOnScaledCanvas()
+        {
+            _presenter.Initialize();
+            yield return null;
+
+            var piece = _view.TrayContent.GetChild(0).GetComponent<PuzzlePieceView>();
+            var pieceRect = (RectTransform)piece.transform;
+            Vector2 pieceScreenBefore = RectTransformUtility.WorldToScreenPoint(null, pieceRect.position);
+            Vector2 pointerStart = pieceScreenBefore + new Vector2(25f, 10f);
+
+            var eventData = new PointerEventData(EventSystem.current)
+            {
+                position = pointerStart,
+                pressPosition = pointerStart
+            };
+
+            piece.OnBeginDrag(eventData);
+            eventData.position = pointerStart + new Vector2(20f, 0f);
+            piece.OnDrag(eventData);
+
+            Vector2 pieceScreenAfterBegin = RectTransformUtility.WorldToScreenPoint(null, pieceRect.position);
+            Assert.AreEqual(pieceScreenBefore.x, pieceScreenAfterBegin.x, 1f);
+            Assert.AreEqual(pieceScreenBefore.y, pieceScreenAfterBegin.y, 1f);
+
+            eventData.position += new Vector2(100f, 40f);
+            piece.OnDrag(eventData);
+
+            Vector2 pieceScreenAfterMove = RectTransformUtility.WorldToScreenPoint(null, pieceRect.position);
+            Assert.AreEqual(pieceScreenBefore.x + 100f, pieceScreenAfterMove.x, 1f);
+            Assert.AreEqual(pieceScreenBefore.y + 40f, pieceScreenAfterMove.y, 1f);
         }
 
         [UnityTest]
@@ -199,6 +249,35 @@ namespace JigsawVina.Tests
             var rect = pieceView.GetComponent<RectTransform>();
             Assert.AreEqual(expectedCellSize.x, rect.sizeDelta.x, 0.1f);
             Assert.AreEqual(expectedCellSize.y, rect.sizeDelta.y, 0.1f);
+            Assert.AreEqual(Vector2.one * 0.5f, rect.anchorMin);
+            Assert.AreEqual(Vector2.one * 0.5f, rect.anchorMax);
+            Assert.AreEqual(-333.33f, rect.anchoredPosition.x, 0.1f);
+            Assert.AreEqual(-225f, rect.anchoredPosition.y, 0.1f);
+        }
+
+        [UnityTest]
+        public IEnumerator PuzzlePlay_FailedSnap_ShowsRedOutlineUntilNextDrag()
+        {
+            _presenter.Initialize();
+            yield return null;
+
+            var pieceView = _view.TrayContent.GetChild(0).GetComponent<PuzzlePieceView>();
+            pieceView.transform.SetParent(_view.DragContainer, false);
+            TriggerPieceDragEnd(pieceView, Vector2.zero);
+            yield return null;
+
+            var outline = pieceView.GetComponent<Outline>();
+            Assert.IsNotNull(outline);
+            Assert.IsTrue(outline.enabled);
+            Assert.Greater(outline.effectColor.r, outline.effectColor.g);
+
+            var eventData = new PointerEventData(EventSystem.current)
+            {
+                position = Vector2.zero
+            };
+            pieceView.OnBeginDrag(eventData);
+
+            Assert.IsFalse(outline.enabled);
         }
 
         [UnityTest]

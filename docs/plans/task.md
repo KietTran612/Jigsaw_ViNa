@@ -12,6 +12,8 @@
 | **Task 9: Scene Layout & Editor Setup Update** | [x] | Added version 3 scene setup, texture importer configuration, and separate EditMode/PlayMode test assemblies. |
 | **Task 10: Puzzle Playing Presenter & View wiring** | [x] | Added pointer-offset dragging, random hint fallback, dynamic board sizing, and debug-only Cheat Win. |
 | **Task 11: Win and Reward Flow Integration** | [x] | Persist rewards before win animation and verify duplicate protection through PlayMode tests. |
+| **Task 12: Original Image Opacity Control** | [x] | Replaced preview toggle with a 0-100% slider, defaulting to 20%, and regenerated Gameplay scene wiring. |
+| **Task 13: Tray Shuffle & Invalid Drop Feedback** | [x] | Shuffled tray pieces and added red shake/outline feedback for incorrect placement; manually verified by user. |
 
 ## Completed
 
@@ -29,3 +31,4 @@
 ## Pending
 
 - Manual full click-through from Home picture selection to Gameplay reward return can be run in the open Unity Editor if desired.
+- Manual full-flow/device verification remains optional before delivery.

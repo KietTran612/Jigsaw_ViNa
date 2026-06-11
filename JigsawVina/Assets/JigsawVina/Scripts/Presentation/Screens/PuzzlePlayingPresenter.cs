@@ -10,6 +10,8 @@ namespace JigsawVina.Presentation.Screens
 {
     public class PuzzlePlayingPresenter
     {
+        private const float DefaultPreviewOpacity = 0.2f;
+
         public event Action<float> OnPuzzleCompleted;
 
         private readonly PuzzlePlayingView _view;
@@ -20,10 +22,9 @@ namespace JigsawVina.Presentation.Screens
         private PuzzleSession _puzzleSession;
         private List<PuzzlePieceView> _pieceViews = new();
         private Vector2 _boardCellSize;
-        private float _previewOpacity = 0.2f;
         private Texture2D _texture;
         private bool _isCompleted;
-        private Vector2 _dragPointerOffset;
+        private Vector3 _dragPointerWorldOffset;
 
         public PuzzlePlayingPresenter(
             PuzzlePlayingView view,
@@ -45,10 +46,10 @@ namespace JigsawVina.Presentation.Screens
             _sessionService.BeginPuzzle();
             _puzzleSession = new PuzzleSession(config.Columns, config.Rows);
             _isCompleted = false;
-            _previewOpacity = 0.2f;
 
             _view.Setup(picture.DisplayName ?? "Chưa biết", config.DisplayName);
             _view.UpdateTimer(0f);
+            _view.SetPreviewOpacity(DefaultPreviewOpacity);
 
             var save = _saveDataService.Load();
             _view.UpdateHintButtonLabel(save.Hints);
@@ -100,9 +101,11 @@ namespace JigsawVina.Presentation.Screens
                 _pieceViews.Add(pieceView);
             }
 
+            ShuffleTrayPieces();
+
             _view.OnHintClicked += ApplyHint;
             _view.OnReturnToTrayClicked += ReturnAllFloatingToTray;
-            _view.OnPreviewClicked += TogglePreview;
+            _view.OnPreviewOpacityChanged += SetPreviewOpacity;
         }
 
         public void Cleanup()
@@ -111,7 +114,7 @@ namespace JigsawVina.Presentation.Screens
             {
                 _view.OnHintClicked -= ApplyHint;
                 _view.OnReturnToTrayClicked -= ReturnAllFloatingToTray;
-                _view.OnPreviewClicked -= TogglePreview;
+                _view.OnPreviewOpacityChanged -= SetPreviewOpacity;
             }
         }
 
@@ -147,28 +150,32 @@ namespace JigsawVina.Presentation.Screens
             _puzzleSession.UpdatePieceState(piece.Index, PuzzleSession.PieceState.Floating);
 
             var pieceRect = piece.GetComponent<RectTransform>();
-            RectTransformUtility.ScreenPointToLocalPointInRectangle(
+            piece.transform.SetParent(_view.DragContainer, true);
+            pieceRect.sizeDelta = _boardCellSize;
+
+            if (RectTransformUtility.ScreenPointToWorldPointInRectangle(
                 _view.DragContainer,
                 eventData.position,
                 eventData.pressEventCamera,
-                out Vector2 pointerLocal);
-
-            Vector2 pieceLocal = _view.DragContainer.InverseTransformPoint(pieceRect.position);
-            _dragPointerOffset = pieceLocal - pointerLocal;
-
-            piece.transform.SetParent(_view.DragContainer, true);
-            pieceRect.sizeDelta = _boardCellSize;
+                out Vector3 pointerWorld))
+            {
+                _dragPointerWorldOffset = pieceRect.position - pointerWorld;
+            }
+            else
+            {
+                _dragPointerWorldOffset = Vector3.zero;
+            }
         }
 
         private void HandlePieceDrag(PuzzlePieceView piece, PointerEventData eventData)
         {
-            if (RectTransformUtility.ScreenPointToLocalPointInRectangle(
+            if (RectTransformUtility.ScreenPointToWorldPointInRectangle(
                 _view.DragContainer,
                 eventData.position,
                 eventData.pressEventCamera,
-                out Vector2 localPoint))
+                out Vector3 pointerWorld))
             {
-                piece.GetComponent<RectTransform>().anchoredPosition = localPoint + _dragPointerOffset;
+                piece.transform.position = pointerWorld + _dragPointerWorldOffset;
             }
         }
 
@@ -183,17 +190,14 @@ namespace JigsawVina.Presentation.Screens
 
             if (snapped)
             {
-                piece.transform.SetParent(_view.BoardView.LockedPiecesContainer, false);
-                piece.GetComponent<RectTransform>().sizeDelta = _boardCellSize;
-                piece.GetComponent<RectTransform>().anchoredPosition =
-                    _puzzleSession.GetLocalTargetPosition(piece.Index, boardSize);
-                piece.SetLocked(true);
+                LockPieceView(piece, boardSize);
 
                 CheckWinCondition();
             }
             else
             {
                 _puzzleSession.UpdatePieceState(piece.Index, PuzzleSession.PieceState.Floating);
+                piece.ShowIncorrectFeedback();
             }
         }
 
@@ -215,10 +219,7 @@ namespace JigsawVina.Presentation.Screens
             _puzzleSession.LockPiece(hintIndex);
 
             var boardSize = _view.BoardView.RectTransform.rect.size;
-            piece.transform.SetParent(_view.BoardView.LockedPiecesContainer, false);
-            piece.GetComponent<RectTransform>().sizeDelta = _boardCellSize;
-            piece.GetComponent<RectTransform>().anchoredPosition = _puzzleSession.GetLocalTargetPosition(hintIndex, boardSize);
-            piece.SetLocked(true);
+            LockPieceView(piece, boardSize);
 
             CheckWinCondition();
         }
@@ -239,10 +240,58 @@ namespace JigsawVina.Presentation.Screens
             _puzzleSession.ReturnAllFloatingToTray();
         }
 
-        private void TogglePreview()
+        private void SetPreviewOpacity(float opacity)
         {
-            _previewOpacity = _previewOpacity > 0f ? 0f : 0.5f;
-            _view.BoardView.SetPreviewOpacity(_previewOpacity);
+            _view.BoardView.SetPreviewOpacity(opacity);
+        }
+
+        private void ShuffleTrayPieces()
+        {
+            int pieceCount = _pieceViews.Count;
+            var shuffledIndices = new List<int>(pieceCount);
+            for (int i = 0; i < pieceCount; i++)
+            {
+                shuffledIndices.Add(i);
+            }
+
+            for (int i = pieceCount - 1; i > 0; i--)
+            {
+                int swapIndex = UnityEngine.Random.Range(0, i + 1);
+                (shuffledIndices[i], shuffledIndices[swapIndex]) = (shuffledIndices[swapIndex], shuffledIndices[i]);
+            }
+
+            bool orderChanged = false;
+            for (int i = 0; i < pieceCount; i++)
+            {
+                if (shuffledIndices[i] != i)
+                {
+                    orderChanged = true;
+                    break;
+                }
+            }
+
+            if (!orderChanged && pieceCount > 1)
+            {
+                (shuffledIndices[0], shuffledIndices[1]) = (shuffledIndices[1], shuffledIndices[0]);
+            }
+
+            for (int siblingIndex = 0; siblingIndex < pieceCount; siblingIndex++)
+            {
+                _pieceViews[shuffledIndices[siblingIndex]].transform.SetSiblingIndex(siblingIndex);
+            }
+        }
+
+        private void LockPieceView(PuzzlePieceView piece, Vector2 boardSize)
+        {
+            piece.transform.SetParent(_view.BoardView.LockedPiecesContainer, false);
+
+            var pieceRect = piece.GetComponent<RectTransform>();
+            pieceRect.anchorMin = Vector2.one * 0.5f;
+            pieceRect.anchorMax = Vector2.one * 0.5f;
+            pieceRect.pivot = Vector2.one * 0.5f;
+            pieceRect.sizeDelta = _boardCellSize;
+            pieceRect.anchoredPosition = _puzzleSession.GetLocalTargetPosition(piece.Index, boardSize);
+            piece.SetLocked(true);
         }
 
         private void CheckWinCondition()
@@ -265,10 +314,7 @@ namespace JigsawVina.Presentation.Screens
                 {
                     _puzzleSession.LockPiece(i);
                     var piece = _pieceViews[i];
-                    piece.transform.SetParent(_view.BoardView.LockedPiecesContainer, false);
-                    piece.GetComponent<RectTransform>().sizeDelta = _boardCellSize;
-                    piece.GetComponent<RectTransform>().anchoredPosition = _puzzleSession.GetLocalTargetPosition(i, boardSize);
-                    piece.SetLocked(true);
+                    LockPieceView(piece, boardSize);
                 }
             }
             CheckWinCondition();

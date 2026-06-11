@@ -8,15 +8,16 @@ namespace JigsawVina.Presentation.Screens
     public class PuzzlePlayingView : MonoBehaviour
     {
         public event Action OnBackClicked;
-        public event Action OnPreviewClicked;
+        public event Action<float> OnPreviewOpacityChanged;
         public event Action OnHintClicked;
         public event Action OnReturnToTrayClicked;
         public event Action OnCheatWinClicked;
 
         [SerializeField] private TMP_Text _titleText;
         [SerializeField] private TMP_Text _timerText;
+        [SerializeField] private TMP_Text _previewOpacityText;
         [SerializeField] private Button _backButton;
-        [SerializeField] private Button _previewButton;
+        [SerializeField] private Slider _previewOpacitySlider;
         [SerializeField] private Button _hintButton;
         [SerializeField] private Button _returnToTrayButton;
         [SerializeField] private Button _cheatWinButton;
@@ -35,8 +36,8 @@ namespace JigsawVina.Presentation.Screens
         {
             if (_backButton != null)
                 _backButton.onClick.AddListener(() => OnBackClicked?.Invoke());
-            if (_previewButton != null)
-                _previewButton.onClick.AddListener(() => OnPreviewClicked?.Invoke());
+            if (_previewOpacitySlider != null)
+                _previewOpacitySlider.onValueChanged.AddListener(HandlePreviewOpacityChanged);
             if (_hintButton != null)
                 _hintButton.onClick.AddListener(() => OnHintClicked?.Invoke());
             if (_returnToTrayButton != null)
@@ -51,6 +52,17 @@ namespace JigsawVina.Presentation.Screens
 
             if (_dragContainer != null)
                 _dragContainer.SetAsLastSibling();
+        }
+
+        public void SetPreviewOpacity(float opacity)
+        {
+            opacity = Mathf.Clamp01(opacity);
+            if (_previewOpacitySlider != null)
+            {
+                _previewOpacitySlider.SetValueWithoutNotify(opacity);
+            }
+
+            UpdatePreviewOpacityLabel(opacity);
         }
 
         public void Setup(string pictureName, string difficultyName)
@@ -80,6 +92,20 @@ namespace JigsawVina.Presentation.Screens
                 {
                     textComponent.text = $"Gợi ý ({hintCount})";
                 }
+            }
+        }
+
+        private void HandlePreviewOpacityChanged(float opacity)
+        {
+            UpdatePreviewOpacityLabel(opacity);
+            OnPreviewOpacityChanged?.Invoke(opacity);
+        }
+
+        private void UpdatePreviewOpacityLabel(float opacity)
+        {
+            if (_previewOpacityText != null)
+            {
+                _previewOpacityText.text = $"Ảnh gốc {Mathf.RoundToInt(opacity * 100f)}%";
             }
         }
 

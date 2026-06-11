@@ -7,6 +7,8 @@ namespace JigsawVina.Presentation.Screens
 {
     public class PuzzleBoardView : MonoBehaviour
     {
+        private const float DefaultPreviewOpacity = 0.2f;
+
         [SerializeField] private Image _previewImage;
         [SerializeField] private RectTransform _lockedPiecesContainer;
 
@@ -19,8 +21,7 @@ namespace JigsawVina.Presentation.Screens
             if (_previewImage != null)
             {
                 _previewImage.sprite = sprite;
-                // Set default preview opacity to dimmed
-                SetPreviewOpacity(0.2f);
+                SetPreviewOpacity(DefaultPreviewOpacity);
             }
         }
 

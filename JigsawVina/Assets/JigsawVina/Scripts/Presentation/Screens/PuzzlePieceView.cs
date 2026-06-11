@@ -1,4 +1,5 @@
 using System;
+using System.Collections;
 using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.UI;
@@ -23,6 +24,8 @@ namespace JigsawVina.Presentation.Screens
         private bool _isScrollingTray;
         private ScrollRect _activeScrollRect;
         private RectTransform _rectTransform;
+        private Outline _invalidOutline;
+        private Coroutine _invalidFeedbackCoroutine;
 
         private void Awake()
         {
@@ -41,6 +44,19 @@ namespace JigsawVina.Presentation.Screens
             {
                 _image = GetComponent<Image>();
             }
+            if (_invalidOutline == null)
+            {
+                _invalidOutline = GetComponent<Outline>();
+                if (_invalidOutline == null)
+                {
+                    _invalidOutline = gameObject.AddComponent<Outline>();
+                }
+
+                _invalidOutline.effectColor = new Color(0.95f, 0.12f, 0.12f, 1f);
+                _invalidOutline.effectDistance = new Vector2(4f, -4f);
+                _invalidOutline.useGraphicAlpha = true;
+                _invalidOutline.enabled = false;
+            }
             if (_image != null)
             {
                 _image.sprite = sprite;
@@ -54,9 +70,46 @@ namespace JigsawVina.Presentation.Screens
         public void SetLocked(bool locked)
         {
             IsLocked = locked;
+            if (locked)
+            {
+                ClearIncorrectFeedback();
+            }
             if (_image != null)
             {
                 _image.raycastTarget = !locked;
+            }
+        }
+
+        public void ShowIncorrectFeedback()
+        {
+            if (IsLocked || _rectTransform == null)
+            {
+                return;
+            }
+
+            if (_invalidOutline != null)
+            {
+                _invalidOutline.enabled = true;
+            }
+
+            if (_invalidFeedbackCoroutine != null)
+            {
+                StopCoroutine(_invalidFeedbackCoroutine);
+            }
+            _invalidFeedbackCoroutine = StartCoroutine(ShakeIncorrectPiece());
+        }
+
+        public void ClearIncorrectFeedback()
+        {
+            if (_invalidFeedbackCoroutine != null)
+            {
+                StopCoroutine(_invalidFeedbackCoroutine);
+                _invalidFeedbackCoroutine = null;
+            }
+
+            if (_invalidOutline != null)
+            {
+                _invalidOutline.enabled = false;
             }
         }
 
@@ -70,6 +123,7 @@ namespace JigsawVina.Presentation.Screens
         {
             if (IsLocked) return;
 
+            ClearIncorrectFeedback();
             _startPosition = eventData.position;
             _isClassificationPending = true;
             _isDraggingPiece = false;
@@ -130,6 +184,27 @@ namespace JigsawVina.Presentation.Screens
             _isDraggingPiece = false;
             _isScrollingTray = false;
             _activeScrollRect = null;
+        }
+
+        private IEnumerator ShakeIncorrectPiece()
+        {
+            Vector2 basePosition = _rectTransform.anchoredPosition;
+            const float duration = 0.4f;
+            const float amplitude = 12f;
+            const float frequency = 28f;
+            float elapsed = 0f;
+
+            while (elapsed < duration)
+            {
+                elapsed += Time.unscaledDeltaTime;
+                float strength = 1f - Mathf.Clamp01(elapsed / duration);
+                float offset = Mathf.Sin(elapsed * frequency) * amplitude * strength;
+                _rectTransform.anchoredPosition = basePosition + Vector2.right * offset;
+                yield return null;
+            }
+
+            _rectTransform.anchoredPosition = basePosition;
+            _invalidFeedbackCoroutine = null;
         }
     }
 }

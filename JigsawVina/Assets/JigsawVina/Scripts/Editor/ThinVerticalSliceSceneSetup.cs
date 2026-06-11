@@ -118,7 +118,7 @@ namespace JigsawVina.Editor
             VContainerSettings.LoadInstanceFromPreloadAssets();
         }
 
-        private static bool CheckSceneAlreadyUpdated(string scenePath)
+        private static bool CheckSceneAlreadyUpdated(string scenePath, string markerName)
         {
             if (AssetDatabase.LoadAssetAtPath<SceneAsset>(scenePath) == null)
             {
@@ -126,13 +126,13 @@ namespace JigsawVina.Editor
             }
 
             var scene = EditorSceneManager.OpenScene(scenePath, OpenSceneMode.Single);
-            var marker = GameObject.Find("SetupVersionMarker_v3");
+            var marker = GameObject.Find(markerName);
             return marker != null;
         }
 
         private static void CreateHomeScene()
         {
-            if (CheckSceneAlreadyUpdated(HomeScenePath))
+            if (CheckSceneAlreadyUpdated(HomeScenePath, "SetupVersionMarker_v3"))
             {
                 return;
             }
@@ -178,7 +178,7 @@ namespace JigsawVina.Editor
 
         private static void CreateGameplayScene()
         {
-            if (CheckSceneAlreadyUpdated(GameplayScenePath))
+            if (CheckSceneAlreadyUpdated(GameplayScenePath, "SetupVersionMarker_v4"))
             {
                 return;
             }
@@ -186,7 +186,7 @@ namespace JigsawVina.Editor
             var scene = EditorSceneManager.NewScene(NewSceneSetup.EmptyScene, NewSceneMode.Single);
             scene.name = "Gameplay";
 
-            new GameObject("SetupVersionMarker_v3");
+            new GameObject("SetupVersionMarker_v4");
 
             CreateCamera();
             CreateEventSystem();
@@ -219,10 +219,12 @@ namespace JigsawVina.Editor
             var backButton = CreateButton(topBar.transform, "BackButton", "Quay lại", new Vector2(-800f, 0f), new Vector2(200f, 60f));
             var titleText = AddHeader(topBar.transform, "Hồ Gươm - Dễ", new Vector2(-400f, 0f), new Vector2(400f, 60f));
             var timerText = AddHeader(topBar.transform, "Thời gian: 00:00", new Vector2(0f, 0f), new Vector2(300f, 60f));
-            var previewButton = CreateButton(topBar.transform, "PreviewButton", "Xem trước", new Vector2(300f, 0f), new Vector2(200f, 60f));
-            var hintButton = CreateButton(topBar.transform, "HintButton", "Gợi ý", new Vector2(520f, 0f), new Vector2(180f, 60f));
-            var returnToTrayButton = CreateButton(topBar.transform, "ReturnToTrayButton", "Xếp lại", new Vector2(720f, 0f), new Vector2(160f, 60f));
-            var cheatButton = CreateButton(topBar.transform, "CheatWinButton", "Debug Win", new Vector2(880f, 0f), new Vector2(120f, 60f));
+            var previewOpacityText = AddHeader(topBar.transform, "Ảnh gốc 20%", new Vector2(275f, 0f), new Vector2(180f, 60f));
+            previewOpacityText.fontSize = 22f;
+            var previewOpacitySlider = CreateSlider(topBar.transform, "PreviewOpacitySlider", new Vector2(435f, 0f), new Vector2(150f, 30f), 0.2f);
+            var hintButton = CreateButton(topBar.transform, "HintButton", "Gợi ý", new Vector2(590f, 0f), new Vector2(150f, 60f));
+            var returnToTrayButton = CreateButton(topBar.transform, "ReturnToTrayButton", "Xếp lại", new Vector2(755f, 0f), new Vector2(150f, 60f));
+            var cheatButton = CreateButton(topBar.transform, "CheatWinButton", "Debug Win", new Vector2(900f, 0f), new Vector2(120f, 60f));
 
             var mainArea = new GameObject("MainArea", typeof(RectTransform));
             mainArea.transform.SetParent(playingScreen.transform, false);
@@ -330,8 +332,9 @@ namespace JigsawVina.Editor
 
             Assign(playingView, "_titleText", titleText);
             Assign(playingView, "_timerText", timerText);
+            Assign(playingView, "_previewOpacityText", previewOpacityText);
             Assign(playingView, "_backButton", backButton);
-            Assign(playingView, "_previewButton", previewButton);
+            Assign(playingView, "_previewOpacitySlider", previewOpacitySlider);
             Assign(playingView, "_hintButton", hintButton);
             Assign(playingView, "_returnToTrayButton", returnToTrayButton);
             Assign(playingView, "_cheatWinButton", cheatButton);
@@ -459,6 +462,68 @@ namespace JigsawVina.Editor
             text.raycastTarget = false;
 
             return button;
+        }
+
+        private static Slider CreateSlider(Transform parent, string name, Vector2 anchoredPosition, Vector2 sizeDelta, float value)
+        {
+            var sliderObject = new GameObject(name, typeof(RectTransform));
+            sliderObject.transform.SetParent(parent, false);
+            var sliderRect = (RectTransform)sliderObject.transform;
+            sliderRect.sizeDelta = sizeDelta;
+            sliderRect.anchoredPosition = anchoredPosition;
+
+            var backgroundObject = new GameObject("Background", typeof(RectTransform), typeof(Image));
+            backgroundObject.transform.SetParent(sliderObject.transform, false);
+            var backgroundRect = (RectTransform)backgroundObject.transform;
+            backgroundRect.anchorMin = new Vector2(0f, 0.25f);
+            backgroundRect.anchorMax = new Vector2(1f, 0.75f);
+            backgroundRect.offsetMin = Vector2.zero;
+            backgroundRect.offsetMax = Vector2.zero;
+            backgroundObject.GetComponent<Image>().color = new Color(0.15f, 0.18f, 0.22f);
+
+            var fillAreaObject = new GameObject("Fill Area", typeof(RectTransform));
+            fillAreaObject.transform.SetParent(sliderObject.transform, false);
+            var fillAreaRect = (RectTransform)fillAreaObject.transform;
+            fillAreaRect.anchorMin = new Vector2(0f, 0.25f);
+            fillAreaRect.anchorMax = new Vector2(1f, 0.75f);
+            fillAreaRect.offsetMin = new Vector2(8f, 0f);
+            fillAreaRect.offsetMax = new Vector2(-8f, 0f);
+
+            var fillObject = new GameObject("Fill", typeof(RectTransform), typeof(Image));
+            fillObject.transform.SetParent(fillAreaObject.transform, false);
+            var fillRect = (RectTransform)fillObject.transform;
+            fillRect.anchorMin = Vector2.zero;
+            fillRect.anchorMax = Vector2.one;
+            fillRect.offsetMin = Vector2.zero;
+            fillRect.offsetMax = Vector2.zero;
+            var fillImage = fillObject.GetComponent<Image>();
+            fillImage.color = new Color(0.18f, 0.65f, 0.95f);
+
+            var handleAreaObject = new GameObject("Handle Slide Area", typeof(RectTransform));
+            handleAreaObject.transform.SetParent(sliderObject.transform, false);
+            var handleAreaRect = (RectTransform)handleAreaObject.transform;
+            handleAreaRect.anchorMin = Vector2.zero;
+            handleAreaRect.anchorMax = Vector2.one;
+            handleAreaRect.offsetMin = new Vector2(8f, 0f);
+            handleAreaRect.offsetMax = new Vector2(-8f, 0f);
+
+            var handleObject = new GameObject("Handle", typeof(RectTransform), typeof(Image));
+            handleObject.transform.SetParent(handleAreaObject.transform, false);
+            var handleRect = (RectTransform)handleObject.transform;
+            handleRect.sizeDelta = new Vector2(24f, 36f);
+            var handleImage = handleObject.GetComponent<Image>();
+            handleImage.color = Color.white;
+
+            var slider = sliderObject.AddComponent<Slider>();
+            slider.minValue = 0f;
+            slider.maxValue = 1f;
+            slider.wholeNumbers = false;
+            slider.fillRect = fillRect;
+            slider.handleRect = handleRect;
+            slider.targetGraphic = handleImage;
+            slider.direction = Slider.Direction.LeftToRight;
+            slider.SetValueWithoutNotify(value);
+            return slider;
         }
 
         private static void Assign(UnityEngine.Object target, string fieldName, UnityEngine.Object value)
