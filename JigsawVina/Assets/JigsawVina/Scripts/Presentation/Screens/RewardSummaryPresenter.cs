@@ -8,63 +8,79 @@ namespace JigsawVina.Presentation.Screens
         private readonly RewardSummaryView _view;
         private readonly GameSessionService _sessionService;
         private readonly ISaveDataService _saveDataService;
+        private readonly IStaticDataService _staticDataService;
 
         public RewardSummaryPresenter(
             RewardSummaryView view,
             GameSessionService sessionService,
-            ISaveDataService saveDataService)
+            ISaveDataService saveDataService,
+            IStaticDataService staticDataService)
         {
             _view = view;
             _sessionService = sessionService;
             _saveDataService = saveDataService;
+            _staticDataService = staticDataService;
         }
 
         public void ProcessRewardsAndDisplay(float elapsedTimeSeconds)
         {
-            int stars = _sessionService.SelectedDifficultyId switch
-            {
-                0 => 1,
-                1 => 2,
-                2 => 3,
-                _ => 1
-            };
+            ProcessRewards(elapsedTimeSeconds);
+            DisplayProcessedReward();
+        }
+
+        public void ProcessRewards(float elapsedTimeSeconds)
+        {
+            var config = _staticDataService.GetPictureDifficulty(_sessionService.SelectedPictureId, _sessionService.SelectedDifficultyId);
+            int stars = config.StarReward;
             int coins = stars * 10;
 
             _sessionService.LastStarCount = stars;
             _sessionService.LastElapsedTimeSeconds = elapsedTimeSeconds;
 
-            var save = _saveDataService.Load();
-            save.Coins += coins;
-
-            var existing = save.CompletedPuzzles.Find(p =>
-                p.PictureId == _sessionService.SelectedPictureId &&
-                p.DifficultyId == _sessionService.SelectedDifficultyId);
-
-            if (existing == null)
+            if (!_sessionService.IsRewardProcessed)
             {
-                save.CompletedPuzzles.Add(new CompletedPuzzleData
+                var save = _saveDataService.Load();
+                save.Coins += coins;
+
+                var existing = save.CompletedPuzzles.Find(p =>
+                    p.PictureId == _sessionService.SelectedPictureId &&
+                    p.DifficultyId == _sessionService.SelectedDifficultyId);
+
+                if (existing != null)
                 {
-                    PictureId = _sessionService.SelectedPictureId,
-                    DifficultyId = _sessionService.SelectedDifficultyId,
-                    BestTimeSeconds = elapsedTimeSeconds,
-                    BestStar = stars
-                });
-            }
-            else
-            {
-                if (elapsedTimeSeconds < existing.BestTimeSeconds || existing.BestTimeSeconds <= 0f)
+                    // Update with best records
+                    if (_sessionService.LastElapsedTimeSeconds < existing.BestTimeSeconds || existing.BestTimeSeconds <= 0)
+                    {
+                        existing.BestTimeSeconds = _sessionService.LastElapsedTimeSeconds;
+                    }
+                    if (stars > existing.BestStar)
+                    {
+                        existing.BestStar = stars;
+                    }
+                }
+                else
                 {
-                    existing.BestTimeSeconds = elapsedTimeSeconds;
+                    save.CompletedPuzzles.Add(new CompletedPuzzleData
+                    {
+                        PictureId = _sessionService.SelectedPictureId,
+                        DifficultyId = _sessionService.SelectedDifficultyId,
+                        BestTimeSeconds = _sessionService.LastElapsedTimeSeconds,
+                        BestStar = stars
+                    });
                 }
 
-                if (stars > existing.BestStar)
-                {
-                    existing.BestStar = stars;
-                }
+                _saveDataService.Save(save);
+                _sessionService.IsRewardProcessed = true;
             }
+        }
 
-            _saveDataService.Save(save);
-            _view?.DisplayReward(stars, coins);
+        public void DisplayProcessedReward()
+        {
+            if (_view != null)
+            {
+                int coins = _sessionService.LastStarCount * 10;
+                _view.DisplayReward(_sessionService.LastStarCount, coins);
+            }
         }
     }
 }

@@ -30,7 +30,8 @@ namespace JigsawVina.Tests
             session.SetSelectedPicture(1);
             session.SetSelectedDifficulty(1);
 
-            var presenter = new RewardSummaryPresenter(null, session, saveService);
+            var staticDataService = new StaticDataService();
+            var presenter = new RewardSummaryPresenter(null, session, saveService, staticDataService);
             presenter.ProcessRewardsAndDisplay(12f);
 
             var save = saveService.Load();
@@ -57,7 +58,8 @@ namespace JigsawVina.Tests
             session.SetSelectedPicture(1);
             session.SetSelectedDifficulty(1);
 
-            var presenter = new RewardSummaryPresenter(null, session, saveService);
+            var staticDataService = new StaticDataService();
+            var presenter = new RewardSummaryPresenter(null, session, saveService, staticDataService);
             presenter.ProcessRewardsAndDisplay(20f);
 
             var save = saveService.Load();
@@ -82,7 +84,8 @@ namespace JigsawVina.Tests
             session.SetSelectedPicture(1);
             session.SetSelectedDifficulty(1);
 
-            var presenter = new RewardSummaryPresenter(null, session, saveService);
+            var staticDataService = new StaticDataService();
+            var presenter = new RewardSummaryPresenter(null, session, saveService, staticDataService);
             presenter.ProcessRewardsAndDisplay(15f);
 
             var save = saveService.Load();

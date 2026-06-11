@@ -2,38 +2,33 @@
 
 ## Latest Completed Work
 
-- Completed thin vertical slice **Tasks 4-6**.
-- Added Home scene UI layer: `PictureSelectView/Presenter`, `DifficultySelectView/Presenter`, `HomeLifetimeScope`, and `HomeFlowController`.
-- Added Gameplay scene UI layer: `PuzzlePlayingView/Presenter`, `RewardSummaryView/Presenter`, `GameplayLifetimeScope`, and `GameplayFlowController`.
-- Added reward progression upsert coverage in `ProgressionTests`.
-- Added editor setup route `JigsawVina/Setup Thin Vertical Slice Scenes` to generate Home/Gameplay scenes, project root lifetime scope prefab, VContainer settings, and build settings.
+- Completed and reviewed **Tasks 7-11** from the [2026-06-11-jigsaw-gameplay.md](2026-06-11-jigsaw-gameplay.md) implementation plan.
+- Implemented **Puzzle Gameplay State Model**: created [PuzzleSession](file:///d:/soflware/Unity/Source/Jigsaw_ViNa/JigsawVina/Assets/JigsawVina/Scripts/Core/Data/PuzzleSession.cs) to handle elapsed time, snapping margins, hint indexing prioritizing the last interacted piece, and completion state.
+- Implemented **UI Visual & Drag-Drop Interaction**:
+  - Created [PuzzlePieceView](file:///d:/soflware/Unity/Source/Jigsaw_ViNa/JigsawVina/Assets/JigsawVina/Scripts/Presentation/Screens/PuzzlePieceView.cs) supporting pointer-offset dragging, tray-only vertical scrolling, and horizontal drag threshold gesture classification.
+  - Created [PuzzleBoardView](file:///d:/soflware/Unity/Source/Jigsaw_ViNa/JigsawVina/Assets/JigsawVina/Scripts/Presentation/Screens/PuzzleBoardView.cs) supporting async completed image fade-in and opacity settings.
+- Wired up **Gameplay loop & Presenters**: modified [PuzzlePlayingPresenter](file:///d:/soflware/Unity/Source/Jigsaw_ViNa/JigsawVina/Assets/JigsawVina/Scripts/Presentation/Screens/PuzzlePlayingPresenter.cs) to procedurally slice picture textures, position pieces, drive hint locks, and trigger win flows.
+- Implemented **Idempotent Scene Setup**: updated [ThinVerticalSliceSceneSetup](file:///d:/soflware/Unity/Source/Jigsaw_ViNa/JigsawVina/Assets/JigsawVina/Scripts/Editor/ThinVerticalSliceSceneSetup.cs) to use `SetupVersionMarker_v3`, keep `DragContainer` as the top render sibling, and configure puzzle textures for runtime slicing.
+- Integrated **Win Lifecycle and Transitions**: rewards are persisted immediately when completion is detected, before the presentation-only animation. `Debug Win` remains available in Editor/Development builds and is hidden in release builds.
+- Replaced square puzzle images with true `1440x1080` 4:3 landscape textures.
+- Split tests into `JigsawVina.Tests` EditMode and `JigsawVina.PlayModeTests` PlayMode assemblies so Unity discovers both suites correctly.
 
 ## Verification
 
-- Unity MCP available and used directly.
-- TDD RED observed for `ProgressionTests`: compile failed because `JigsawVina.Presentation.Screens` / `RewardSummaryPresenter` did not exist yet.
-- Fresh EditMode test run via `JigsawVina/Run EditMode Tests`: `Pass: 6, Fail: 0, Skip: 0`.
-- Scene hierarchy checked through Unity MCP for `Assets/Scenes/Home.unity` and `Assets/Scenes/Gameplay.unity`.
-- Setup idempotency checked by running `JigsawVina/Setup Thin Vertical Slice Scenes` twice after the fix; SHA256 for Home scene, Gameplay scene, `EditorBuildSettings.asset`, and `ProjectSettings.asset` stayed unchanged on the second run.
-- Play Mode startup smoke checks ran for Home and Gameplay scenes with no Console errors observed in the fresh logs.
+- **EditMode Test Suite**: `17 passed, 0 failed, 0 skipped`.
+- **PlayMode Test Suite**: `6 passed, 0 failed, 0 skipped`.
+- **Compiler Check**: Unity finished importing/compiling with no C# compiler errors.
+- **Asset Check**: both gameplay textures are `1440x1080` with a 4:3 ratio.
 
 ## Known Warnings Or Blockers
 
-- Full click-through interaction from Home picture selection to Gameplay reward return was not automated because the exposed MCP tools do not provide UI click input. Run it manually in the Unity Editor if full UX validation is needed.
-- Unity/MCP logs include unrelated MCP websocket discover/connect noise; no compiler or runtime errors were observed during the targeted checks.
+- Manual device/full mouse or touch click-through has not been run in this review.
 
-## Current Uncommitted Scope
+## Delivery Scope
 
-- `.gitignore`
-- `.mcp.json`
-- `docs/plans/task.md`
-- `docs/plans/current-handoff.md`
-- `docs/plans/index.md`
-- `docs/plans/2026-06-10-thin-vertical-slice-design.md`
-- `docs/plans/2026-06-10-thin-vertical-slice-implementation.md`
-- `docs/SETUP_UNITY_MCP.md`
-- `JigsawVina/`
+- Tasks 7-11 gameplay source, tests, generated scenes, puzzle textures, and planning/handoff documentation.
+- Unrelated `Assets/Textures/` and `docs/Images/Picture_2..5/` content is outside this delivery scope.
 
 ## Recommended Next Task
 
-- Run the manual full click-through in Unity, then proceed to the next vertical slice: replacing the Cheat Win placeholder with real puzzle board/piece interaction.
+- Perform a final manual click-through on the target device/input profile, then package the task for delivery.

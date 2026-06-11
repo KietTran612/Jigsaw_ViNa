@@ -1,0 +1,25 @@
+{
+    "name": "JigsawVina.PlayModeTests",
+    "rootNamespace": "JigsawVina.Tests",
+    "references": [
+        "JigsawVina",
+        "UniTask",
+        "VContainer",
+        "Unity.TextMeshPro",
+        "Unity.ugui"
+    ],
+    "optionalUnityReferences": [
+        "TestAssemblies"
+    ],
+    "includePlatforms": [],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": false,
+    "defineConstraints": [
+        "UNITY_INCLUDE_TESTS"
+    ],
+    "versionDefines": [],
+    "noEngineReferences": false
+}

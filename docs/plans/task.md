@@ -7,6 +7,11 @@
 | **Task 4: Home Scene UI & Presenters** | [x] | Implemented PictureSelectView/Presenter, DifficultySelectView/Presenter, HomeLifetimeScope, and HomeFlowController. |
 | **Task 5: Gameplay Scene UI, Progression Logic & Tests** | [x] | Implemented PuzzlePlayingView/Presenter, RewardSummaryView/Presenter, GameplayLifetimeScope, GameplayFlowController, and ProgressionTests. |
 | **Task 6: Unity Scene Wire Up & Manual Run** | [x] | Set up VContainer settings, build settings, Home/Gameplay scene hierarchy, and Play Mode startup smoke checks. Full click-through remains manual. |
+| **Task 7: Puzzle Session Data Model & Tests** | [x] | Create PuzzleSession and NUnit PuzzleSessionTests verifying snap, hint, and timer logic. |
+| **Task 8: UI Visual Components & Asset Generation** | [x] | Added 1440x1080 gameplay textures plus tested tray/floating drag behavior. |
+| **Task 9: Scene Layout & Editor Setup Update** | [x] | Added version 3 scene setup, texture importer configuration, and separate EditMode/PlayMode test assemblies. |
+| **Task 10: Puzzle Playing Presenter & View wiring** | [x] | Added pointer-offset dragging, random hint fallback, dynamic board sizing, and debug-only Cheat Win. |
+| **Task 11: Win and Reward Flow Integration** | [x] | Persist rewards before win animation and verify duplicate protection through PlayMode tests. |
 
 ## Completed
 
