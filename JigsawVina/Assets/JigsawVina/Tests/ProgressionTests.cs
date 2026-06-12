@@ -108,8 +108,13 @@ namespace JigsawVina.Tests
 
             var staticDataService = new StaticDataService(false);
             var json = @"{
+                ""schema_version"": 1,
+                ""data_version"": 1,
+                ""categories"": [
+                    { ""id"": 1, ""id_string"": ""vietnam_landscapes"", ""display_name"": ""Phong Cảnh Việt Nam"" }
+                ],
                 ""pictures"": [
-                    { ""id"": 1, ""id_string"": ""pic1"", ""display_name"": ""Pic 1"", ""asset_path"": ""Textures/pic1"" }
+                    { ""id"": 1, ""id_string"": ""pic1"", ""display_name"": ""Pic 1"", ""category_id"": 1, ""asset_path"": ""Textures/pic1"" }
                 ],
                 ""items"": [
                     { ""id"": 101, ""id_string"": ""item1"", ""display_name"": ""Item 1"", ""item_type"": ""key_item"", ""asset_path"": ""Items/item1"" }
@@ -152,8 +157,13 @@ namespace JigsawVina.Tests
 
             var staticDataService = new StaticDataService(false);
             var json = @"{
+                ""schema_version"": 1,
+                ""data_version"": 1,
+                ""categories"": [
+                    { ""id"": 1, ""id_string"": ""vietnam_landscapes"", ""display_name"": ""Phong Cảnh Việt Nam"" }
+                ],
                 ""pictures"": [
-                    { ""id"": 1, ""id_string"": ""pic1"", ""display_name"": ""Pic 1"", ""asset_path"": ""Textures/pic1"" }
+                    { ""id"": 1, ""id_string"": ""pic1"", ""display_name"": ""Pic 1"", ""category_id"": 1, ""asset_path"": ""Textures/pic1"" }
                 ],
                 ""items"": [
                     { ""id"": 101, ""id_string"": ""item1"", ""display_name"": ""Item 1"", ""item_type"": ""key_item"", ""asset_path"": ""Items/item1"" }

@@ -9,6 +9,8 @@ namespace JigsawVina.Core.Data
         public int id;
         public string id_string;
         public string display_name;
+        public string display_name_key;
+        public string description_key;
     }
 
     [Serializable]
@@ -20,6 +22,8 @@ namespace JigsawVina.Core.Data
         public int category_id;
         public string asset_path;
         public string difficulty_unlock_policy;
+        public string display_name_key;
+        public string description_key;
     }
 
     [Serializable]

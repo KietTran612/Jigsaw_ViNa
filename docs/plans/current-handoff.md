@@ -2,26 +2,35 @@
 
 ## Latest Completed Work
 
-- **Task 25: Hiển thị hình ảnh trong dropdown Reward Key Item và ô xem trước**:
-  - Chuyển đổi trường chọn phần thưởng `Reward Key Item` từ hiển thị text đơn thuần sang sử dụng `GUIContent` chứa kèm theo Texture2D của Key Items.
-  - Thêm ô xem trước (preview thumbnail) kích thước $24 \times 24$ pixel có viền bạc bên phải dropdown để biểu diễn hình ảnh phóng to của vật phẩm đã chọn trực quan, tự động hiển thị placeholder xám tối khi chọn "None".
-  - Hoàn thiện tài liệu thiết kế và kế hoạch tại `docs/plans/2026-06-12-reward-item-dropdown-images-design.md` và `docs/plans/2026-06-12-reward-item-dropdown-images.md`.
-
-- **Task 24: Automated Editor Tests & Validation Bugfixes**:
-  - Auto-Repair Malformed Reserved Items, Preservation of Unknown Item Types, and Unlock All Cheat Deduplication.
-  - Reverted P1/P2 ID and texture swaps to keep save files stable.
-  - Fixed IMGUI text input focus bugs by introducing GUI.FocusControl(null).
+- **Task 26: Cấu hình Localization Keys & Sửa lỗi Review**:
+  - **Localization Keys GUI & Config**: Thêm trường `display_name_key` và `description_key` vào các DTO (`CategoryDto`, `PictureDto`, `ItemDto`), `PictureConfig` runtime và giao diện cấu hình của `JigsawVinaGameDataEditor.cs`.
+  - **Auto-Generation Rules**: Hỗ trợ tự động điền mã ngôn ngữ theo định dạng chuẩn nếu bỏ trống:
+    - Tranh: `picture.<id_string>.name` / `picture.<id_string>.description`
+    - Danh mục: `category.<id_string>.name` / `category.<id_string>.description`
+    - Key Items: `item.<id_string>.name` / `item.<id_string>.description`
+  - **Sửa P1 (Save mẫu & Difficulty ID)**: Đồng bộ file `docs/jigsaw_vietnam_player_save_sample_v0_1.json` khớp với runtime save schema và đổi giá trị difficulty_id về định dạng `0/1/2` (thay cho `1/2/3`) trong cả save mẫu lẫn static data mẫu.
+  - **Sửa P2 (Runtime Validator)**: Tích hợp bộ kiểm tra tĩnh toàn diện vào `StaticDataService.cs` (kiểm tra schema_version, Category reference, trùng lặp picture/item/difficulty ID, giới hạn key items, giá trị âm và piece count).
+  - **Sửa P2 (Nguồn dữ liệu thừa)**: Xóa bỏ file `Assets/Resources/StaticData.json` và `.meta` đi kèm.
+  - **Sửa lỗi Unit / PlayMode Tests**:
+    - Cập nhật mock JSON trong `ProgressionTests.cs` và `StaticDataServiceTests.cs` bổ sung trường phiên bản và cấu trúc danh mục hợp lệ để vượt qua bộ lọc validator mới.
+    - Sửa lỗi trong `PuzzleGameplayPlayModeTests.cs` chuyển các tham chiếu tĩnh `GetChild(0)` sang tìm kiếm `PuzzlePieceView` theo chỉ số index thực tế nhằm hỗ trợ thuật toán xáo trộn khay tranh (Tray Shuffling) đã triển khai trước đó.
 
 ## Verification
 
-- **Compiler & Reload Status**: Unity đã hoàn tất biên dịch tập lệnh với trạng thái hoàn toàn sạch sẽ (0 lỗi, 0 cảnh báo). Giao diện Game Data Editor hoạt động mượt mà.
-- **Visual Verification**: Chụp ảnh màn hình Editor (`screenshot_editor`) xác nhận ô xem trước được hiển thị chính xác ở cả 3 độ khó bên cạnh các ô chọn Reward Key Item.
-- **Test Status**: Các test EditMode của `JigsawVinaGameDataEditorTests` được biên dịch thành công. Việc chạy tự động kiểm thử được bỏ qua theo yêu cầu trước đó của người dùng.
+- **Compiler Status**: Unity biên dịch thành công 100% không cảnh báo/lỗi.
+- **Automated Tests**:
+  - EditMode tests: 39/39 passed (bao gồm tất cả các kiểm tra logic, validator, cheat editor, và cấu trúc DTO).
+  - PlayMode tests: 8/8 passed (bao gồm kiểm thử kéo thả, hoàn thành màn chơi, gợi ý, trả khay tranh và lưu dữ liệu).
+- **Manual Verification**: Đã chạy phương thức `DebugSave()` từ xa qua MCP, tái tạo thành công file cấu hình JSON chính xác `jigsaw_vina_game_data.json` chứa đầy đủ các khóa ngôn ngữ hiển thị.
 
-## Known Warnings Or Blockers
+## Current Uncommitted Scope
 
-- Không có.
+- Thay đổi trong các tệp C# runtime (`PlayerSave.cs`, `StaticDataDto.cs`, `StaticDataService.cs`).
+- Giao diện Editor (`JigsawVinaGameDataEditor.cs`).
+- Các tệp kiểm thử chỉnh sửa (`ProgressionTests.cs`, `StaticDataServiceTests.cs`, `PuzzleGameplayPlayModeTests.cs`).
+- Các tệp dữ liệu JSON mẫu và thực tế (`jigsaw_vietnam_player_save_sample_v0_1.json`, `jigsaw_vietnam_static_data_sample_v0_1.json`, `jigsaw_vina_game_data.json`).
+- Xóa bỏ `StaticData.json` và `.meta`.
 
 ## Recommended Next Steps
 
-- Mở rộng thêm các tính năng gameplay hoặc tiến hành commit các thay đổi hiện tại.
+- Thực hiện commit toàn bộ thay đổi lên Git nhánh hiện tại nếu người dùng đồng ý.

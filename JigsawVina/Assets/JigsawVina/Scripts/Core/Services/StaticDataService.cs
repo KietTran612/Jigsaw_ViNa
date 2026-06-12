@@ -45,8 +45,8 @@ namespace JigsawVina.Core.Services
         {
             _pictures = new List<PictureConfig>
             {
-                new PictureConfig(1, "ho_guom", "Hồ Gươm", "Textures/ho_guom"),
-                new PictureConfig(2, "ha_long", "Vịnh Hạ Long", "Textures/ha_long")
+                new PictureConfig(1, "ho_guom", "Hồ Gươm", "Textures/ho_guom", "picture.ho_guom.name", "picture.ho_guom.description"),
+                new PictureConfig(2, "ha_long", "Vịnh Hạ Long", "Textures/ha_long", "picture.ha_long.name", "picture.ha_long.description")
             };
 
             _difficulties = new Dictionary<(int, int), PictureDifficultyConfig>
@@ -82,7 +82,9 @@ namespace JigsawVina.Core.Services
                 p.id, 
                 p.id_string, 
                 p.display_name, 
-                p.asset_path
+                p.asset_path,
+                p.display_name_key,
+                p.description_key
             )).ToList();
 
             _difficulties = new Dictionary<(int, int), PictureDifficultyConfig>();
@@ -107,18 +109,41 @@ namespace JigsawVina.Core.Services
 
         private void ValidateStaticData(StaticDataDto dto)
         {
+            if (dto.schema_version <= 0)
+                throw new InvalidOperationException("schema_version must be a positive integer.");
+            if (dto.data_version <= 0)
+                throw new InvalidOperationException("data_version must be a positive integer.");
+
+            var catIds = new HashSet<int>();
+            if (dto.categories != null)
+            {
+                foreach (var cat in dto.categories)
+                {
+                    if (cat.id <= 0)
+                        throw new InvalidOperationException($"Category ID {cat.id} must be a positive integer.");
+                    if (string.IsNullOrEmpty(cat.id_string))
+                        throw new InvalidOperationException($"Category ID {cat.id} has empty or null id_string.");
+                    if (!catIds.Add(cat.id))
+                        throw new InvalidOperationException($"Duplicate Category ID found: {cat.id}");
+                }
+            }
+
             var picIds = new HashSet<int>();
             var picIdStrings = new HashSet<string>();
             if (dto.pictures != null)
             {
                 foreach (var p in dto.pictures)
                 {
+                    if (p.id <= 0)
+                        throw new InvalidOperationException($"Picture ID {p.id} must be a positive integer.");
                     if (string.IsNullOrEmpty(p.id_string))
                         throw new InvalidOperationException($"Picture ID {p.id} has empty or null id_string.");
                     if (!picIds.Add(p.id))
                         throw new InvalidOperationException($"Duplicate Picture ID found: {p.id}");
                     if (!picIdStrings.Add(p.id_string))
                         throw new InvalidOperationException($"Duplicate Picture ID String found: {p.id_string}");
+                    if (!catIds.Contains(p.category_id))
+                        throw new InvalidOperationException($"Picture '{p.display_name}' (ID {p.id}) references missing Category ID {p.category_id}.");
                 }
             }
 
@@ -128,6 +153,8 @@ namespace JigsawVina.Core.Services
             {
                 foreach (var item in dto.items)
                 {
+                    if (item.id <= 0)
+                        throw new InvalidOperationException($"Item ID {item.id} must be a positive integer.");
                     if (string.IsNullOrEmpty(item.id_string))
                         throw new InvalidOperationException($"Item ID {item.id} has empty or null id_string.");
                     if (!itemIds.Add(item.id))
@@ -137,6 +164,7 @@ namespace JigsawVina.Core.Services
                 }
             }
 
+            var diffKeys = new HashSet<(int, int)>();
             if (dto.picture_difficulties != null)
             {
                 foreach (var diff in dto.picture_difficulties)
@@ -144,8 +172,21 @@ namespace JigsawVina.Core.Services
                     if (!picIds.Contains(diff.picture_id))
                         throw new InvalidOperationException($"Difficulty references missing picture: {diff.picture_id}");
 
+                    if (diff.difficulty_id < 0 || diff.difficulty_id > 2)
+                        throw new InvalidOperationException($"Difficulty ID {diff.difficulty_id} must be within 0..2 (Easy, Normal, Hard).");
+
+                    var key = (diff.picture_id, diff.difficulty_id);
+                    if (!diffKeys.Add(key))
+                        throw new InvalidOperationException($"Duplicate Difficulty configuration found for Picture {diff.picture_id}, Difficulty {diff.difficulty_id}.");
+
+                    if (diff.grid_columns <= 0 || diff.grid_rows <= 0)
+                        throw new InvalidOperationException($"Grid size columns ({diff.grid_columns}) and rows ({diff.grid_rows}) must be positive integers.");
+
                     if (diff.grid_columns * diff.grid_rows != diff.piece_count)
                         throw new InvalidOperationException($"Difficulty Grid size does not match piece count for picture {diff.picture_id}");
+
+                    if (diff.first_clear_coin < 0 || diff.replay_coin < 0 || diff.first_clear_hint < 0)
+                        throw new InvalidOperationException("Reward coin/hint values cannot be negative.");
 
                     if (diff.first_clear_reward_item_ids != null)
                     {

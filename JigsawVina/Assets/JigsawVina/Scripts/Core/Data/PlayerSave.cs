@@ -9,13 +9,17 @@ namespace JigsawVina.Core.Data
         public readonly string IdString;
         public readonly string DisplayName;
         public readonly string AssetPath;
+        public readonly string DisplayNameKey;
+        public readonly string DescriptionKey;
 
-        public PictureConfig(int id, string idString, string displayName, string assetPath)
+        public PictureConfig(int id, string idString, string displayName, string assetPath, string displayNameKey, string descriptionKey)
         {
             Id = id;
             IdString = idString;
             DisplayName = displayName;
             AssetPath = assetPath;
+            DisplayNameKey = displayNameKey;
+            DescriptionKey = descriptionKey;
         }
     }
 

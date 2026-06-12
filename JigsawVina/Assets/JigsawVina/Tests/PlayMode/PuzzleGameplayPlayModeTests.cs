@@ -167,7 +167,17 @@ namespace JigsawVina.Tests
             _presenter.Initialize();
             yield return null;
 
-            var piece0 = _view.TrayContent.GetChild(0);
+            PuzzlePieceView pieceView0 = null;
+            for (int i = 0; i < _view.TrayContent.childCount; i++)
+            {
+                var p = _view.TrayContent.GetChild(i).GetComponent<PuzzlePieceView>();
+                if (p.Index == 0)
+                {
+                    pieceView0 = p;
+                    break;
+                }
+            }
+            var piece0 = pieceView0.transform;
             piece0.SetParent(_view.DragContainer, false);
 
             Assert.AreEqual(23, _view.TrayContent.childCount);
@@ -228,7 +238,16 @@ namespace JigsawVina.Tests
             _presenter.Initialize();
             yield return null;
 
-            var pieceView = _view.TrayContent.GetChild(0).GetComponent<PuzzlePieceView>();
+            PuzzlePieceView pieceView = null;
+            for (int i = 0; i < _view.TrayContent.childCount; i++)
+            {
+                var p = _view.TrayContent.GetChild(i).GetComponent<PuzzlePieceView>();
+                if (p.Index == 0)
+                {
+                    pieceView = p;
+                    break;
+                }
+            }
             
             // Move piece to Board local target (calculated from bottom-left corner offset in board space)
             pieceView.transform.SetParent(_view.DragContainer, false);
@@ -320,7 +339,16 @@ namespace JigsawVina.Tests
             }
 
             // Trigger final check snap callback to trigger win sequence
-            var firstPiece = _view.TrayContent.GetChild(0).GetComponent<PuzzlePieceView>();
+            PuzzlePieceView firstPiece = null;
+            for (int i = 0; i < _view.TrayContent.childCount; i++)
+            {
+                var p = _view.TrayContent.GetChild(i).GetComponent<PuzzlePieceView>();
+                if (p.Index == 0)
+                {
+                    firstPiece = p;
+                    break;
+                }
+            }
             session.UpdatePieceState(0, PuzzleSession.PieceState.Floating);
             firstPiece.transform.position = _view.BoardView.RectTransform.TransformPoint(new Vector3(-333.33f, -225f, 0f));
             TriggerPieceDragEnd(firstPiece, firstPiece.transform.position);

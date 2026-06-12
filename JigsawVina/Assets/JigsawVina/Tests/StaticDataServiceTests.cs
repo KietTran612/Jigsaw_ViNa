@@ -14,6 +14,9 @@ namespace JigsawVina.Tests
             var json = @"{
                 ""schema_version"": 1,
                 ""data_version"": 1,
+                ""categories"": [
+                    { ""id"": 1, ""id_string"": ""vietnam_landscapes"", ""display_name"": ""Phong Cảnh Việt Nam"" }
+                ],
                 ""pictures"": [
                     { ""id"": 1, ""id_string"": ""pic1"", ""display_name"": ""Pic 1"", ""category_id"": 1, ""asset_path"": ""Textures/pic1"" }
                 ],
@@ -50,9 +53,14 @@ namespace JigsawVina.Tests
         public void LoadFromText_DuplicatePictureId_ThrowsException()
         {
             var json = @"{
+                ""schema_version"": 1,
+                ""data_version"": 1,
+                ""categories"": [
+                    { ""id"": 1, ""id_string"": ""vietnam_landscapes"", ""display_name"": ""Phong Cảnh Việt Nam"" }
+                ],
                 ""pictures"": [
-                    { ""id"": 1, ""id_string"": ""pic1"", ""display_name"": ""Pic 1"" },
-                    { ""id"": 1, ""id_string"": ""pic2"", ""display_name"": ""Pic 2"" }
+                    { ""id"": 1, ""id_string"": ""pic1"", ""display_name"": ""Pic 1"", ""category_id"": 1 },
+                    { ""id"": 1, ""id_string"": ""pic2"", ""display_name"": ""Pic 2"", ""category_id"": 1 }
                 ]
             }";
 
@@ -64,9 +72,14 @@ namespace JigsawVina.Tests
         public void LoadFromText_DuplicatePictureIdString_ThrowsException()
         {
             var json = @"{
+                ""schema_version"": 1,
+                ""data_version"": 1,
+                ""categories"": [
+                    { ""id"": 1, ""id_string"": ""vietnam_landscapes"", ""display_name"": ""Phong Cảnh Việt Nam"" }
+                ],
                 ""pictures"": [
-                    { ""id"": 1, ""id_string"": ""pic1"", ""display_name"": ""Pic 1"" },
-                    { ""id"": 2, ""id_string"": ""pic1"", ""display_name"": ""Pic 2"" }
+                    { ""id"": 1, ""id_string"": ""pic1"", ""display_name"": ""Pic 1"", ""category_id"": 1 },
+                    { ""id"": 2, ""id_string"": ""pic1"", ""display_name"": ""Pic 2"", ""category_id"": 1 }
                 ]
             }";
 
@@ -78,6 +91,8 @@ namespace JigsawVina.Tests
         public void LoadFromText_DuplicateItemId_ThrowsException()
         {
             var json = @"{
+                ""schema_version"": 1,
+                ""data_version"": 1,
                 ""items"": [
                     { ""id"": 101, ""id_string"": ""item1"", ""display_name"": ""Item 1"" },
                     { ""id"": 101, ""id_string"": ""item2"", ""display_name"": ""Item 2"" }
@@ -92,6 +107,8 @@ namespace JigsawVina.Tests
         public void LoadFromText_DuplicateItemIdString_ThrowsException()
         {
             var json = @"{
+                ""schema_version"": 1,
+                ""data_version"": 1,
                 ""items"": [
                     { ""id"": 101, ""id_string"": ""item1"", ""display_name"": ""Item 1"" },
                     { ""id"": 102, ""id_string"": ""item1"", ""display_name"": ""Item 2"" }
@@ -106,8 +123,13 @@ namespace JigsawVina.Tests
         public void LoadFromText_GridMismatch_ThrowsException()
         {
             var json = @"{
+                ""schema_version"": 1,
+                ""data_version"": 1,
+                ""categories"": [
+                    { ""id"": 1, ""id_string"": ""vietnam_landscapes"", ""display_name"": ""Phong Cảnh Việt Nam"" }
+                ],
                 ""pictures"": [
-                    { ""id"": 1, ""id_string"": ""pic1"", ""display_name"": ""Pic 1"" }
+                    { ""id"": 1, ""id_string"": ""pic1"", ""display_name"": ""Pic 1"", ""category_id"": 1 }
                 ],
                 ""picture_difficulties"": [
                     { ""picture_id"": 1, ""difficulty_id"": 0, ""display_name"": ""Easy"", ""grid_columns"": 6, ""grid_rows"": 4, ""piece_count"": 10 }
@@ -122,8 +144,13 @@ namespace JigsawVina.Tests
         public void LoadFromText_DifficultyRewardsMissingItem_ThrowsException()
         {
             var json = @"{
+                ""schema_version"": 1,
+                ""data_version"": 1,
+                ""categories"": [
+                    { ""id"": 1, ""id_string"": ""vietnam_landscapes"", ""display_name"": ""Phong Cảnh Việt Nam"" }
+                ],
                 ""pictures"": [
-                    { ""id"": 1, ""id_string"": ""pic1"", ""display_name"": ""Pic 1"" }
+                    { ""id"": 1, ""id_string"": ""pic1"", ""display_name"": ""Pic 1"", ""category_id"": 1 }
                 ],
                 ""picture_difficulties"": [
                     { ""picture_id"": 1, ""difficulty_id"": 0, ""display_name"": ""Easy"", ""grid_columns"": 6, ""grid_rows"": 4, ""piece_count"": 24, ""first_clear_reward_item_ids"": [999] }

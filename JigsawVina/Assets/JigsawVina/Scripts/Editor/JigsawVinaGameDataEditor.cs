@@ -27,6 +27,8 @@ namespace JigsawVina.Editor
             public string displayName = "";
             public string description = "";
             public string rarity = "common";
+            public string displayNameKey = "";
+            public string descriptionKey = "";
         }
 
         [Serializable]
@@ -38,6 +40,8 @@ namespace JigsawVina.Editor
             public string displayName = "";
             public int categoryId = 1;
             public List<EditorItemState> itemStates = new();
+            public string displayNameKey = "";
+            public string descriptionKey = "";
 
             // Foldout states
             public bool easyExpanded = true;
@@ -66,6 +70,8 @@ namespace JigsawVina.Editor
             public int id;
             public string idString = "";
             public string displayName = "";
+            public string displayNameKey = "";
+            public string descriptionKey = "";
         }
         [SerializeField] internal List<EditorCategoryState> _categories = new();
         private Vector2 _categoryScroll;
@@ -73,13 +79,34 @@ namespace JigsawVina.Editor
         [SerializeField] internal List<ItemDto> _globalItems = new();
         private Vector2 _itemsScroll;
         private PlayerSave _cachedSave = new();
-        private bool _saveLoaded = false;
-        private string _saveJsonText = "";
+        [NonSerialized] private bool _saveLoaded = false;
+        [NonSerialized] private string _saveJsonText = "";
 
         [MenuItem("JigsawVina/Game Data Editor")]
         public static void ShowWindow()
         {
             GetWindow<JigsawVinaGameDataEditor>("Game Data Editor");
+        }
+
+        public static void DebugSave()
+        {
+            var window = GetWindow<JigsawVinaGameDataEditor>("Game Data Editor");
+            window.SaveConfig();
+            window.Close();
+        }
+
+        public static void DebugLoadPlayerSave()
+        {
+            var window = GetWindow<JigsawVinaGameDataEditor>("Game Data Editor");
+            window.LoadPlayerSave();
+            window.Repaint();
+        }
+
+        public static void DebugReloadFromDisk()
+        {
+            var window = GetWindow<JigsawVinaGameDataEditor>("Game Data Editor");
+            window.LoadFromDisk();
+            window.Repaint();
         }
 
         private void OnEnable()
@@ -131,7 +158,9 @@ namespace JigsawVina.Editor
                     {
                         id = cat.id,
                         idString = cat.id_string,
-                        displayName = cat.display_name
+                        displayName = cat.display_name,
+                        displayNameKey = cat.display_name_key,
+                        descriptionKey = cat.description_key
                     });
                 }
             }
@@ -157,7 +186,9 @@ namespace JigsawVina.Editor
                         pictureId = pic.id,
                         idString = pic.id_string,
                         displayName = pic.display_name,
-                        categoryId = pic.category_id != 0 ? pic.category_id : 1
+                        categoryId = pic.category_id != 0 ? pic.category_id : 1,
+                        displayNameKey = pic.display_name_key,
+                        descriptionKey = pic.description_key
                     };
 
                     // Reconstruct folder asset path
@@ -184,7 +215,9 @@ namespace JigsawVina.Editor
                                     filename = filename,
                                     displayName = item.display_name,
                                     description = item.description,
-                                    rarity = string.IsNullOrEmpty(item.rarity) ? "common" : item.rarity
+                                    rarity = string.IsNullOrEmpty(item.rarity) ? "common" : item.rarity,
+                                    displayNameKey = item.display_name_key,
+                                    descriptionKey = item.description_key
                                 });
                             }
                         }
@@ -579,6 +612,8 @@ namespace JigsawVina.Editor
                 cat.id = EditorGUILayout.IntField("Category ID", cat.id);
                 cat.idString = EditorGUILayout.TextField("ID String", cat.idString);
                 cat.displayName = EditorGUILayout.TextField("Tên hiển thị", cat.displayName);
+                cat.displayNameKey = EditorGUILayout.TextField("Khóa tên hiển thị", cat.displayNameKey);
+                cat.descriptionKey = EditorGUILayout.TextField("Khóa mô tả", cat.descriptionKey);
 
                 GUILayout.EndVertical();
                 GUI.backgroundColor = oldBgColor;
@@ -797,12 +832,14 @@ namespace JigsawVina.Editor
             {
                 string json = PlayerPrefs.GetString(SaveDataService.SaveKey);
                 _cachedSave = JsonUtility.FromJson<PlayerSave>(json) ?? new PlayerSave();
-                _saveJsonText = json;
+                _saveJsonText = JsonUtility.ToJson(_cachedSave, true);
+                Debug.Log($"[DebugSaveEditor] Loaded from prefs:\n{_saveJsonText}");
             }
             else
             {
                 _cachedSave = new PlayerSave();
-                _saveJsonText = "";
+                _saveJsonText = JsonUtility.ToJson(_cachedSave, true);
+                Debug.Log($"[DebugSaveEditor] New save:\n{_saveJsonText}");
             }
             _cachedSave.CompletedPuzzles ??= new List<CompletedPuzzleData>();
             _cachedSave.OwnedItemIds ??= new List<int>();
@@ -817,7 +854,7 @@ namespace JigsawVina.Editor
             string json = JsonUtility.ToJson(_cachedSave);
             PlayerPrefs.SetString(SaveDataService.SaveKey, json);
             PlayerPrefs.Save();
-            _saveJsonText = json;
+            _saveJsonText = JsonUtility.ToJson(_cachedSave, true);
         }
 
         internal void ApplyUnlockAll(PlayerSave save)
@@ -865,7 +902,7 @@ namespace JigsawVina.Editor
             _cachedSave.CompletedPuzzles ??= new List<CompletedPuzzleData>();
             _cachedSave.OwnedItemIds ??= new List<int>();
             _saveLoaded = true;
-            _saveJsonText = "";
+            _saveJsonText = JsonUtility.ToJson(_cachedSave, true);
             PlayerPrefs.Save();
         }
 
@@ -970,6 +1007,8 @@ namespace JigsawVina.Editor
                 state.pictureId = EditorGUILayout.IntField("Picture ID", state.pictureId);
                 state.idString = EditorGUILayout.TextField("ID String", state.idString);
                 state.displayName = EditorGUILayout.TextField("Tên Tranh", state.displayName);
+                state.displayNameKey = EditorGUILayout.TextField("Khóa tên hiển thị", state.displayNameKey);
+                state.descriptionKey = EditorGUILayout.TextField("Khóa mô tả", state.descriptionKey);
 
                 if (_categories != null && _categories.Count > 0)
                 {
@@ -1042,6 +1081,8 @@ namespace JigsawVina.Editor
                     EditorGUILayout.Space();
                     itemState.displayName = EditorGUILayout.TextField("Tên hiển thị", itemState.displayName);
                     itemState.description = EditorGUILayout.TextField("Mô tả", itemState.description);
+                    itemState.displayNameKey = EditorGUILayout.TextField("Khóa tên hiển thị", itemState.displayNameKey);
+                    itemState.descriptionKey = EditorGUILayout.TextField("Khóa mô tả", itemState.descriptionKey);
 
                     string[] rarities = { "common", "uncommon", "rare", "epic", "legendary" };
                     int rarityIdx = Mathf.Max(0, Array.IndexOf(rarities, itemState.rarity));
@@ -1190,7 +1231,9 @@ namespace JigsawVina.Editor
                         filename = tex.name,
                         displayName = tex.name.Replace("_", " "),
                         description = "",
-                        rarity = "common"
+                        rarity = "common",
+                        displayNameKey = $"item.{tex.name.ToLower()}.name",
+                        descriptionKey = $"item.{tex.name.ToLower()}.description"
                     });
                 }
             }
@@ -1203,6 +1246,8 @@ namespace JigsawVina.Editor
             {
                 state.idString = main.name.Replace("MAIN_", "").ToLower();
                 state.displayName = main.name.Replace("MAIN_", "").Replace("_", " ");
+                state.displayNameKey = $"picture.{state.idString}.name";
+                state.descriptionKey = $"picture.{state.idString}.description";
             }
         }
 
@@ -1287,7 +1332,9 @@ namespace JigsawVina.Editor
                 {
                     id = cat.id,
                     id_string = cat.idString,
-                    display_name = cat.displayName
+                    display_name = cat.displayName,
+                    display_name_key = string.IsNullOrEmpty(cat.displayNameKey) ? $"category.{cat.idString}.name" : cat.displayNameKey,
+                    description_key = string.IsNullOrEmpty(cat.descriptionKey) ? $"category.{cat.idString}.description" : cat.descriptionKey
                 });
             }
 
@@ -1443,7 +1490,9 @@ namespace JigsawVina.Editor
                     display_name = tab.displayName,
                     category_id = tab.categoryId,
                     asset_path = mainPath,
-                    difficulty_unlock_policy = "sequential"
+                    difficulty_unlock_policy = "sequential",
+                    display_name_key = string.IsNullOrEmpty(tab.displayNameKey) ? $"picture.{tab.idString}.name" : tab.displayNameKey,
+                    description_key = string.IsNullOrEmpty(tab.descriptionKey) ? $"picture.{tab.idString}.description" : tab.descriptionKey
                 });
 
                 // Map scanned items DTO
@@ -1478,8 +1527,8 @@ namespace JigsawVina.Editor
                         id_string = itemIdString,
                         display_name = dispName,
                         description = desc,
-                        display_name_key = $"item.{itemIdString}.name",
-                        description_key = $"item.{itemIdString}.description",
+                        display_name_key = (itemState != null && !string.IsNullOrEmpty(itemState.displayNameKey)) ? itemState.displayNameKey : $"item.{itemIdString}.name",
+                        description_key = (itemState != null && !string.IsNullOrEmpty(itemState.descriptionKey)) ? itemState.descriptionKey : $"item.{itemIdString}.description",
                         item_type = "key_item",
                         rarity = rarity,
                         is_consumable = false,

@@ -880,6 +880,54 @@ Ví dụ:
 
 Tổng star được tính bằng cách cộng `best_star` của toàn bộ progress record. Nếu unlock cần sao, dùng requirement kiểu `total_star_at_least`, không trừ sao.
 
+### 24.5 Lưu ý: Các trường đã tạm lược bỏ khỏi Save Data mẫu để khớp Runtime MVP
+
+Dưới đây là các trường đã có trong thiết kế save mẫu ban đầu (`jigsaw_vietnam_player_save_sample_v0_1.json`) nhưng đã được lược bỏ trong bản cập nhật MVP ngày 2026-06-12 do code runtime hiện tại (`PlayerSave.cs`) chưa hỗ trợ:
+
+1. **Thông tin chung của bản Save**:
+   - `save_version` (Bản lưu): Phiên bản cấu trúc save (Hiện tại được lưu gián tiếp hoặc bỏ qua ở runtime MVP).
+   - `player_id`: ID người chơi cục bộ (Mặc định là người chơi cục bộ).
+   - `created_at` / `updated_at`: Thời gian tạo/cập nhật bản save.
+
+2. **Inventory (Kho đồ) nâng cao**:
+   - Cấu trúc cũ dạng:
+     ```json
+     "inventory": [
+       { "item_id": 1, "amount": 0 },
+       { "item_id": 2, "amount": 0 }
+     ]
+     ```
+   - *Lý do lược bỏ*: Code runtime hiện tại lưu trực tiếp số lượng Coin và Hint qua trường `Coins` và `Hints` dạng số nguyên thẳng trong `PlayerSave`. Các Key Item thu thập được lưu trong danh sách phẳng `OwnedItemIds` (không cần số lượng vì là Key Item duy nhất).
+
+3. **Picture Progress (Tiến trình tranh chính)**:
+   - Cấu trúc cũ:
+     ```json
+     "picture_progress": [
+       { "picture_id": 1, "is_unlocked": true, "is_completed_any_difficulty": false, "first_unlocked_at": "...", "last_played_at": "..." }
+     ]
+     ```
+   - *Lý do lược bỏ*: Trạng thái mở khóa tranh và hoàn thành của người chơi hiện tại được suy ra trực tiếp từ logic tuần tự của `CompletedPuzzles` (Tranh 1 xong thì Tranh 2 mở), runtime chưa cần lưu trạng thái khóa/mở hoặc thời gian cụ thể của từng bức tranh riêng biệt để tiết kiệm bộ nhớ.
+
+4. **Picture Difficulty Progress (Tiến trình độ khó chi tiết)**:
+   - Cấu trúc cũ:
+     ```json
+     "picture_difficulty_progress": [
+       { "picture_id": 1, "difficulty_id": 1, "is_unlocked": true, "is_completed": false, "first_clear_claimed": false, "best_star": 0, "best_time_seconds": 0 }
+     ]
+     ```
+   - *Lý do lược bỏ*: Runtime MVP gom các thông tin này vào struct gọn nhẹ `CompletedPuzzleData` trong danh sách `CompletedPuzzles` chỉ khi độ khó đó đã được chơi thắng (giảm thiểu lưu trữ những độ khó chưa chơi).
+
+5. **Drop States (Trạng thái rơi vật phẩm hàng ngày)**:
+   - Cấu trúc cũ:
+     ```json
+     "drop_states": [
+       { "item_id": 201, "success_count_today": 0, "last_reset_date": "2026-06-10" }
+     ]
+     ```
+   - *Lý do lược bỏ*: Tính năng giới hạn rơi vật phẩm hàng ngày chưa được tích hợp vào core gameplay và save system của MVP.
+
+*Nếu sau này dự án mở rộng và cần tái lập các tính năng này, dev chỉ cần thêm các trường/struct tương ứng vào `PlayerSave.cs`, lập trình logic runtime, rồi cập nhật lại cấu trúc của file save.*
+
 ---
 
 ## 25. Item Binding Status
