@@ -2,9 +2,13 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Runtime.CompilerServices;
 using JigsawVina.Core.Data;
+using JigsawVina.Core.Services;
 using UnityEditor;
 using UnityEngine;
+
+[assembly: InternalsVisibleTo("JigsawVina.Tests")]
 
 namespace JigsawVina.Editor
 {
@@ -17,7 +21,7 @@ namespace JigsawVina.Editor
         private int _detailTabSelected = 0;
 
         [Serializable]
-        private class EditorItemState
+        internal class EditorItemState
         {
             public string filename = "";
             public string displayName = "";
@@ -26,14 +30,15 @@ namespace JigsawVina.Editor
         }
 
         [Serializable]
-        private class EditorTabState
+        internal class EditorTabState
         {
             public DefaultAsset folderAsset;
             public int pictureId;
             public string idString = "";
             public string displayName = "";
+            public int categoryId = 1;
             public List<EditorItemState> itemStates = new();
-            
+
             // Foldout states
             public bool easyExpanded = true;
             public bool normalExpanded = true;
@@ -53,7 +58,23 @@ namespace JigsawVina.Editor
             public int hardKeyRewardIndex = 0;
         }
 
-        [SerializeField] private List<EditorTabState> _tabs = new();
+        [SerializeField] internal List<EditorTabState> _tabs = new();
+
+        [Serializable]
+        internal class EditorCategoryState
+        {
+            public int id;
+            public string idString = "";
+            public string displayName = "";
+        }
+        [SerializeField] internal List<EditorCategoryState> _categories = new();
+        private Vector2 _categoryScroll;
+        private int _mainTabSelected = 0;
+        [SerializeField] internal List<ItemDto> _globalItems = new();
+        private Vector2 _itemsScroll;
+        private PlayerSave _cachedSave = new();
+        private bool _saveLoaded = false;
+        private string _saveJsonText = "";
 
         [MenuItem("JigsawVina/Game Data Editor")]
         public static void ShowWindow()
@@ -66,128 +87,267 @@ namespace JigsawVina.Editor
             LoadFromDisk();
         }
 
+        internal void SetStateForTesting(List<EditorTabState> tabs, List<EditorCategoryState> categories, List<ItemDto> globalItems)
+        {
+            _tabs = tabs ?? new();
+            _categories = categories ?? new();
+            _globalItems = globalItems ?? new();
+        }
+
         private void LoadFromDisk()
         {
-            _tabs.Clear();
             if (File.Exists(SavePath))
             {
                 try
                 {
                     string json = File.ReadAllText(SavePath);
                     var dto = JsonUtility.FromJson<StaticDataDto>(json);
-                    if (dto != null && dto.pictures != null)
+                    if (dto != null)
                     {
-                        var diffsByPic = new Dictionary<int, List<PictureDifficultyDto>>();
-                        if (dto.picture_difficulties != null)
-                        {
-                            foreach (var diff in dto.picture_difficulties)
-                            {
-                                if (!diffsByPic.ContainsKey(diff.picture_id))
-                                    diffsByPic[diff.picture_id] = new List<PictureDifficultyDto>();
-                                diffsByPic[diff.picture_id].Add(diff);
-                            }
-                        }
-
-                        for (int i = 0; i < dto.pictures.Count; i++)
-                        {
-                            var pic = dto.pictures[i];
-                            var state = new EditorTabState();
-                            state.pictureId = pic.id;
-                            state.idString = pic.id_string;
-                            state.displayName = pic.display_name;
-
-                            // Reconstruct folder asset path
-                            if (!string.IsNullOrEmpty(pic.asset_path))
-                            {
-                                string relativeDir = Path.GetDirectoryName(pic.asset_path).Replace("\\", "/");
-                                string folderPath = $"Assets/Resources/{relativeDir}";
-                                state.folderAsset = AssetDatabase.LoadAssetAtPath<DefaultAsset>(folderPath);
-                            }
-
-                            // Load custom item states from global item list
-                            state.itemStates.Clear();
-                            if (dto.items != null)
-                            {
-                                foreach (var item in dto.items)
-                                {
-                                    if (item.id >= pic.id * 100 && item.id < (pic.id + 1) * 100)
-                                    {
-                                        string filename = Path.GetFileNameWithoutExtension(item.asset_path);
-                                        state.itemStates.Add(new EditorItemState
-                                        {
-                                            filename = filename,
-                                            displayName = item.display_name,
-                                            description = item.description,
-                                            rarity = string.IsNullOrEmpty(item.rarity) ? "common" : item.rarity
-                                        });
-                                    }
-                                }
-                            }
-
-                            // Scan to match reward indices mathematically via stable ID formula
-                            if (state.folderAsset != null)
-                            {
-                                var (_, scannedItems) = ScanFolder(state.folderAsset);
-                                SyncItemStates(state, scannedItems);
-
-                                if (diffsByPic.TryGetValue(pic.id, out var picDiffs))
-                                {
-                                    foreach (var d in picDiffs)
-                                    {
-                                        int rewardIdx = 0;
-                                        if (d.first_clear_reward_item_ids != null && d.first_clear_reward_item_ids.Count > 0)
-                                        {
-                                            int rewardId = d.first_clear_reward_item_ids[0];
-                                            int calculatedIndex = (rewardId - pic.id * 100) - 1;
-                                            if (calculatedIndex >= 0 && calculatedIndex < scannedItems.Count)
-                                            {
-                                                rewardIdx = calculatedIndex + 1;
-                                            }
-                                        }
-
-                                        if (d.difficulty_id == 0)
-                                        {
-                                            state.easyCols = d.grid_columns;
-                                            state.easyRows = d.grid_rows;
-                                            state.easyCoins = d.first_clear_coin;
-                                            state.easyReplayCoins = d.replay_coin;
-                                            state.easyHints = d.first_clear_hint;
-                                            state.easyKeyRewardIndex = rewardIdx;
-                                        }
-                                        else if (d.difficulty_id == 1)
-                                        {
-                                            state.normalCols = d.grid_columns;
-                                            state.normalRows = d.grid_rows;
-                                            state.normalCoins = d.first_clear_coin;
-                                            state.normalReplayCoins = d.replay_coin;
-                                            state.normalHints = d.first_clear_hint;
-                                            state.normalKeyRewardIndex = rewardIdx;
-                                        }
-                                        else if (d.difficulty_id == 2)
-                                        {
-                                            state.hardCols = d.grid_columns;
-                                            state.hardRows = d.grid_rows;
-                                            state.hardCoins = d.first_clear_coin;
-                                            state.hardReplayCoins = d.replay_coin;
-                                            state.hardHints = d.first_clear_hint;
-                                            state.hardKeyRewardIndex = rewardIdx;
-                                        }
-                                    }
-                                }
-                            }
-                            _tabs.Add(state);
-                        }
+                        LoadStateFromDto(dto);
+                        return;
                     }
                 }
                 catch (Exception e)
                 {
-                    Debug.LogWarning($"[JigsawVina Editor] Could not parse existing jigsaw_vina_game_data.json: {e.Message}");
+                    Debug.LogWarning($"[JigsawVina Editor] Could not parse config: {e.Message}");
+                }
+            }
+            LoadStateFromDto(new StaticDataDto());
+        }
+
+        internal void LoadStateFromDto(StaticDataDto dto)
+        {
+            _tabs.Clear();
+            _categories.Clear();
+            _globalItems.Clear();
+
+            // 1. Hydrate Categories first
+            if (dto.categories != null)
+            {
+                foreach (var cat in dto.categories)
+                {
+                    _categories.Add(new EditorCategoryState
+                    {
+                        id = cat.id,
+                        idString = cat.id_string,
+                        displayName = cat.display_name
+                    });
                 }
             }
 
+            // 2. Hydrate Picture tabs
+            if (dto.pictures != null)
+            {
+                var diffsByPic = new Dictionary<int, List<PictureDifficultyDto>>();
+                if (dto.picture_difficulties != null)
+                {
+                    foreach (var diff in dto.picture_difficulties)
+                    {
+                        if (!diffsByPic.ContainsKey(diff.picture_id))
+                            diffsByPic[diff.picture_id] = new List<PictureDifficultyDto>();
+                        diffsByPic[diff.picture_id].Add(diff);
+                    }
+                }
+
+                foreach (var pic in dto.pictures)
+                {
+                    var state = new EditorTabState
+                    {
+                        pictureId = pic.id,
+                        idString = pic.id_string,
+                        displayName = pic.display_name,
+                        categoryId = pic.category_id != 0 ? pic.category_id : 1
+                    };
+
+                    // Reconstruct folder asset path
+                    if (!string.IsNullOrEmpty(pic.asset_path))
+                    {
+                        string relativeDir = Path.GetDirectoryName(pic.asset_path).Replace("\\", "/");
+                        string folderPath = $"Assets/Resources/{relativeDir}";
+                        state.folderAsset = AssetDatabase.LoadAssetAtPath<DefaultAsset>(folderPath);
+                    }
+
+                    // Sync item states from DTO (Filter generated key items, safety 64-bit int logic to prevent overflow)
+                    state.itemStates.Clear();
+                    if (dto.items != null)
+                    {
+                        long picId = pic.id;
+                        foreach (var item in dto.items)
+                        {
+                            long itemId = item.id;
+                            if (itemId > picId * 100 && itemId < (picId + 1) * 100 && item.item_type == "key_item")
+                            {
+                                string filename = Path.GetFileNameWithoutExtension(item.asset_path);
+                                state.itemStates.Add(new EditorItemState
+                                {
+                                    filename = filename,
+                                    displayName = item.display_name,
+                                    description = item.description,
+                                    rarity = string.IsNullOrEmpty(item.rarity) ? "common" : item.rarity
+                                });
+                            }
+                        }
+                    }
+
+                    // If folderAsset exists, do production sync to scan new folder items
+                    if (state.folderAsset != null)
+                    {
+                        var (_, scannedItems) = ScanFolder(state.folderAsset);
+                        SyncItemStates(state, scannedItems);
+                    }
+
+                    // 3. Hydrate Difficulty settings (Completely independent of folderAsset existence)
+                    if (diffsByPic.TryGetValue(pic.id, out var picDiffs))
+                    {
+                        foreach (var d in picDiffs)
+                        {
+                            int rewardIdx = 0;
+                            if (d.first_clear_reward_item_ids != null && d.first_clear_reward_item_ids.Count > 0)
+                            {
+                                int rewardId = d.first_clear_reward_item_ids[0];
+                                int calculatedIndex = (rewardId - pic.id * 100) - 1;
+
+                                if (state.folderAsset != null)
+                                {
+                                    // Production scan index matching
+                                    var (_, scannedItems) = ScanFolder(state.folderAsset);
+                                    if (calculatedIndex >= 0 && calculatedIndex < scannedItems.Count)
+                                    {
+                                        rewardIdx = calculatedIndex + 1;
+                                    }
+                                }
+                                else
+                                {
+                                    // Fallback mock mapping using itemStates sorted alphabetically using Ordinal comparer
+                                    state.itemStates.Sort((a, b) => string.Compare(a.filename, b.filename, StringComparison.Ordinal));
+                                    if (calculatedIndex >= 0 && calculatedIndex < state.itemStates.Count)
+                                    {
+                                        rewardIdx = calculatedIndex + 1;
+                                    }
+                                }
+                            }
+
+                            if (d.difficulty_id == 0)
+                            {
+                                state.easyCols = d.grid_columns;
+                                state.easyRows = d.grid_rows;
+                                state.easyCoins = d.first_clear_coin;
+                                state.easyReplayCoins = d.replay_coin;
+                                state.easyHints = d.first_clear_hint;
+                                state.easyKeyRewardIndex = rewardIdx;
+                            }
+                            else if (d.difficulty_id == 1)
+                            {
+                                state.normalCols = d.grid_columns;
+                                state.normalRows = d.grid_rows;
+                                state.normalCoins = d.first_clear_coin;
+                                state.normalReplayCoins = d.replay_coin;
+                                state.normalHints = d.first_clear_hint;
+                                state.normalKeyRewardIndex = rewardIdx;
+                            }
+                            else if (d.difficulty_id == 2)
+                            {
+                                state.hardCols = d.grid_columns;
+                                state.hardRows = d.grid_rows;
+                                state.hardCoins = d.first_clear_coin;
+                                state.hardReplayCoins = d.replay_coin;
+                                state.hardHints = d.first_clear_hint;
+                                state.hardKeyRewardIndex = rewardIdx;
+                            }
+                        }
+                    }
+                    _tabs.Add(state);
+                }
+            }
+
+            // 4. Hydrate Global Items (Exclude key items via persisted metadata: item_type == "key_item")
+            if (dto.items != null)
+            {
+                foreach (var item in dto.items)
+                {
+                    if (item.item_type != "key_item")
+                    {
+                        _globalItems.Add(item);
+                    }
+                }
+            }
+
+            // 5. Ensure Default Categories and Reserved Items exist (Deduplicated order)
+            if (_categories.Count == 0)
+            {
+                _categories.Add(new EditorCategoryState
+                {
+                    id = 1,
+                    idString = "vietnam_landscapes",
+                    displayName = "Phong Cảnh Việt Nam"
+                });
+            }
+            EnsureReservedItems();
+
             if (_tabs.Count == 0)
             {
-                _tabs.Add(new EditorTabState { pictureId = 1 });
+                _tabs.Add(new EditorTabState { pictureId = 1, categoryId = _categories[0].id });
+            }
+            _tabs.Sort((a, b) => a.pictureId.CompareTo(b.pictureId));
+        }
+
+        internal void EnsureReservedItems()
+        {
+            var coin = _globalItems.Find(i => i.id == 1);
+            if (coin == null)
+            {
+                _globalItems.Insert(0, new ItemDto
+                {
+                    id = 1,
+                    id_string = "coin",
+                    display_name = "Xu",
+                    description = "Đơn vị tiền cơ bản trong game.",
+                    display_name_key = "item.coin.name",
+                    description_key = "item.coin.description",
+                    item_type = "currency",
+                    rarity = "common",
+                    is_consumable = true,
+                    is_time_limited = false,
+                    max_stack = 999999,
+                    status = "active",
+                    sort_order = 1,
+                    asset_path = ""
+                });
+            }
+            else
+            {
+                if (coin.id_string != "coin") coin.id_string = "coin";
+                if (coin.item_type != "currency") coin.item_type = "currency";
+            }
+
+            var hint = _globalItems.Find(i => i.id == 2);
+            if (hint == null)
+            {
+                int hintIdx = _globalItems.FindIndex(i => i.id > 2);
+                if (hintIdx < 0) hintIdx = _globalItems.Count;
+                _globalItems.Insert(hintIdx, new ItemDto
+                {
+                    id = 2,
+                    id_string = "hint",
+                    display_name = "Gợi Ý",
+                    description = "Vật phẩm hỗ trợ người chơi ghép tranh.",
+                    display_name_key = "item.hint.name",
+                    description_key = "item.hint.description",
+                    item_type = "currency",
+                    rarity = "common",
+                    is_consumable = true,
+                    is_time_limited = false,
+                    max_stack = 9999,
+                    status = "active",
+                    sort_order = 2,
+                    asset_path = ""
+                });
+            }
+            else
+            {
+                if (hint.id_string != "hint") hint.id_string = "hint";
+                if (hint.item_type != "currency") hint.item_type = "currency";
             }
         }
 
@@ -195,15 +355,65 @@ namespace JigsawVina.Editor
         {
             // Top Toolbar Section
             GUILayout.BeginHorizontal(EditorStyles.toolbar);
-            if (GUILayout.Button("Thêm Tranh Mới", EditorStyles.toolbarButton, GUILayout.Width(120)))
+
+            if (_mainTabSelected == 0)
             {
-                int nextId = 1;
-                foreach (var t in _tabs)
+                if (GUILayout.Button("Thêm Tranh Mới", EditorStyles.toolbarButton, GUILayout.Width(120)))
                 {
-                    if (t.pictureId >= nextId) nextId = t.pictureId + 1;
+                    int nextId = 1;
+                    foreach (var t in _tabs)
+                    {
+                        if (t.pictureId >= nextId) nextId = t.pictureId + 1;
+                    }
+                    var newTab = new EditorTabState { pictureId = nextId, categoryId = _categories.Count > 0 ? _categories[0].id : 1 };
+                    _tabs.Add(newTab);
+                    _tabs.Sort((a, b) => a.pictureId.CompareTo(b.pictureId));
+                    _selectedIndex = _tabs.IndexOf(newTab);
+                    GUI.FocusControl(null);
                 }
-                _tabs.Add(new EditorTabState { pictureId = nextId });
-                _selectedIndex = _tabs.Count - 1;
+            }
+            else if (_mainTabSelected == 1)
+            {
+                if (GUILayout.Button("Thêm Danh Mục Mới", EditorStyles.toolbarButton, GUILayout.Width(150)))
+                {
+                    int nextId = 1;
+                    foreach (var cat in _categories)
+                    {
+                        if (cat.id >= nextId) nextId = cat.id + 1;
+                    }
+                    _categories.Add(new EditorCategoryState
+                    {
+                        id = nextId,
+                        idString = $"new_category_{nextId}",
+                        displayName = $"Danh mục mới {nextId}"
+                    });
+                    GUI.FocusControl(null);
+                }
+            }
+            else if (_mainTabSelected == 2)
+            {
+                if (GUILayout.Button("Thêm Vật Phẩm Mới", EditorStyles.toolbarButton, GUILayout.Width(150)))
+                {
+                    int newId = GetNextAvailableItemId();
+                    _globalItems.Add(new ItemDto
+                    {
+                        id = newId,
+                        id_string = $"new_item_{newId}",
+                        display_name = $"Vật phẩm mới {newId}",
+                        description = "",
+                        display_name_key = $"item.new_item_{newId}.name",
+                        description_key = $"item.new_item_{newId}.description",
+                        item_type = "collectible",
+                        rarity = "common",
+                        is_consumable = false,
+                        is_time_limited = false,
+                        max_stack = 1,
+                        status = "active",
+                        sort_order = newId,
+                        asset_path = ""
+                    });
+                    GUI.FocusControl(null);
+                }
             }
 
             GUILayout.Space(10);
@@ -218,6 +428,35 @@ namespace JigsawVina.Editor
 
             EditorGUILayout.Space();
 
+            // Main Tab Selection Toolbar
+            string[] mainTabs = { "Cấu hình Tranh", "Quản lý Danh mục", "Quản lý Vật phẩm", "Trình sửa Save (Cheat)" };
+            int prevMainTab = _mainTabSelected;
+            _mainTabSelected = GUILayout.Toolbar(_mainTabSelected, mainTabs);
+            if (_mainTabSelected != prevMainTab)
+            {
+                GUI.FocusControl(null);
+            }
+            EditorGUILayout.Space();
+
+            switch (_mainTabSelected)
+            {
+                case 0:
+                    DrawPicturesTab();
+                    break;
+                case 1:
+                    DrawCategoriesTab();
+                    break;
+                case 2:
+                    DrawGlobalItemsTab();
+                    break;
+                case 3:
+                    DrawSaveTab();
+                    break;
+            }
+        }
+
+        private void DrawPicturesTab()
+        {
             GUILayout.BeginHorizontal();
 
             // Left Pane: Sidebar list of pictures
@@ -251,7 +490,10 @@ namespace JigsawVina.Editor
                 GUILayout.BeginHorizontal();
                 if (GUILayout.Button(label, style, GUILayout.Width(150)))
                 {
-                    _selectedIndex = i;
+                    var targetTab = tab;
+                    _tabs.Sort((a, b) => a.pictureId.CompareTo(b.pictureId));
+                    _selectedIndex = _tabs.IndexOf(targetTab);
+                    GUI.FocusControl(null);
                 }
                 if (GUILayout.Button("X", GUILayout.Width(20)))
                 {
@@ -288,6 +530,372 @@ namespace JigsawVina.Editor
             GUILayout.EndHorizontal();
         }
 
+        private void DrawCategoriesTab()
+        {
+            GUILayout.BeginVertical(GUI.skin.box, GUILayout.ExpandWidth(true), GUILayout.ExpandHeight(true));
+            GUILayout.Label("Quản lý Danh mục (Categories)", EditorStyles.boldLabel);
+            EditorGUILayout.Space();
+
+            _categoryScroll = EditorGUILayout.BeginScrollView(_categoryScroll);
+
+            for (int i = 0; i < _categories.Count; i++)
+            {
+                var cat = _categories[i];
+
+                Color oldBgColor = GUI.backgroundColor;
+                GUI.backgroundColor = (i % 2 == 0)
+                    ? new Color(1.5f, 1.5f, 1.5f, 1.0f)
+                    : new Color(0.6f, 0.6f, 0.6f, 1.0f);
+
+                GUILayout.BeginVertical(GUI.skin.box);
+                GUILayout.BeginHorizontal();
+
+                GUILayout.Label($"Danh mục #{cat.id}", EditorStyles.boldLabel, GUILayout.Width(100));
+
+                GUILayout.FlexibleSpace();
+
+                if (GUILayout.Button("Xóa", GUILayout.Width(60)))
+                {
+                    string reason;
+                    if (CanDeleteCategory(cat.id, out reason))
+                    {
+                        if (EditorUtility.DisplayDialog("Xóa Danh Mục", $"Bạn có chắc chắn muốn xóa Danh mục '{cat.displayName}'?", "Có", "Không"))
+                        {
+                            _categories.RemoveAt(i);
+                            i--;
+                            GUI.FocusControl(null);
+                        }
+                    }
+                    else
+                    {
+                        EditorUtility.DisplayDialog("Lỗi Xóa Danh Mục", reason, "OK");
+                    }
+                }
+
+                GUILayout.EndHorizontal();
+
+                EditorGUILayout.Space();
+
+                cat.id = EditorGUILayout.IntField("Category ID", cat.id);
+                cat.idString = EditorGUILayout.TextField("ID String", cat.idString);
+                cat.displayName = EditorGUILayout.TextField("Tên hiển thị", cat.displayName);
+
+                GUILayout.EndVertical();
+                GUI.backgroundColor = oldBgColor;
+                EditorGUILayout.Space();
+            }
+
+            EditorGUILayout.EndScrollView();
+            GUILayout.EndVertical();
+        }
+
+        private void DrawGlobalItemsTab()
+        {
+            GUILayout.BeginVertical(GUI.skin.box, GUILayout.ExpandWidth(true), GUILayout.ExpandHeight(true));
+            GUILayout.Label("Quản lý Vật phẩm (Global Items)", EditorStyles.boldLabel);
+            EditorGUILayout.Space();
+
+            _itemsScroll = EditorGUILayout.BeginScrollView(_itemsScroll);
+
+            for (int i = 0; i < _globalItems.Count; i++)
+            {
+                var item = _globalItems[i];
+
+                Color oldBgColor = GUI.backgroundColor;
+                GUI.backgroundColor = (i % 2 == 0)
+                    ? new Color(1.5f, 1.5f, 1.5f, 1.0f)
+                    : new Color(0.6f, 0.6f, 0.6f, 1.0f);
+
+                GUILayout.BeginVertical(GUI.skin.box);
+
+                GUILayout.BeginHorizontal();
+                GUILayout.Label($"Vật phẩm #{item.id}", EditorStyles.boldLabel, GUILayout.Width(150));
+                GUILayout.FlexibleSpace();
+
+                bool isReserved = (item.id == 1 || item.id == 2);
+                EditorGUI.BeginDisabledGroup(isReserved);
+                if (GUILayout.Button("Xóa", GUILayout.Width(60)))
+                {
+                    if (EditorUtility.DisplayDialog("Xóa Vật Phẩm", $"Bạn có chắc chắn muốn xóa Vật phẩm '{item.display_name}'?", "Có", "Không"))
+                    {
+                        _globalItems.RemoveAt(i);
+                        i--;
+                        GUI.FocusControl(null);
+                        EditorGUI.EndDisabledGroup();
+                        GUILayout.EndHorizontal();
+                        GUILayout.EndVertical();
+                        GUI.backgroundColor = oldBgColor;
+                        continue;
+                    }
+                }
+                EditorGUI.EndDisabledGroup();
+                GUILayout.EndHorizontal();
+
+                EditorGUILayout.Space();
+
+                EditorGUI.BeginDisabledGroup(isReserved);
+                item.id = EditorGUILayout.IntField("Item ID", item.id);
+                item.id_string = EditorGUILayout.TextField("ID String", item.id_string);
+                EditorGUI.EndDisabledGroup();
+
+                item.display_name = EditorGUILayout.TextField("Tên hiển thị", item.display_name);
+                item.description = EditorGUILayout.TextField("Mô tả", item.description);
+                item.display_name_key = EditorGUILayout.TextField("Khóa tên hiển thị", item.display_name_key);
+                item.description_key = EditorGUILayout.TextField("Khóa mô tả", item.description_key);
+
+                EditorGUI.BeginDisabledGroup(isReserved);
+                string[] baseTypes = { "currency", "consumable", "collectible" };
+                List<string> typeList = new List<string>(baseTypes);
+                if (!typeList.Contains(item.item_type))
+                {
+                    typeList.Add(item.item_type);
+                }
+                string[] types = typeList.ToArray();
+                int typeIdx = Array.IndexOf(types, item.item_type);
+                if (typeIdx < 0) typeIdx = 0;
+                typeIdx = EditorGUILayout.Popup("Loại vật phẩm", typeIdx, types);
+                item.item_type = types[typeIdx];
+                EditorGUI.EndDisabledGroup();
+
+                string[] rarities = { "common", "uncommon", "rare", "epic", "legendary" };
+                int rarityIdx = Array.IndexOf(rarities, item.rarity);
+                if (rarityIdx < 0) rarityIdx = 0;
+                rarityIdx = EditorGUILayout.Popup("Độ hiếm", rarityIdx, rarities);
+                item.rarity = rarities[rarityIdx];
+
+                item.is_consumable = EditorGUILayout.Toggle("Tiêu thụ được", item.is_consumable);
+                item.is_time_limited = EditorGUILayout.Toggle("Giới hạn thời gian", item.is_time_limited);
+                item.max_stack = EditorGUILayout.IntField("Stack tối đa", item.max_stack);
+
+                string[] statuses = { "active", "inactive" };
+                int statusIdx = Array.IndexOf(statuses, item.status);
+                if (statusIdx < 0) statusIdx = 0;
+                statusIdx = EditorGUILayout.Popup("Trạng thái", statusIdx, statuses);
+                item.status = statuses[statusIdx];
+
+                item.sort_order = EditorGUILayout.IntField("Thứ tự sắp xếp", item.sort_order);
+                item.asset_path = EditorGUILayout.TextField("Đường dẫn Asset", item.asset_path);
+
+                GUILayout.EndVertical();
+                GUI.backgroundColor = oldBgColor;
+                EditorGUILayout.Space();
+            }
+
+            EditorGUILayout.EndScrollView();
+            GUILayout.EndVertical();
+        }
+
+        internal List<int> GetActiveItemIds(bool scanFolders)
+        {
+            var ids = new List<int>();
+            foreach (var item in _globalItems)
+            {
+                ids.Add(item.id);
+            }
+
+            foreach (var tab in _tabs)
+            {
+                if (scanFolders && tab.folderAsset != null)
+                {
+                    var (_, scannedItems) = ScanFolder(tab.folderAsset);
+                    for (int itemIndex = 0; itemIndex < scannedItems.Count; itemIndex++)
+                    {
+                        ids.Add(tab.pictureId * 100 + (itemIndex + 1));
+                    }
+                }
+                else
+                {
+                    tab.itemStates.Sort((a, b) => string.Compare(a.filename, b.filename, StringComparison.Ordinal));
+                    for (int itemIndex = 0; itemIndex < tab.itemStates.Count; itemIndex++)
+                    {
+                        ids.Add(tab.pictureId * 100 + (itemIndex + 1));
+                    }
+                }
+            }
+
+            return ids;
+        }
+
+        internal int GetNextAvailableItemId()
+        {
+            var activeIds = new HashSet<int>(GetActiveItemIds(scanFolders: true));
+            int nextId = 1;
+            while (activeIds.Contains(nextId))
+            {
+                nextId++;
+            }
+            return nextId;
+        }
+
+        private void DrawSaveTab()
+        {
+            if (!_saveLoaded)
+            {
+                LoadPlayerSave();
+            }
+
+            GUILayout.BeginVertical(GUI.skin.box, GUILayout.ExpandWidth(true), GUILayout.ExpandHeight(true));
+            GUILayout.Label("Trình sửa Save (Cheat & Player Save Editor)", EditorStyles.boldLabel);
+            EditorGUILayout.Space();
+
+            // Load & Save Buttons
+            GUILayout.BeginHorizontal();
+            if (GUILayout.Button("Tải Save từ Disk / Prefs", GUILayout.Width(180)))
+            {
+                LoadPlayerSave();
+                GUI.FocusControl(null);
+            }
+            if (GUILayout.Button("Lưu Save xuống Disk / Prefs", GUILayout.Width(180)))
+            {
+                SavePlayerSave();
+                EditorUtility.DisplayDialog("Lưu Save Thành Công", "Cấu hình save game đã được lưu vào PlayerPrefs!", "OK");
+            }
+            GUILayout.EndHorizontal();
+
+            EditorGUILayout.Space();
+
+            // Edit basic fields: Coins & Hints
+            _cachedSave.Coins = EditorGUILayout.IntField("Số Xu (Coins)", _cachedSave.Coins);
+            _cachedSave.Hints = EditorGUILayout.IntField("Số Gợi Ý (Hints)", _cachedSave.Hints);
+
+            EditorGUILayout.Space();
+
+            // Unlock All & Reset Save Buttons
+            GUILayout.Label("Trình Cheat / Hỗ Trợ Test", EditorStyles.boldLabel);
+            GUILayout.BeginHorizontal();
+
+            if (GUILayout.Button("Mở Khóa Toàn Bộ Tranh (Unlock All)", GUILayout.Width(240)))
+            {
+                ApplyUnlockAll(_cachedSave);
+                SavePlayerSave();
+                EditorUtility.DisplayDialog("Mở Khóa Hoàn Tất", "Đã mở khóa 3 sao cho tất cả độ khó của các bức tranh hiện tại!", "OK");
+            }
+
+            if (GUILayout.Button("Xóa / Reset Trạng Thái Save", GUILayout.Width(240)))
+            {
+                if (EditorUtility.DisplayDialog("Xác Nhận Reset Save", "Bạn có chắc chắn muốn xóa toàn bộ save game hiện tại? Thao tác này sẽ xóa key save và đưa bộ nhớ cache về trạng thái rỗng.", "Có", "Không"))
+                {
+                    ResetPlayerSave();
+                    EditorUtility.DisplayDialog("Đã Reset Save", "Save game đã được reset hoàn toàn!", "OK");
+                }
+            }
+
+            GUILayout.EndHorizontal();
+
+            EditorGUILayout.Space();
+
+            // Display raw JSON for debugging
+            GUILayout.Label("Raw JSON Save Data (Read-only):", EditorStyles.miniBoldLabel);
+            EditorGUILayout.TextArea(_saveJsonText, GUILayout.ExpandHeight(true));
+
+            GUILayout.EndVertical();
+        }
+
+        internal void LoadPlayerSave()
+        {
+            if (PlayerPrefs.HasKey(SaveDataService.SaveKey))
+            {
+                string json = PlayerPrefs.GetString(SaveDataService.SaveKey);
+                _cachedSave = JsonUtility.FromJson<PlayerSave>(json) ?? new PlayerSave();
+                _saveJsonText = json;
+            }
+            else
+            {
+                _cachedSave = new PlayerSave();
+                _saveJsonText = "";
+            }
+            _cachedSave.CompletedPuzzles ??= new List<CompletedPuzzleData>();
+            _cachedSave.OwnedItemIds ??= new List<int>();
+            _saveLoaded = true;
+        }
+
+        internal void SavePlayerSave()
+        {
+            if (_cachedSave == null) return;
+            _cachedSave.CompletedPuzzles ??= new List<CompletedPuzzleData>();
+            _cachedSave.OwnedItemIds ??= new List<int>();
+            string json = JsonUtility.ToJson(_cachedSave);
+            PlayerPrefs.SetString(SaveDataService.SaveKey, json);
+            PlayerPrefs.Save();
+            _saveJsonText = json;
+        }
+
+        internal void ApplyUnlockAll(PlayerSave save)
+        {
+            if (save == null) return;
+            save.CompletedPuzzles ??= new List<CompletedPuzzleData>();
+
+            var newCompletions = new List<CompletedPuzzleData>();
+            var processedPicIds = new HashSet<int>();
+
+            foreach (var tab in _tabs)
+            {
+                if (tab.pictureId <= 0 || !processedPicIds.Add(tab.pictureId))
+                    continue;
+
+                for (int diffId = 0; diffId <= 2; diffId++)
+                {
+                    var existing = save.CompletedPuzzles.Find(cp => cp.PictureId == tab.pictureId && cp.DifficultyId == diffId);
+                    if (existing != null)
+                    {
+                        existing.BestStar = 3;
+                        existing.BestTimeSeconds = 45.0f;
+                        newCompletions.Add(existing);
+                    }
+                    else
+                    {
+                        newCompletions.Add(new CompletedPuzzleData
+                        {
+                            PictureId = tab.pictureId,
+                            DifficultyId = diffId,
+                            BestStar = 3,
+                            BestTimeSeconds = 45.0f
+                        });
+                    }
+                }
+            }
+
+            save.CompletedPuzzles = newCompletions;
+        }
+
+        internal void ResetPlayerSave()
+        {
+            PlayerPrefs.DeleteKey(SaveDataService.SaveKey);
+            _cachedSave = new PlayerSave();
+            _cachedSave.CompletedPuzzles ??= new List<CompletedPuzzleData>();
+            _cachedSave.OwnedItemIds ??= new List<int>();
+            _saveLoaded = true;
+            _saveJsonText = "";
+            PlayerPrefs.Save();
+        }
+
+        internal bool CanDeleteCategory(int categoryId, out string reason)
+        {
+            if (_categories.Count <= 1)
+            {
+                reason = "Không thể xóa danh mục cuối cùng.";
+                return false;
+            }
+
+            int count = 0;
+            foreach (var tab in _tabs)
+            {
+                if (tab.categoryId == categoryId)
+                {
+                    count++;
+                }
+            }
+
+            if (count > 0)
+            {
+                reason = $"Không thể xóa danh mục này vì có {count} bức tranh đang thuộc danh mục này. Vui lòng thay đổi danh mục của các bức tranh đó trước.";
+                return false;
+            }
+
+            reason = "";
+            return true;
+        }
+
         private void DrawTabDetails(EditorTabState state)
         {
             var prevAsset = state.folderAsset;
@@ -311,7 +919,12 @@ namespace JigsawVina.Editor
 
             // Tab selection toolbar
             string[] detailTabs = { "Thông tin & Key Items", "Độ khó & Phần thưởng" };
+            int prevDetailTab = _detailTabSelected;
             _detailTabSelected = GUILayout.Toolbar(_detailTabSelected, detailTabs);
+            if (_detailTabSelected != prevDetailTab)
+            {
+                GUI.FocusControl(null);
+            }
             EditorGUILayout.Space();
 
             if (_detailTabSelected == 0)
@@ -358,6 +971,19 @@ namespace JigsawVina.Editor
                 state.idString = EditorGUILayout.TextField("ID String", state.idString);
                 state.displayName = EditorGUILayout.TextField("Tên Tranh", state.displayName);
 
+                if (_categories != null && _categories.Count > 0)
+                {
+                    string[] catNames = new string[_categories.Count];
+                    for (int c = 0; c < _categories.Count; c++) catNames[c] = _categories[c].displayName;
+                    int activeCatIdx = _categories.FindIndex(cat => cat.id == state.categoryId);
+                    activeCatIdx = Mathf.Max(0, activeCatIdx);
+                    int newCatIdx = EditorGUILayout.Popup("Danh mục (Category)", activeCatIdx, catNames);
+                    if (newCatIdx >= 0 && newCatIdx < _categories.Count)
+                    {
+                        state.categoryId = _categories[newCatIdx].id;
+                    }
+                }
+
                 EditorGUILayout.Space();
                 GUILayout.Label("Danh Sách Key Items", EditorStyles.boldLabel);
 
@@ -378,7 +1004,7 @@ namespace JigsawVina.Editor
                         : new Color(0.6f, 0.6f, 0.6f, 1.0f);
 
                     GUILayout.BeginVertical(GUI.skin.box);
-                    
+
                     GUILayout.BeginHorizontal();
                     var r = GUILayoutUtility.GetRect(40, 40, GUILayout.ExpandWidth(false));
                     DrawTextureWithBorder(r, tex, ScaleMode.ScaleToFit);
@@ -416,7 +1042,7 @@ namespace JigsawVina.Editor
                     EditorGUILayout.Space();
                     itemState.displayName = EditorGUILayout.TextField("Tên hiển thị", itemState.displayName);
                     itemState.description = EditorGUILayout.TextField("Mô tả", itemState.description);
-                    
+
                     string[] rarities = { "common", "uncommon", "rare", "epic", "legendary" };
                     int rarityIdx = Mathf.Max(0, Array.IndexOf(rarities, itemState.rarity));
                     rarityIdx = EditorGUILayout.Popup("Độ hiếm", rarityIdx, rarities);
@@ -572,123 +1198,231 @@ namespace JigsawVina.Editor
             return (mainTex, itemTexs);
         }
 
-        private void SaveConfig()
+        internal bool TryBuildConfig(out StaticDataDto config, out string errorMessage, bool validateAssets = true)
         {
-            var config = new StaticDataDto();
-            config.schema_version = 1;
-            config.data_version = 1;
-
-            config.categories.Add(new CategoryDto
+            config = new StaticDataDto
             {
-                id = 1,
-                id_string = "vietnam_landscapes",
-                display_name = "Phong Cảnh Việt Nam"
-            });
+                schema_version = 1,
+                data_version = 1
+            };
+            errorMessage = "";
 
-            var validatedPicIds = new HashSet<int>();
-            var validatedPicIdStrings = new HashSet<string>();
-            var validatedItemIdStrings = new HashSet<string>();
+            // 1. Validate and Map Categories
+            var categoryIds = new HashSet<int>();
+            var categoryIdStrings = new HashSet<string>();
 
-            // Always add coin and hint currency defaults to static item database to satisfy validator requirements
-            config.items.Add(new ItemDto
+            foreach (var cat in _categories)
             {
-                id = 1,
-                id_string = "coin",
-                display_name = "Xu",
-                description = "Đơn vị tiền cơ bản trong game.",
-                display_name_key = "item.coin.name",
-                description_key = "item.coin.description",
-                item_type = "currency",
-                rarity = "common",
-                is_consumable = true,
-                is_time_limited = false,
-                max_stack = 999999,
-                status = "active",
-                sort_order = 1,
-                asset_path = ""
-            });
+                if (cat.id <= 0)
+                {
+                    errorMessage = $"ID Danh mục '{cat.displayName}' phải là số nguyên dương (> 0).";
+                    return false;
+                }
+                if (string.IsNullOrEmpty(cat.idString))
+                {
+                    errorMessage = $"ID String của Danh mục ID {cat.id} không được để trống.";
+                    return false;
+                }
+                if (!categoryIds.Add(cat.id))
+                {
+                    errorMessage = $"Trùng lặp ID Danh mục: {cat.id}.";
+                    return false;
+                }
+                if (!categoryIdStrings.Add(cat.idString))
+                {
+                    errorMessage = $"Trùng lặp ID String Danh mục: '{cat.idString}'.";
+                    return false;
+                }
 
-            config.items.Add(new ItemDto
+                config.categories.Add(new CategoryDto
+                {
+                    id = cat.id,
+                    id_string = cat.idString,
+                    display_name = cat.displayName
+                });
+            }
+
+            // 2. Validate and Map Pictures and Items
+            var pictureIds = new HashSet<int>();
+            var pictureIdStrings = new HashSet<string>();
+            var itemIds = new HashSet<int>();
+            var itemIdStrings = new HashSet<string>();
+
+            // Map Global Items first
+            foreach (var item in _globalItems)
             {
-                id = 2,
-                id_string = "hint",
-                display_name = "Gợi Ý",
-                description = "Vật phẩm hỗ trợ người chơi ghép tranh.",
-                display_name_key = "item.hint.name",
-                description_key = "item.hint.description",
-                item_type = "currency",
-                rarity = "common",
-                is_consumable = true,
-                is_time_limited = false,
-                max_stack = 9999,
-                status = "active",
-                sort_order = 2,
-                asset_path = ""
-            });
+                if (item.id <= 0)
+                {
+                    errorMessage = $"ID Vật phẩm '{item.display_name}' phải là số nguyên dương (> 0).";
+                    return false;
+                }
+                if (string.IsNullOrEmpty(item.id_string))
+                {
+                    errorMessage = $"ID String của Vật phẩm ID {item.id} không được để trống.";
+                    return false;
+                }
+                if (item.item_type == "key_item")
+                {
+                    errorMessage = $"Vật phẩm Global '{item.display_name}' không được phép có item_type là 'key_item'.";
+                    return false;
+                }
+                if (!itemIds.Add(item.id))
+                {
+                    errorMessage = $"Trùng lặp ID Vật phẩm Global: {item.id}.";
+                    return false;
+                }
+                if (!itemIdStrings.Add(item.id_string))
+                {
+                    errorMessage = $"Trùng lặp ID String Vật phẩm Global: '{item.id_string}'.";
+                    return false;
+                }
 
+                config.items.Add(item);
+            }
+
+            // Validate Reserved Items
+            var coinItem = _globalItems.Find(i => i.id == 1);
+            if (coinItem == null || coinItem.id_string != "coin" || coinItem.item_type != "currency")
+            {
+                errorMessage = "Vật phẩm cốt lõi ID 1 (coin) phải tồn tại và có id_string là 'coin' với kiểu 'currency'.";
+                return false;
+            }
+            var hintItem = _globalItems.Find(i => i.id == 2);
+            if (hintItem == null || hintItem.id_string != "hint" || hintItem.item_type != "currency")
+            {
+                errorMessage = "Vật phẩm cốt lõi ID 2 (hint) phải tồn tại và có id_string là 'hint' với kiểu 'currency'.";
+                return false;
+            }
+
+            // Map pictures, scanned items, and difficulties
             foreach (var tab in _tabs)
             {
-                if (tab.folderAsset == null) continue;
-
-                string folderPath = AssetDatabase.GetAssetPath(tab.folderAsset);
-                if (!folderPath.StartsWith("Assets/Resources/"))
+                if (tab.pictureId <= 0)
                 {
-                    EditorUtility.DisplayDialog("Lỗi Thư Mục", $"Thư mục '{folderPath}' phải nằm bên trong thư mục 'Assets/Resources/'.", "OK");
-                    return;
+                    errorMessage = $"ID Tranh '{tab.displayName}' phải là số nguyên dương (> 0).";
+                    return false;
+                }
+                if (tab.pictureId >= 20000000)
+                {
+                    errorMessage = $"ID Tranh '{tab.pictureId}' quá lớn (phải nhỏ hơn 20,000,000) để tránh tràn số.";
+                    return false;
+                }
+                if (string.IsNullOrEmpty(tab.idString))
+                {
+                    errorMessage = $"ID String của Tranh ID {tab.pictureId} không được để trống.";
+                    return false;
+                }
+                if (!pictureIds.Add(tab.pictureId))
+                {
+                    errorMessage = $"Trùng lặp ID Tranh: {tab.pictureId}.";
+                    return false;
+                }
+                if (!pictureIdStrings.Add(tab.idString))
+                {
+                    errorMessage = $"Trùng lặp ID String Tranh: '{tab.idString}'.";
+                    return false;
+                }
+                if (!categoryIds.Contains(tab.categoryId))
+                {
+                    errorMessage = $"Tranh '{tab.displayName}' tham chiếu Danh mục ID {tab.categoryId} không tồn tại.";
+                    return false;
                 }
 
-                var (main, items) = ScanFolder(tab.folderAsset);
-                if (main == null)
+                string mainPath = "";
+                string resourceFolder = "";
+                List<string> itemFilenames = new();
+
+                if (validateAssets)
                 {
-                    EditorUtility.DisplayDialog("Thiếu Tranh Chính", $"Không tìm thấy ảnh chính có prefix 'MAIN_' trong thư mục: {tab.folderAsset.name}", "OK");
-                    return;
+                    if (tab.folderAsset == null)
+                    {
+                        errorMessage = $"Tranh ID {tab.pictureId} chưa gán Thư mục tranh.";
+                        return false;
+                    }
+                    string folderPath = AssetDatabase.GetAssetPath(tab.folderAsset);
+                    if (!folderPath.StartsWith("Assets/Resources/"))
+                    {
+                        errorMessage = $"Thư mục '{folderPath}' phải nằm bên trong 'Assets/Resources/'.";
+                        return false;
+                    }
+
+                    var (main, scannedItems) = ScanFolder(tab.folderAsset);
+                    if (main == null)
+                    {
+                        errorMessage = $"Không tìm thấy ảnh chính 'MAIN_' trong thư mục: {tab.folderAsset.name}";
+                        return false;
+                    }
+                    if (scannedItems.Count > 99)
+                    {
+                        errorMessage = $"Thư mục tranh '{tab.folderAsset.name}' có quá 99 key items (hiện có {scannedItems.Count}). Giới hạn tối đa là 99.";
+                        return false;
+                    }
+
+                    resourceFolder = folderPath.Substring("Assets/Resources/".Length);
+                    mainPath = $"{resourceFolder}/{main.name}";
+
+                    foreach (var itTex in scannedItems)
+                    {
+                        itemFilenames.Add(itTex.name);
+                    }
+                }
+                else
+                {
+                    // Mock path
+                    mainPath = $"Textures/MAIN_mock_{tab.idString}";
+                    resourceFolder = "Textures";
+
+                    // Sort mock itemStates alphabetically using Ordinal comparison
+                    tab.itemStates.Sort((a, b) => string.Compare(a.filename, b.filename, StringComparison.Ordinal));
+                    if (tab.itemStates.Count > 99)
+                    {
+                        errorMessage = $"Tranh ID {tab.pictureId} có quá 99 key items. Giới hạn tối đa là 99.";
+                        return false;
+                    }
+
+                    foreach (var itState in tab.itemStates)
+                    {
+                        itemFilenames.Add(itState.filename);
+                    }
                 }
 
-                if (!validatedPicIds.Add(tab.pictureId))
-                {
-                    EditorUtility.DisplayDialog("Trùng ID Tranh", $"ID Tranh '{tab.pictureId}' bị trùng giữa các bức tranh.", "OK");
-                    return;
-                }
-
-                if (string.IsNullOrEmpty(tab.idString) || !validatedPicIdStrings.Add(tab.idString))
-                {
-                    EditorUtility.DisplayDialog("Trùng ID String Tranh", $"ID String '{tab.idString}' bị trùng hoặc trống.", "OK");
-                    return;
-                }
-
-                // Strip Assets/Resources/ safely via Substring to avoid global Replace side effects
-                string resourceFolder = folderPath.Substring("Assets/Resources/".Length);
-                string mainPath = $"{resourceFolder}/{main.name}";
-                
+                // Map pictureDto
                 config.pictures.Add(new PictureDto
                 {
                     id = tab.pictureId,
                     id_string = tab.idString,
                     display_name = tab.displayName,
-                    category_id = 1,
+                    category_id = tab.categoryId,
                     asset_path = mainPath,
                     difficulty_unlock_policy = "sequential"
                 });
 
+                // Map scanned items DTO
                 var localItems = new Dictionary<string, int>();
-                for (int itemIndex = 0; itemIndex < items.Count; itemIndex++)
+                for (int itemIndex = 0; itemIndex < itemFilenames.Count; itemIndex++)
                 {
-                    var itTex = items[itemIndex];
-                    string itemIdString = itTex.name.ToLower();
-                    
-                    if (!validatedItemIdStrings.Add(itemIdString))
+                    string filename = itemFilenames[itemIndex];
+                    string itemIdString = filename.ToLower();
+
+                    if (!itemIdStrings.Add(itemIdString))
                     {
-                        EditorUtility.DisplayDialog("Trùng ID String Vật Phẩm", $"Tên file vật phẩm '{itTex.name}' bị trùng lặp trong dự án. Vui lòng sử dụng tên file duy nhất.", "OK");
-                        return;
+                        errorMessage = $"Trùng lặp ID String Vật phẩm: '{itemIdString}'.";
+                        return false;
                     }
 
-                    var itemState = tab.itemStates.Find(it => it.filename == itTex.name);
-                    string dispName = itemState != null ? itemState.displayName : itTex.name.Replace("_", " ");
+                    int itemId = tab.pictureId * 100 + (itemIndex + 1);
+                    if (!itemIds.Add(itemId))
+                    {
+                        errorMessage = $"Trùng lặp ID Vật phẩm: {itemId}.";
+                        return false;
+                    }
+
+                    var itemState = tab.itemStates.Find(it => it.filename == filename);
+                    string dispName = itemState != null ? itemState.displayName : filename.Replace("_", " ");
                     string desc = itemState != null ? itemState.description : "";
                     string rarity = itemState != null ? itemState.rarity : "common";
+                    string itPath = $"{resourceFolder}/{filename}";
 
-                    int itemId = tab.pictureId * 100 + (itemIndex + 1); // Stable, tab-isolated ID formula
-                    string itPath = $"{resourceFolder}/{itTex.name}";
                     config.items.Add(new ItemDto
                     {
                         id = itemId,
@@ -706,15 +1440,17 @@ namespace JigsawVina.Editor
                         sort_order = itemId,
                         asset_path = itPath
                     });
-                    localItems[itTex.name] = itemId;
+                    localItems[filename] = itemId;
                 }
 
-                AddDifficulty(config, tab.pictureId, 0, "Dễ", tab.easyCols, tab.easyRows, tab.easyCoins, tab.easyReplayCoins, tab.easyHints, tab.easyKeyRewardIndex, items, localItems);
-                AddDifficulty(config, tab.pictureId, 1, "Trung bình", tab.normalCols, tab.normalRows, tab.normalCoins, tab.normalReplayCoins, tab.normalHints, tab.normalKeyRewardIndex, items, localItems);
-                AddDifficulty(config, tab.pictureId, 2, "Khó", tab.hardCols, tab.hardRows, tab.hardCoins, tab.hardReplayCoins, tab.hardHints, tab.hardKeyRewardIndex, items, localItems);
+                // Map difficulties
+                AddDifficulty(config, tab.pictureId, 0, "Dễ", tab.easyCols, tab.easyRows, tab.easyCoins, tab.easyReplayCoins, tab.easyHints, tab.easyKeyRewardIndex, itemFilenames, localItems);
+                AddDifficulty(config, tab.pictureId, 1, "Trung bình", tab.normalCols, tab.normalRows, tab.normalCoins, tab.normalReplayCoins, tab.normalHints, tab.normalKeyRewardIndex, itemFilenames, localItems);
+                AddDifficulty(config, tab.pictureId, 2, "Khó", tab.hardCols, tab.hardRows, tab.hardCoins, tab.hardReplayCoins, tab.hardHints, tab.hardKeyRewardIndex, itemFilenames, localItems);
             }
 
-            // Sort DTOs for deterministic, clean JSON output and clean git diffs
+            // Sort DTOs for deterministic, clean JSON output
+            config.categories.Sort((a, b) => a.id.CompareTo(b.id));
             config.pictures.Sort((a, b) => a.id.CompareTo(b.id));
             config.items.Sort((a, b) => a.id.CompareTo(b.id));
             config.picture_difficulties.Sort((a, b) =>
@@ -724,6 +1460,19 @@ namespace JigsawVina.Editor
                 return a.difficulty_id.CompareTo(b.difficulty_id);
             });
 
+            return true;
+        }
+
+        private void SaveConfig()
+        {
+            StaticDataDto config;
+            string err;
+            if (!TryBuildConfig(out config, out err, true))
+            {
+                EditorUtility.DisplayDialog("Lỗi Cấu Hình", err, "OK");
+                return;
+            }
+
             string json = JsonUtility.ToJson(config, true);
             Directory.CreateDirectory(Path.GetDirectoryName(SavePath));
             File.WriteAllText(SavePath, json);
@@ -732,12 +1481,12 @@ namespace JigsawVina.Editor
             EditorUtility.DisplayDialog("Hoàn Thành", $"Đã lưu và cấu hình static data tại {SavePath}!", "OK");
         }
 
-        private void AddDifficulty(StaticDataDto config, int pictureId, int diffId, string displayName, int cols, int rows, int firstClearCoins, int replayCoins, int firstClearHints, int rewardIndex, List<Texture2D> items, Dictionary<string, int> localItems)
+        private void AddDifficulty(StaticDataDto config, int pictureId, int diffId, string displayName, int cols, int rows, int firstClearCoins, int replayCoins, int firstClearHints, int rewardIndex, List<string> items, Dictionary<string, int> localItems)
         {
             var listRewards = new List<int>();
             if (rewardIndex > 0 && rewardIndex <= items.Count)
             {
-                var texName = items[rewardIndex - 1].name;
+                var texName = items[rewardIndex - 1];
                 if (localItems.TryGetValue(texName, out int itemId))
                 {
                     listRewards.Add(itemId);
@@ -847,6 +1596,7 @@ namespace JigsawVina.Editor
 
             if (addedCount > 0)
             {
+                _tabs.Sort((a, b) => a.pictureId.CompareTo(b.pictureId));
                 _selectedIndex = _tabs.Count - 1;
             }
         }
@@ -856,16 +1606,16 @@ namespace JigsawVina.Editor
             Event evt = Event.current;
             Rect dropArea = GUILayoutUtility.GetRect(0.0f, 40.0f, GUILayout.ExpandWidth(true));
             GUI.Box(dropArea, "Kéo thả nhiều Folder\ntranh vào đây", GUI.skin.box);
-            
+
             switch (evt.type)
             {
                 case EventType.DragUpdated:
                 case EventType.DragPerform:
                     if (!dropArea.Contains(evt.mousePosition))
                         break;
-                    
+
                     DragAndDrop.visualMode = DragAndDropVisualMode.Copy;
-                    
+
                     if (evt.type == EventType.DragPerform)
                     {
                         DragAndDrop.AcceptDrag();
@@ -881,7 +1631,7 @@ namespace JigsawVina.Editor
                                 }
                             }
                         }
-                        
+
                         if (droppedFolders.Count > 0)
                         {
                             AddMultipleFolders(droppedFolders);
@@ -894,15 +1644,15 @@ namespace JigsawVina.Editor
         private void DrawTextureWithBorder(Rect rect, Texture2D tex, ScaleMode scaleMode = ScaleMode.ScaleToFit)
         {
             if (tex == null) return;
-            
+
             // Draw outer border (light silver grey border)
             Color borderColor = new Color(0.6f, 0.6f, 0.6f, 1.0f);
             EditorGUI.DrawRect(new Rect(rect.x - 1, rect.y - 1, rect.width + 2, rect.height + 2), borderColor);
-            
+
             // Draw inner background (dark grey)
             Color bgColor = new Color(0.18f, 0.18f, 0.18f, 1.0f);
             EditorGUI.DrawRect(rect, bgColor);
-            
+
             // Draw texture inside
             GUI.DrawTexture(rect, tex, scaleMode);
         }

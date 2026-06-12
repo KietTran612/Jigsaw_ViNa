@@ -47,3 +47,7 @@ Thumbs.db
 **/Assets/Packages.meta
 **/Assets/TextMesh Pro
 **/Assets/TextMesh Pro.meta
+
+# Unity Recovery
+**/Assets/_Recovery/
+**/Assets/_Recovery.meta

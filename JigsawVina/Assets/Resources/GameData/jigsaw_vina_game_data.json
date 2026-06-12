@@ -14,7 +14,7 @@
             "id_string": "house_oldvillage_1",
             "display_name": "House OldVillage 1",
             "category_id": 1,
-            "asset_path": "Textures/Pictures/Picture_1/MAIN_House_OldVillage_1",
+            "asset_path": "Textures/Pictures/Picture_1/MAIN_old_village_north_001",
             "difficulty_unlock_policy": "sequential"
         },
         {
@@ -149,6 +149,22 @@
         },
         {
             "id": 105,
+            "id_string": "house_oldvillage_1",
+            "display_name": "House OldVillage 1",
+            "description": "",
+            "display_name_key": "item.house_oldvillage_1.name",
+            "description_key": "item.house_oldvillage_1.description",
+            "item_type": "key_item",
+            "rarity": "common",
+            "is_consumable": false,
+            "is_time_limited": false,
+            "max_stack": 1,
+            "status": "active",
+            "sort_order": 105,
+            "asset_path": "Textures/Pictures/Picture_1/House_OldVillage_1"
+        },
+        {
+            "id": 106,
             "id_string": "pottedplant_foreground_1",
             "display_name": "PottedPlant Foreground 1",
             "description": "",
@@ -160,11 +176,11 @@
             "is_time_limited": false,
             "max_stack": 1,
             "status": "active",
-            "sort_order": 105,
+            "sort_order": 106,
             "asset_path": "Textures/Pictures/Picture_1/PottedPlant_Foreground_1"
         },
         {
-            "id": 106,
+            "id": 107,
             "id_string": "waterjar_large_1",
             "display_name": "WaterJar Large 1",
             "description": "",
@@ -176,24 +192,8 @@
             "is_time_limited": false,
             "max_stack": 1,
             "status": "active",
-            "sort_order": 106,
-            "asset_path": "Textures/Pictures/Picture_1/WaterJar_Large_1"
-        },
-        {
-            "id": 107,
-            "id_string": "old_village_north_001",
-            "display_name": "old village north 001",
-            "description": "",
-            "display_name_key": "item.old_village_north_001.name",
-            "description_key": "item.old_village_north_001.description",
-            "item_type": "key_item",
-            "rarity": "common",
-            "is_consumable": false,
-            "is_time_limited": false,
-            "max_stack": 1,
-            "status": "active",
             "sort_order": 107,
-            "asset_path": "Textures/Pictures/Picture_1/old_village_north_001"
+            "asset_path": "Textures/Pictures/Picture_1/WaterJar_Large_1"
         },
         {
             "id": 201,

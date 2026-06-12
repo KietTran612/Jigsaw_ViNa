@@ -21,6 +21,11 @@
 | **Task 18: Integrate Presentation Asset Loading** | [x] | Update PuzzlePlayingPresenter to load board textures dynamically from configured static data paths. |
 | **Task 19: Tab-bar selection & Collapsible difficulties in Game Data Editor** | [x] | Implement a two-tab view, collapsible foldouts, clickable images to ping files, Sprite Editor integration buttons, and bordered frame styling in JigsawVinaGameDataEditor.cs. |
 | **Task 20: Bulk Add Pictures from Folder in Game Data Editor** | [x] | Support direct selection of multiple picture folders in the Project tab and Drag-and-Drop capability, auto-configuring assets and logging duplicate main texture names. |
+| **Task 21: Category Management in Editor Window** | [x] | Added category management tab, category selection popup, DTO loading/saving, and category deletion safety check. |
+| **Task 22: Global Item Database Editor in Editor Window** | [x] | Implemented global item tab, item creation/deletion, reserved items protection (coin/hint), and ID/id_string uniqueness validation. |
+| **Task 23: Player Save & Cheat Editor in Editor Window** | [x] | Implemented Player Save loading/saving, coins/hints edit fields, idempotent Unlock All cheat, and targeted Save Reset button. |
+| **Task 24: Automated Editor Tests for Extended Editor Tools** | [x] | Implemented 13 EditMode tests covering DTO field round-trips, category ID round-trips, difficulty settings hydration with missing assets, duplicate validations (IDs, id_strings, and key-item collisions), positive ID validations, key item limits, category deletion safety, unlock-all idempotency, PlayerPrefs save reset scope, and auto-repairing/seeding of reserved items. |
+
 
 
 ## Completed

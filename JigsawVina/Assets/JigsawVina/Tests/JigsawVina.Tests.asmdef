@@ -3,6 +3,7 @@
     "rootNamespace": "JigsawVina.Tests",
     "references": [
         "JigsawVina",
+        "JigsawVina.Editor",
         "UniTask",
         "VContainer",
         "Unity.TextMeshPro",
