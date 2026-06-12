@@ -2,6 +2,12 @@
 
 ## Latest Completed Work
 
+- **Task 27: Final Review Dynamic Home UI Plans**:
+  - Reviewed `2026-06-12-dynamic-home-ui-design.md` and `2026-06-12-dynamic-home-ui-implementation.md` for prefab setup order, VContainer disposal, dynamic card cleanup, sprite references, scene regeneration, and targeted verification scope.
+  - Tightened `Presenter_OnDispose_UnsubscribesFromView` to assert the exact default session state.
+  - Expanded `FlowController_OnDispose_UnsubscribesFromView` to prove both picture-selection and Back-button listeners no longer change screen state after disposal.
+  - No runtime code or Unity asset was changed as part of this review.
+
 - **Task 26: Cấu hình Localization Keys & Sửa lỗi Review**:
   - **Localization Keys GUI & Config**: Thêm trường `display_name_key` và `description_key` vào các DTO (`CategoryDto`, `PictureDto`, `ItemDto`), `PictureConfig` runtime và giao diện cấu hình của `JigsawVinaGameDataEditor.cs`.
   - **Auto-Generation Rules**: Hỗ trợ tự động điền mã ngôn ngữ theo định dạng chuẩn nếu bỏ trống:
@@ -17,6 +23,7 @@
 
 ## Verification
 
+- **Task 27**: Documentation-only review; Unity compile and tests not run because no runtime or asset implementation changed.
 - **Compiler Status**: Unity biên dịch thành công 100% không cảnh báo/lỗi.
 - **Automated Tests**:
   - EditMode tests: 39/39 passed (bao gồm tất cả các kiểm tra logic, validator, cheat editor, và cấu trúc DTO).
@@ -25,12 +32,9 @@
 
 ## Current Uncommitted Scope
 
-- Thay đổi trong các tệp C# runtime (`PlayerSave.cs`, `StaticDataDto.cs`, `StaticDataService.cs`).
-- Giao diện Editor (`JigsawVinaGameDataEditor.cs`).
-- Các tệp kiểm thử chỉnh sửa (`ProgressionTests.cs`, `StaticDataServiceTests.cs`, `PuzzleGameplayPlayModeTests.cs`).
-- Các tệp dữ liệu JSON mẫu và thực tế (`jigsaw_vietnam_player_save_sample_v0_1.json`, `jigsaw_vietnam_static_data_sample_v0_1.json`, `jigsaw_vina_game_data.json`).
-- Xóa bỏ `StaticData.json` và `.meta`.
+- `JigsawVina/Assets/Scenes/Home.unity` contains a pre-existing unrelated Unity serialization change and is intentionally excluded from the Dynamic Home UI planning commit.
 
 ## Recommended Next Steps
 
+- Wait for an explicit user request before starting Task 28. Tasks 28-34 must be implemented in order according to `docs/plans/2026-06-12-dynamic-home-ui-implementation.md`.
 - Thực hiện commit toàn bộ thay đổi lên Git nhánh hiện tại nếu người dùng đồng ý.

@@ -13,3 +13,5 @@ This file lists detailed implementation plans under `docs/plans/`.
 - [2026-06-11-extended-editor-tools.md](2026-06-11-extended-editor-tools.md) - Extend Game Data Editor to manage custom categories, global items, and save cheats with robust validation and safety policies.
 - [2026-06-12-reward-item-dropdown-images.md](2026-06-12-reward-item-dropdown-images.md) - Display key item thumbnails inside difficulty reward dropdowns and show preview box in editor.
 - [2026-06-12-localization-keys-and-reviews.md](2026-06-12-localization-keys-and-reviews.md) - Expose localization keys for Picture, Category, and Key Items on GUI, and address outstanding reviews.
+- [2026-06-12-dynamic-home-ui-design.md](2026-06-12-dynamic-home-ui-design.md) - Design dynamic Home picture selection using reusable cards loaded from static data with explicit lifecycle cleanup.
+- [2026-06-12-dynamic-home-ui-implementation.md](2026-06-12-dynamic-home-ui-implementation.md) - Implement and verify dynamic Home cards, VContainer event cleanup, scene regeneration, and targeted tests.
