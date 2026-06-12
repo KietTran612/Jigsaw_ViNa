@@ -1062,11 +1062,11 @@ namespace JigsawVina.Editor
                 GUILayout.Label("Cấu hình độ khó & Phần thưởng", EditorStyles.boldLabel);
                 EditorGUILayout.Space();
 
-                string[] itemNames = new string[itemTextures.Count + 1];
-                itemNames[0] = "None";
+                GUIContent[] itemGUIContents = new GUIContent[itemTextures.Count + 1];
+                itemGUIContents[0] = new GUIContent("None");
                 for (int i = 0; i < itemTextures.Count; i++)
                 {
-                    itemNames[i + 1] = itemTextures[i].name;
+                    itemGUIContents[i + 1] = new GUIContent(itemTextures[i].name, itemTextures[i]);
                 }
 
                 // EASY
@@ -1079,7 +1079,23 @@ namespace JigsawVina.Editor
                     state.easyCoins = EditorGUILayout.IntField("First Clear Coin", state.easyCoins);
                     state.easyReplayCoins = EditorGUILayout.IntField("Replay Coin", state.easyReplayCoins);
                     state.easyHints = EditorGUILayout.IntField("First Clear Hint", state.easyHints);
-                    state.easyKeyRewardIndex = EditorGUILayout.Popup("Reward Key Item", state.easyKeyRewardIndex, itemNames);
+
+                    GUILayout.BeginHorizontal();
+                    state.easyKeyRewardIndex = EditorGUILayout.Popup(new GUIContent("Reward Key Item"), state.easyKeyRewardIndex, itemGUIContents);
+                    GUILayout.Space(5);
+                    if (state.easyKeyRewardIndex > 0 && state.easyKeyRewardIndex <= itemTextures.Count)
+                    {
+                        var tex = itemTextures[state.easyKeyRewardIndex - 1];
+                        var rect = GUILayoutUtility.GetRect(24, 24, GUILayout.Width(24), GUILayout.Height(24));
+                        DrawTextureWithBorder(rect, tex, ScaleMode.ScaleToFit);
+                    }
+                    else
+                    {
+                        var rect = GUILayoutUtility.GetRect(24, 24, GUILayout.Width(24), GUILayout.Height(24));
+                        EditorGUI.DrawRect(rect, new Color(0.18f, 0.18f, 0.18f, 1.0f));
+                    }
+                    GUILayout.EndHorizontal();
+
                     EditorGUI.indentLevel--;
                 }
                 EditorGUILayout.EndFoldoutHeaderGroup();
@@ -1096,7 +1112,23 @@ namespace JigsawVina.Editor
                     state.normalCoins = EditorGUILayout.IntField("First Clear Coin", state.normalCoins);
                     state.normalReplayCoins = EditorGUILayout.IntField("Replay Coin", state.normalReplayCoins);
                     state.normalHints = EditorGUILayout.IntField("First Clear Hint", state.normalHints);
-                    state.normalKeyRewardIndex = EditorGUILayout.Popup("Reward Key Item", state.normalKeyRewardIndex, itemNames);
+
+                    GUILayout.BeginHorizontal();
+                    state.normalKeyRewardIndex = EditorGUILayout.Popup(new GUIContent("Reward Key Item"), state.normalKeyRewardIndex, itemGUIContents);
+                    GUILayout.Space(5);
+                    if (state.normalKeyRewardIndex > 0 && state.normalKeyRewardIndex <= itemTextures.Count)
+                    {
+                        var tex = itemTextures[state.normalKeyRewardIndex - 1];
+                        var rect = GUILayoutUtility.GetRect(24, 24, GUILayout.Width(24), GUILayout.Height(24));
+                        DrawTextureWithBorder(rect, tex, ScaleMode.ScaleToFit);
+                    }
+                    else
+                    {
+                        var rect = GUILayoutUtility.GetRect(24, 24, GUILayout.Width(24), GUILayout.Height(24));
+                        EditorGUI.DrawRect(rect, new Color(0.18f, 0.18f, 0.18f, 1.0f));
+                    }
+                    GUILayout.EndHorizontal();
+
                     EditorGUI.indentLevel--;
                 }
                 EditorGUILayout.EndFoldoutHeaderGroup();
@@ -1113,10 +1145,27 @@ namespace JigsawVina.Editor
                     state.hardCoins = EditorGUILayout.IntField("First Clear Coin", state.hardCoins);
                     state.hardReplayCoins = EditorGUILayout.IntField("Replay Coin", state.hardReplayCoins);
                     state.hardHints = EditorGUILayout.IntField("First Clear Hint", state.hardHints);
-                    state.hardKeyRewardIndex = EditorGUILayout.Popup("Reward Key Item", state.hardKeyRewardIndex, itemNames);
+
+                    GUILayout.BeginHorizontal();
+                    state.hardKeyRewardIndex = EditorGUILayout.Popup(new GUIContent("Reward Key Item"), state.hardKeyRewardIndex, itemGUIContents);
+                    GUILayout.Space(5);
+                    if (state.hardKeyRewardIndex > 0 && state.hardKeyRewardIndex <= itemTextures.Count)
+                    {
+                        var tex = itemTextures[state.hardKeyRewardIndex - 1];
+                        var rect = GUILayoutUtility.GetRect(24, 24, GUILayout.Width(24), GUILayout.Height(24));
+                        DrawTextureWithBorder(rect, tex, ScaleMode.ScaleToFit);
+                    }
+                    else
+                    {
+                        var rect = GUILayoutUtility.GetRect(24, 24, GUILayout.Width(24), GUILayout.Height(24));
+                        EditorGUI.DrawRect(rect, new Color(0.18f, 0.18f, 0.18f, 1.0f));
+                    }
+                    GUILayout.EndHorizontal();
+
                     EditorGUI.indentLevel--;
                 }
                 EditorGUILayout.EndFoldoutHeaderGroup();
+
 
                 GUILayout.EndVertical();
             }

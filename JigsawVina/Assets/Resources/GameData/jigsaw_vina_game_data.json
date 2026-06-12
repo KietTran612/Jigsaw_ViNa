@@ -656,7 +656,9 @@
             "first_clear_coin": 30,
             "first_clear_hint": 0,
             "replay_coin": 10,
-            "first_clear_reward_item_ids": []
+            "first_clear_reward_item_ids": [
+                107
+            ]
         },
         {
             "picture_id": 1,
@@ -669,7 +671,9 @@
             "first_clear_coin": 60,
             "first_clear_hint": 0,
             "replay_coin": 20,
-            "first_clear_reward_item_ids": []
+            "first_clear_reward_item_ids": [
+                104
+            ]
         },
         {
             "picture_id": 1,
@@ -682,7 +686,9 @@
             "first_clear_coin": 120,
             "first_clear_hint": 0,
             "replay_coin": 40,
-            "first_clear_reward_item_ids": []
+            "first_clear_reward_item_ids": [
+                102
+            ]
         },
         {
             "picture_id": 2,
@@ -695,7 +701,9 @@
             "first_clear_coin": 30,
             "first_clear_hint": 0,
             "replay_coin": 10,
-            "first_clear_reward_item_ids": []
+            "first_clear_reward_item_ids": [
+                206
+            ]
         },
         {
             "picture_id": 2,
@@ -708,7 +716,9 @@
             "first_clear_coin": 60,
             "first_clear_hint": 0,
             "replay_coin": 20,
-            "first_clear_reward_item_ids": []
+            "first_clear_reward_item_ids": [
+                201
+            ]
         },
         {
             "picture_id": 2,
@@ -721,7 +731,9 @@
             "first_clear_coin": 120,
             "first_clear_hint": 0,
             "replay_coin": 40,
-            "first_clear_reward_item_ids": []
+            "first_clear_reward_item_ids": [
+                202
+            ]
         },
         {
             "picture_id": 3,
@@ -734,7 +746,9 @@
             "first_clear_coin": 30,
             "first_clear_hint": 0,
             "replay_coin": 10,
-            "first_clear_reward_item_ids": []
+            "first_clear_reward_item_ids": [
+                301
+            ]
         },
         {
             "picture_id": 3,
@@ -747,7 +761,9 @@
             "first_clear_coin": 60,
             "first_clear_hint": 0,
             "replay_coin": 20,
-            "first_clear_reward_item_ids": []
+            "first_clear_reward_item_ids": [
+                302
+            ]
         },
         {
             "picture_id": 3,
@@ -760,7 +776,9 @@
             "first_clear_coin": 120,
             "first_clear_hint": 0,
             "replay_coin": 40,
-            "first_clear_reward_item_ids": []
+            "first_clear_reward_item_ids": [
+                305
+            ]
         },
         {
             "picture_id": 4,
@@ -773,7 +791,9 @@
             "first_clear_coin": 30,
             "first_clear_hint": 0,
             "replay_coin": 10,
-            "first_clear_reward_item_ids": []
+            "first_clear_reward_item_ids": [
+                406
+            ]
         },
         {
             "picture_id": 4,
@@ -786,7 +806,9 @@
             "first_clear_coin": 60,
             "first_clear_hint": 0,
             "replay_coin": 20,
-            "first_clear_reward_item_ids": []
+            "first_clear_reward_item_ids": [
+                404
+            ]
         },
         {
             "picture_id": 4,
@@ -799,7 +821,9 @@
             "first_clear_coin": 120,
             "first_clear_hint": 0,
             "replay_coin": 40,
-            "first_clear_reward_item_ids": []
+            "first_clear_reward_item_ids": [
+                407
+            ]
         },
         {
             "picture_id": 5,
@@ -812,7 +836,9 @@
             "first_clear_coin": 30,
             "first_clear_hint": 0,
             "replay_coin": 10,
-            "first_clear_reward_item_ids": []
+            "first_clear_reward_item_ids": [
+                502
+            ]
         },
         {
             "picture_id": 5,
@@ -825,7 +851,9 @@
             "first_clear_coin": 60,
             "first_clear_hint": 0,
             "replay_coin": 20,
-            "first_clear_reward_item_ids": []
+            "first_clear_reward_item_ids": [
+                501
+            ]
         },
         {
             "picture_id": 5,
@@ -838,7 +866,9 @@
             "first_clear_coin": 120,
             "first_clear_hint": 0,
             "replay_coin": 40,
-            "first_clear_reward_item_ids": []
+            "first_clear_reward_item_ids": [
+                505
+            ]
         }
     ]
 }

@@ -25,6 +25,8 @@
 | **Task 22: Global Item Database Editor in Editor Window** | [x] | Implemented global item tab, item creation/deletion, reserved items protection (coin/hint), and ID/id_string uniqueness validation. |
 | **Task 23: Player Save & Cheat Editor in Editor Window** | [x] | Implemented Player Save loading/saving, coins/hints edit fields, idempotent Unlock All cheat, and targeted Save Reset button. |
 | **Task 24: Automated Editor Tests for Extended Editor Tools** | [x] | Implemented 13 EditMode tests covering DTO field round-trips, category ID round-trips, difficulty settings hydration with missing assets, duplicate validations (IDs, id_strings, and key-item collisions), positive ID validations, key item limits, category deletion safety, unlock-all idempotency, PlayerPrefs save reset scope, and auto-repairing/seeding of reserved items. |
+| **Task 25: Hiển thị hình ảnh trong dropdown Reward Key Item và ô xem trước** | [x] | Thêm ảnh vào dropdown và ô xem trước bên cạnh dropdown cấu hình độ khó. |
+
 
 
 

@@ -2,41 +2,26 @@
 
 ## Latest Completed Work
 
-- **Task 24: Automated Editor Tests & Validation Bugfixes**:
-  - **Auto-Repair Malformed Reserved Items**: Updated `EnsureReservedItems()` to automatically correct malformed fields (such as invalid `id_string` or `item_type`) for core reserved items `coin` (ID 1) and `hint` (ID 2) upon loading/refreshing. This prevents permanent GUI blocks where fields are locked but validation rejects saving.
-  - **Preservation of Unknown Item Types**: Replaced rigid array matching with dynamic selection list building to allow items with custom types (e.g. `event_item`) to be loaded and edited without their types being silently overwritten to `collectible`.
-  - **Unlock All Cheat Deduplication**: Added a distinct `pictureId` check to prevent generating duplicate completed puzzle entries if the editor tabs contain unsaved duplicate picture IDs.
-  - **Extended EditMode Tests**: Implemented and updated 13 EditMode tests inside `JigsawVinaGameDataEditorTests` covering:
-    1. Load/save field round-trip preservation.
-    2. Category ID round-trips.
-    3. Difficulty settings hydration (and alphabetical item rewards fallback) with missing folder assets.
-    4. Positive ID checks (Category, Picture, and Global Item ID validations).
-    5. Uniqueness validations (duplicate item IDs, duplicate `id_string`s, and collision checking with scanned key items).
-    6. Key item count limits (blocking saving if a picture has >99 key items).
-    7. Category deletion safety blocks.
-    8. Idempotency and stale entry deletion for the Unlock All cheat.
-    9. Save Reset target deletion scope.
-    10. Default reserved item seeding on empty DTO load.
-    11. Duplicate picture ID deduplication inside the Unlock All cheat.
-    12. Malformed reserved items auto-repair.
-    13. Preservation of unknown custom global item types.
+- **Task 25: Hiển thị hình ảnh trong dropdown Reward Key Item và ô xem trước**:
+  - Chuyển đổi trường chọn phần thưởng `Reward Key Item` từ hiển thị text đơn thuần sang sử dụng `GUIContent` chứa kèm theo Texture2D của Key Items.
+  - Thêm ô xem trước (preview thumbnail) kích thước $24 \times 24$ pixel có viền bạc bên phải dropdown để biểu diễn hình ảnh phóng to của vật phẩm đã chọn trực quan, tự động hiển thị placeholder xám tối khi chọn "None".
+  - Hoàn thiện tài liệu thiết kế và kế hoạch tại `docs/plans/2026-06-12-reward-item-dropdown-images-design.md` và `docs/plans/2026-06-12-reward-item-dropdown-images.md`.
 
-- **Milestone Reverts & GUI Fixes (P1, P2, P3 & Focus)**:
-  - **Key-Item ID Restore**: Restored original filenames (`MAIN_House_OldVillage_1.png` and `old_village_north_001.png`) and reverted `jigsaw_vina_game_data.json` to keep IDs 105-107 stable and prevent breaking existing players' save data.
-  - **GUI Focus Clearing**: Added `GUI.FocusControl(null)` when switching tabs, selecting sidebar pictures, or adding/deleting elements. This fixes the Unity IMGUI bug where text fields did not update to correct values when tab selection changed while a field was focused.
-  - **Diff Hygiene Cleaned**: Removed all trailing whitespaces in code files. Added `**/Assets/_Recovery/` and its `.meta` to `.gitignore` to prevent committing generated recovery folders, and trimmed trailing blank lines from `.gitignore`.
+- **Task 24: Automated Editor Tests & Validation Bugfixes**:
+  - Auto-Repair Malformed Reserved Items, Preservation of Unknown Item Types, and Unlock All Cheat Deduplication.
+  - Reverted P1/P2 ID and texture swaps to keep save files stable.
+  - Fixed IMGUI text input focus bugs by introducing GUI.FocusControl(null).
 
 ## Verification
 
-- **Compiler & Reload Status**: Unity finished script recompilation and domain reload with zero compiler errors or warnings.
-- **TDD Test Status**: The new `JigsawVinaGameDataEditorTests` suite is fully compiled.
-- **Note on Test Execution**: Running the automated tests was skipped per user instruction (`không cần chạy test`). The tests are fully implemented, compile cleanly, and are ready to be executed from Unity's Test Runner interface.
+- **Compiler & Reload Status**: Unity đã hoàn tất biên dịch tập lệnh với trạng thái hoàn toàn sạch sẽ (0 lỗi, 0 cảnh báo). Giao diện Game Data Editor hoạt động mượt mà.
+- **Visual Verification**: Chụp ảnh màn hình Editor (`screenshot_editor`) xác nhận ô xem trước được hiển thị chính xác ở cả 3 độ khó bên cạnh các ô chọn Reward Key Item.
+- **Test Status**: Các test EditMode của `JigsawVinaGameDataEditorTests` được biên dịch thành công. Việc chạy tự động kiểm thử được bỏ qua theo yêu cầu trước đó của người dùng.
 
 ## Known Warnings Or Blockers
 
-- None.
+- Không có.
 
 ## Recommended Next Steps
 
-- The Extended Editor Tools milestone (Tasks 19-24) is now fully complete and verified.
-- Open the editor window (`JigsawVina -> Game Data Editor`) to manage categories/items and test cheats, or continue to other gameplay/UI milestones.
+- Mở rộng thêm các tính năng gameplay hoặc tiến hành commit các thay đổi hiện tại.
