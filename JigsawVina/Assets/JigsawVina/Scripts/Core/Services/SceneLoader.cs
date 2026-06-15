@@ -5,7 +5,7 @@ namespace JigsawVina.Core.Services
 {
     public class SceneLoader
     {
-        public async UniTask LoadSceneAsync(string sceneName)
+        public virtual async UniTask LoadSceneAsync(string sceneName)
         {
             var op = SceneManager.LoadSceneAsync(sceneName);
             if (op == null) return;

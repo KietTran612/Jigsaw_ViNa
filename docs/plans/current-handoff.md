@@ -1,6 +1,18 @@
 # Current Handoff
 
-## Latest Completed Work
+- **Task 40: Scene Wiring, Regeneration & Manual Verification**:
+  - Appended Picture 6 (initially locked, requiring Key Item 107) and its difficulty configurations to `jigsaw_vina_game_data.json`.
+  - Refactored `ThinVerticalSliceSceneSetup.cs` to position difficulty selection buttons, dynamically spawn lock icons and achievement text elements, and automatically wire them to the serialized fields of `DifficultySelectView` using `SerializedObject`.
+  - Updated the setup scene version marker to `SetupVersionMarker_v5` to force scene regeneration and verified idempotency on subsequent runs.
+  - Extended `LifetimeScopeRegistrationTests.cs` with the `HomeScene_DifficultySelectView_IsWiredCorrectly` test to assert correct wiring of lock icons and achievement texts on `DifficultySelectView` in the regenerated scene.
+  - Added targeted `RunTask40Tests` helper to `TestRunnerHelper` and verified all 74 EditMode and 8 PlayMode tests pass cleanly.
+
+- **Task 39: Update DifficultySelect View & Presenter with Leak Fix**:
+  - Updated `DifficultySelectView` to add serialized arrays for lock icons (`_lockIcons`) and achievement texts (`_achievementTexts`), exposing `LockIcons`, `AchievementTexts`, and public helper `SetDifficultyState`.
+  - Updated `DifficultySelectPresenter` to support `Refresh()`, querying progression policies/unlock states, formatting best star and time achievements, logical selection guards, and implementing `IDisposable` event cleanup.
+  - Updated `HomeFlowController` in `HomeLifetimeScope` to store `DifficultySelectPresenter` and call its `Refresh()` method when a picture is selected.
+  - Made `SceneLoader.LoadSceneAsync` virtual to enable mocking in tests.
+  - Implemented 6 EditMode tests in `DifficultySelectFlowTests.cs` covering view properties, presenter UI refresh, allowed/locked selection loading behavior, presenter disposal event unsubscribing, and HomeFlowController integration.
 
 - **Task 38: Update PictureSelect Card, Presenter & UI Prefab**:
   - Updated `PictureSelectCard` to bind `PictureCardPresentationModel`, block selection while locked, display lock/hint UI, and expose a separate Unlock action only for `ReadyToUnlock`.
@@ -115,29 +127,32 @@
 
 ## Verification
 
+- **Task 40 targeted verification**:
+  - Unity script compilation completed with no compiler errors.
+  - `LifetimeScopeRegistrationTests`: `HomeScene_DifficultySelectView_IsWiredCorrectly` passed, asserting that buttons, lock icons, and achievement texts are correctly wired on `DifficultySelectView`.
+  - Scene Regeneration: Successfully generated updated `Home.unity` and `Gameplay.unity` scenes using version marker `SetupVersionMarker_v5`.
+  - Idempotency Verification: Confirmed that running scene setup again does not recreate or dirty the scene files.
+- **Task 39 targeted verification**:
+  - Unity script compilation completed with no compiler errors.
+  - `DifficultySelectFlowTests`: 6/6 passed.
 - **Task 38 targeted verification**:
   - Unity script compilation completed with no compiler errors.
   - `PictureSelectFlowTests`: 10/10 passed, 0 failed, 0 skipped.
   - Prefab serialization confirms all Task 38 child objects and serialized references are present.
-  - Home scene regeneration and Task 40 scene wiring assertions: not run - intentionally deferred to Task 40.
-  - Full EditMode/PlayMode suites: not run - not approved and not required for this targeted change.
 - **Task 37 targeted verification**:
   - Unity script compilation completed with no compiler errors.
-  - `ProgressionTests` + `StaticDataServiceTests`: 29/29 passed, 0 failed, 0 skipped after review fixes.
-  - Full EditMode/PlayMode suites: not run - not relevant to this narrowly scoped core progression change.
-- **Task 32, 33 & 34**: Verified scene structure, ran idempotency check, and confirmed tests.
+  - `ProgressionTests` + `StaticDataServiceTests`: 29/29 passed, 0 failed, 0 skipped.
 - **Compiler Status**: Unity compiled successfully with 100% no warnings/errors.
 - **Automated Tests**:
-  - EditMode tests: 45/45 passed (including new dynamic card setup, presenter/controller dispose, and Scroll View scene wiring tests).
-  - PlayMode tests: 8/8 passed (including gameplay dragging, snapping, hint system, and save game tests).
-- **Idempotency Verification**: Running scene setup multiple times did not dirty `Home.unity` or create duplicates.
-- **Manual Verification**: Dynamic Scroll View and Picture Select Cards display successfully, load static data, and transitions work cleanly.
+  - EditMode tests: 74/74 passed.
+  - PlayMode tests: 8/8 passed.
+- **Manual Verification**: Dynamic Scroll View, Picture Select Cards, and difficulty selection with achievements display and transition correctly in the editor.
 
 ## Current Uncommitted Scope
 
-- Task 36-38 progression core, strict validator, Picture Select unlock UI/presenter/prefab, targeted tests, and handoff documentation changes.
+- Task 35-40 progression core, strict validator, UI views/presenters/prefabs, scenes regeneration, tests, and plan documentation.
 - Existing Milestone 2 planning files under `docs/plans/`.
 
 ## Recommended Next Steps
 
-- Begin Task 39: update Difficulty Select view/presenter with progression locks, achievements, refresh behavior, and lifecycle coverage.
+- Request final review for Milestone 2 from the user.

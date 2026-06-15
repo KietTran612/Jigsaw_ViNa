@@ -20,6 +20,7 @@ namespace JigsawVina.Presentation.Screens
     {
         private readonly PictureSelectView _pictureSelectView;
         private readonly DifficultySelectView _difficultySelectView;
+        private readonly DifficultySelectPresenter _difficultySelectPresenter;
 
         public HomeFlowController(
             PictureSelectView pictureSelectView,
@@ -30,7 +31,7 @@ namespace JigsawVina.Presentation.Screens
             _pictureSelectView = pictureSelectView;
             _difficultySelectView = difficultySelectView;
             _ = pictureSelectPresenter;
-            _ = difficultySelectPresenter;
+            _difficultySelectPresenter = difficultySelectPresenter;
         }
 
         public void Start()
@@ -48,6 +49,7 @@ namespace JigsawVina.Presentation.Screens
 
         private void HandlePictureSelected(int pictureId)
         {
+            _difficultySelectPresenter.Refresh(pictureId);
             _pictureSelectView.SetActive(false);
             _difficultySelectView.SetActive(true);
         }

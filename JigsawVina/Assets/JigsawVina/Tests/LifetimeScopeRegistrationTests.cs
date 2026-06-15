@@ -123,6 +123,41 @@ namespace JigsawVina.Tests
             }
         }
 
+        [Test]
+        public void HomeScene_DifficultySelectView_IsWiredCorrectly()
+        {
+            var scene = EditorSceneManager.OpenScene("Assets/Scenes/Home.unity", OpenSceneMode.Additive);
+            try
+            {
+                var view = FindInScene<DifficultySelectView>(scene.GetRootGameObjects());
+                Assert.That(view, Is.Not.Null, "DifficultySelectView should exist in Home scene.");
+
+                var viewSO = new UnityEditor.SerializedObject(view);
+                Assert.That(viewSO.FindProperty("_easyButton").objectReferenceValue, Is.Not.Null, "EasyButton should not be null.");
+                Assert.That(viewSO.FindProperty("_normalButton").objectReferenceValue, Is.Not.Null, "NormalButton should not be null.");
+                Assert.That(viewSO.FindProperty("_hardButton").objectReferenceValue, Is.Not.Null, "HardButton should not be null.");
+                Assert.That(viewSO.FindProperty("_backButton").objectReferenceValue, Is.Not.Null, "BackButton should not be null.");
+
+                Assert.That(view.LockIcons, Is.Not.Null, "LockIcons array should not be null.");
+                Assert.That(view.LockIcons.Length, Is.EqualTo(3), "LockIcons array should have 3 elements.");
+                for (int i = 0; i < 3; i++)
+                {
+                    Assert.That(view.LockIcons[i], Is.Not.Null, $"LockIcons[{i}] should not be null.");
+                }
+
+                Assert.That(view.AchievementTexts, Is.Not.Null, "AchievementTexts array should not be null.");
+                Assert.That(view.AchievementTexts.Length, Is.EqualTo(3), "AchievementTexts array should have 3 elements.");
+                for (int i = 0; i < 3; i++)
+                {
+                    Assert.That(view.AchievementTexts[i], Is.Not.Null, $"AchievementTexts[{i}] should not be null.");
+                }
+            }
+            finally
+            {
+                EditorSceneManager.CloseScene(scene, true);
+            }
+        }
+
         private static T FindInScene<T>(UnityEngine.GameObject[] rootObjects)
             where T : UnityEngine.Component
         {

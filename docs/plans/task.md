@@ -39,8 +39,8 @@
 | **Task 36: Write Progression & Validator Unit Tests (TDD)** | [x] | Covers migration, atomic unlock persistence, difficulty policies, hints, deadlocks, active/non-consumable key items, duplicate requirements, invalid policies, and sequential gaps. |
 | **Task 37: Implement Core Progression Service & Validator Logic** | [x] | Implemented progression logic and strict unlock validation; review fix now requires unlock Key Items to have `status == "active"`. |
 | **Task 38: Update PictureSelect Card, Presenter & UI Prefab** | [x] | Added lock overlay, lock indicator, key item hint panel, Unlock button, locked navigation guard, source hints, atomic unlock refresh, lifecycle cleanup, and regenerated the prefab. |
-| **Task 39: Update DifficultySelect View & Presenter with Leak Fix** | [/] | Khóa nút độ khó dựa trên policy, hiển thị thành tích, refresh đúng ID khi show, implement IDisposable hủy đăng ký event, và viết unit tests kiểm tra presenter/view logic và lifecycle. |
-| **Task 40: Scene Wiring, Regeneration & Manual Verification** | [ ] | Bổ sung Picture 6 khóa và cấu hình vào JSON, cập nhật ThinVerticalSliceSceneSetup.cs, chạy setup regenerate Home.unity, mở rộng LifetimeScopeRegistrationTests.cs để kiểm chứng scene wiring mới, chạy idempotency và test thủ công. |
+| **Task 39: Update DifficultySelect View & Presenter with Leak Fix** | [x] | Khóa nút độ khó dựa trên policy, hiển thị thành tích, refresh đúng ID khi show, implement IDisposable hủy đăng ký event, và viết unit tests kiểm tra presenter/view logic và lifecycle. |
+| **Task 40: Scene Wiring, Regeneration & Manual Verification** | [x] | Bổ sung Picture 6 khóa và cấu hình vào JSON, cập nhật ThinVerticalSliceSceneSetup.cs, chạy setup regenerate Home.unity, mở rộng LifetimeScopeRegistrationTests.cs để kiểm chứng scene wiring mới, chạy idempotency và test thủ công. |
 
 ## Completed
 

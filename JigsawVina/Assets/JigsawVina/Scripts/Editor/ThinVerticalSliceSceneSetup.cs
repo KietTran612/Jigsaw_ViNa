@@ -132,7 +132,7 @@ namespace JigsawVina.Editor
 
         private static void CreateHomeScene()
         {
-            if (CheckSceneAlreadyUpdated(HomeScenePath, "SetupVersionMarker_v4"))
+            if (CheckSceneAlreadyUpdated(HomeScenePath, "SetupVersionMarker_v5"))
             {
                 return;
             }
@@ -140,7 +140,7 @@ namespace JigsawVina.Editor
             var scene = EditorSceneManager.NewScene(NewSceneSetup.EmptyScene, NewSceneMode.Single);
             scene.name = "Home";
 
-            new GameObject("SetupVersionMarker_v4");
+            new GameObject("SetupVersionMarker_v5");
 
             CreateCamera();
             CreateEventSystem();
@@ -207,19 +207,43 @@ namespace JigsawVina.Editor
 
             Assign(pictureView, "_cardPrefab", cardPrefab);
             Assign(pictureView, "_contentContainer", contentRect);
-
+            
             var difficultyScreen = CreateScreen(canvas.transform, "DifficultySelectScreen");
             var difficultyView = difficultyScreen.AddComponent<DifficultySelectView>();
 
-            AddHeader(difficultyScreen.transform, "Chọn Độ Khó", new Vector2(0f, 190f), new Vector2(760f, 80f));
-            var easyButton = CreateButton(difficultyScreen.transform, "EasyButton", "Dễ", new Vector2(0f, 90f), new Vector2(520f, 64f));
-            var normalButton = CreateButton(difficultyScreen.transform, "NormalButton", "Trung bình", new Vector2(0f, 10f), new Vector2(520f, 64f));
-            var hardButton = CreateButton(difficultyScreen.transform, "HardButton", "Khó", new Vector2(0f, -70f), new Vector2(520f, 64f));
-            var backButton = CreateButton(difficultyScreen.transform, "BackButton", "Quay lại", new Vector2(0f, -170f), new Vector2(520f, 64f));
+            AddHeader(difficultyScreen.transform, "Chọn Độ Khó", new Vector2(0f, 210f), new Vector2(760f, 60f));
+            var easyButton = CreateButton(difficultyScreen.transform, "EasyButton", "Dễ", new Vector2(0f, 120f), new Vector2(520f, 60f));
+            var normalButton = CreateButton(difficultyScreen.transform, "NormalButton", "Trung bình", new Vector2(0f, 20f), new Vector2(520f, 60f));
+            var hardButton = CreateButton(difficultyScreen.transform, "HardButton", "Khó", new Vector2(0f, -80f), new Vector2(520f, 60f));
+            var backButton = CreateButton(difficultyScreen.transform, "BackButton", "Quay lại", new Vector2(0f, -180f), new Vector2(520f, 60f));
+            
             Assign(difficultyView, "_easyButton", easyButton);
             Assign(difficultyView, "_normalButton", normalButton);
             Assign(difficultyView, "_hardButton", hardButton);
             Assign(difficultyView, "_backButton", backButton);
+
+            var lock0 = CreateLockIcon(easyButton.transform);
+            var lock1 = CreateLockIcon(normalButton.transform);
+            var lock2 = CreateLockIcon(hardButton.transform);
+
+            var text0 = CreateAchievementText(difficultyScreen.transform, "AchievementText_Easy", new Vector2(0f, 75f));
+            var text1 = CreateAchievementText(difficultyScreen.transform, "AchievementText_Normal", new Vector2(0f, -25f));
+            var text2 = CreateAchievementText(difficultyScreen.transform, "AchievementText_Hard", new Vector2(0f, -125f));
+
+            var viewSo = new SerializedObject(difficultyView);
+            var lockIconsProp = viewSo.FindProperty("_lockIcons");
+            lockIconsProp.arraySize = 3;
+            lockIconsProp.GetArrayElementAtIndex(0).objectReferenceValue = lock0;
+            lockIconsProp.GetArrayElementAtIndex(1).objectReferenceValue = lock1;
+            lockIconsProp.GetArrayElementAtIndex(2).objectReferenceValue = lock2;
+
+            var achievementTextsProp = viewSo.FindProperty("_achievementTexts");
+            achievementTextsProp.arraySize = 3;
+            achievementTextsProp.GetArrayElementAtIndex(0).objectReferenceValue = text0;
+            achievementTextsProp.GetArrayElementAtIndex(1).objectReferenceValue = text1;
+            achievementTextsProp.GetArrayElementAtIndex(2).objectReferenceValue = text2;
+            
+            viewSo.ApplyModifiedPropertiesWithoutUndo();
 
             difficultyScreen.SetActive(false);
 
@@ -228,7 +252,7 @@ namespace JigsawVina.Editor
 
         private static void CreateGameplayScene()
         {
-            if (CheckSceneAlreadyUpdated(GameplayScenePath, "SetupVersionMarker_v4"))
+            if (CheckSceneAlreadyUpdated(GameplayScenePath, "SetupVersionMarker_v5"))
             {
                 return;
             }
@@ -236,7 +260,7 @@ namespace JigsawVina.Editor
             var scene = EditorSceneManager.NewScene(NewSceneSetup.EmptyScene, NewSceneMode.Single);
             scene.name = "Gameplay";
 
-            new GameObject("SetupVersionMarker_v4");
+            new GameObject("SetupVersionMarker_v5");
 
             CreateCamera();
             CreateEventSystem();
@@ -748,6 +772,40 @@ namespace JigsawVina.Editor
             {
                 Debug.LogWarning($"[JigsawVina] Field '{fieldName}' not found on '{target.GetType().Name}'. Skipping assignment.");
             }
+        }
+
+        private static GameObject CreateLockIcon(Transform buttonTransform)
+        {
+            var lockIcon = new GameObject("LockIcon", typeof(RectTransform));
+            lockIcon.transform.SetParent(buttonTransform, false);
+            var rect = (RectTransform)lockIcon.transform;
+            rect.anchorMin = new Vector2(1f, 0.5f);
+            rect.anchorMax = new Vector2(1f, 0.5f);
+            rect.pivot = new Vector2(1f, 0.5f);
+            rect.anchoredPosition = new Vector2(-15f, 0f);
+            rect.sizeDelta = new Vector2(24f, 24f);
+
+            var image = lockIcon.AddComponent<Image>();
+            image.color = new Color(0.9f, 0.2f, 0.2f);
+            image.raycastTarget = false;
+            return lockIcon;
+        }
+
+        private static TextMeshProUGUI CreateAchievementText(Transform parent, string name, Vector2 anchoredPosition)
+        {
+            var textObject = new GameObject(name, typeof(RectTransform));
+            textObject.transform.SetParent(parent, false);
+            var rect = (RectTransform)textObject.transform;
+            rect.anchoredPosition = anchoredPosition;
+            rect.sizeDelta = new Vector2(520f, 20f);
+
+            var text = textObject.AddComponent<TextMeshProUGUI>();
+            text.text = "";
+            text.fontSize = 14f;
+            text.alignment = TextAlignmentOptions.Center;
+            text.color = new Color(0.8f, 0.8f, 0.8f);
+            text.raycastTarget = false;
+            return text;
         }
     }
 }

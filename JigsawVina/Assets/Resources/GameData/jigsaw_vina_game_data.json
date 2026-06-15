@@ -70,6 +70,20 @@
             "description_key": "picture.bridge_001.description",
             "is_initially_unlocked": true,
             "unlock_requirements": []
+        },
+        {
+            "id": 6,
+            "id_string": "old_village_north_002",
+            "display_name": "Old Village North 002",
+            "category_id": 1,
+            "asset_path": "Textures/Pictures/Picture_1/MAIN_old_village_north_001",
+            "difficulty_unlock_policy": "sequential",
+            "display_name_key": "picture.old_village_north_002.name",
+            "description_key": "picture.old_village_north_002.description",
+            "is_initially_unlocked": false,
+            "unlock_requirements": [
+                107
+            ]
         }
     ],
     "items": [
@@ -891,6 +905,45 @@
             "first_clear_reward_item_ids": [
                 505
             ]
+        },
+        {
+            "picture_id": 6,
+            "difficulty_id": 0,
+            "display_name": "Dễ",
+            "grid_columns": 6,
+            "grid_rows": 4,
+            "piece_count": 24,
+            "star_reward": 1,
+            "first_clear_coin": 30,
+            "first_clear_hint": 0,
+            "replay_coin": 10,
+            "first_clear_reward_item_ids": []
+        },
+        {
+            "picture_id": 6,
+            "difficulty_id": 1,
+            "display_name": "Trung bình",
+            "grid_columns": 8,
+            "grid_rows": 6,
+            "piece_count": 48,
+            "star_reward": 2,
+            "first_clear_coin": 60,
+            "first_clear_hint": 0,
+            "replay_coin": 20,
+            "first_clear_reward_item_ids": []
+        },
+        {
+            "picture_id": 6,
+            "difficulty_id": 2,
+            "display_name": "Khó",
+            "grid_columns": 12,
+            "grid_rows": 8,
+            "piece_count": 96,
+            "star_reward": 3,
+            "first_clear_coin": 120,
+            "first_clear_hint": 0,
+            "replay_coin": 40,
+            "first_clear_reward_item_ids": []
         }
     ]
 }
