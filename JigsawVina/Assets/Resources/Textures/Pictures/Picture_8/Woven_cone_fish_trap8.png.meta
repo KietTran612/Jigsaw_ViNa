@@ -1,10 +1,10 @@
 fileFormatVersion: 2
-guid: 8c71e9b4f911b9c47a01cce79bcabaf5
+guid: bc133c4d45a73994299479401645c78b
 TextureImporter:
   internalIDToNameTable:
   - first:
-      213: 118183239173327448
-    second: MAIN_old_village_north_002_0
+      213: 4588703348334195399
+    second: Woven_cone_fish_trap8_0
   externalObjects: {}
   serializedVersion: 13
   mipmaps:
@@ -72,7 +72,7 @@ TextureImporter:
   platformSettings:
   - serializedVersion: 4
     buildTarget: DefaultTexturePlatform
-    maxTextureSize: 2048
+    maxTextureSize: 1024
     resizeAlgorithm: 0
     textureFormat: -1
     textureCompression: 1
@@ -126,13 +126,13 @@ TextureImporter:
     serializedVersion: 2
     sprites:
     - serializedVersion: 2
-      name: MAIN_old_village_north_002_0
+      name: Woven_cone_fish_trap8_0
       rect:
         serializedVersion: 2
-        x: 0
-        y: 0
-        width: 1024
-        height: 1024
+        x: 342
+        y: 100
+        width: 532
+        height: 690
       alignment: 0
       pivot: {x: 0, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
@@ -141,8 +141,8 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: -1
       bones: []
-      spriteID: 85ac455a70fd3a100800000000000000
-      internalID: 118183239173327448
+      spriteID: 7c2fa1122695eaf30800000000000000
+      internalID: 4588703348334195399
       vertices: []
       indices: 
       edges: []
@@ -161,7 +161,7 @@ TextureImporter:
     spriteCustomMetadata:
       entries: []
     nameFileIdTable:
-      MAIN_old_village_north_002_0: 118183239173327448
+      Woven_cone_fish_trap8_0: 4588703348334195399
   mipmapLimitGroupName: 
   pSDRemoveMatte: 0
   userData: 
