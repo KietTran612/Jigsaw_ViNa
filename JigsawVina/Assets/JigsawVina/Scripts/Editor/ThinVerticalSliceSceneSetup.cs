@@ -252,7 +252,7 @@ namespace JigsawVina.Editor
 
         private static void CreateGameplayScene()
         {
-            if (CheckSceneAlreadyUpdated(GameplayScenePath, "SetupVersionMarker_v5"))
+            if (CheckSceneAlreadyUpdated(GameplayScenePath, "SetupVersionMarker_v4"))
             {
                 return;
             }
@@ -260,7 +260,7 @@ namespace JigsawVina.Editor
             var scene = EditorSceneManager.NewScene(NewSceneSetup.EmptyScene, NewSceneMode.Single);
             scene.name = "Gameplay";
 
-            new GameObject("SetupVersionMarker_v5");
+            new GameObject("SetupVersionMarker_v4");
 
             CreateCamera();
             CreateEventSystem();

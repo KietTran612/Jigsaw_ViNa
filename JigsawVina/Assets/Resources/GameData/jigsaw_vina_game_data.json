@@ -76,7 +76,7 @@
             "id_string": "old_village_north_002",
             "display_name": "Old Village North 002",
             "category_id": 1,
-            "asset_path": "Textures/Pictures/Picture_1/MAIN_old_village_north_001",
+            "asset_path": "Textures/Pictures/Picture_6/MAIN_old_village_north_002",
             "difficulty_unlock_policy": "sequential",
             "display_name_key": "picture.old_village_north_002.name",
             "description_key": "picture.old_village_north_002.description",

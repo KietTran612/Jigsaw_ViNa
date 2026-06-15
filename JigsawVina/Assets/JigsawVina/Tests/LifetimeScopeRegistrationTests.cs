@@ -77,6 +77,9 @@ namespace JigsawVina.Tests
                 Assert.That(cardSO.FindProperty("_button").objectReferenceValue, Is.Not.Null, "PictureSelectCard _button should not be null.");
                 Assert.That(cardSO.FindProperty("_thumbnailImage").objectReferenceValue, Is.Not.Null, "PictureSelectCard _thumbnailImage should not be null.");
                 Assert.That(cardSO.FindProperty("_displayNameText").objectReferenceValue, Is.Not.Null, "PictureSelectCard _displayNameText should not be null.");
+                Assert.That(cardSO.FindProperty("_lockOverlay").objectReferenceValue, Is.Not.Null, "PictureSelectCard _lockOverlay should not be null.");
+                Assert.That(cardSO.FindProperty("_missingItemsHintText").objectReferenceValue, Is.Not.Null, "PictureSelectCard _missingItemsHintText should not be null.");
+                Assert.That(cardSO.FindProperty("_unlockButton").objectReferenceValue, Is.Not.Null, "PictureSelectCard _unlockButton should not be null.");
 
                 // Đảm bảo không còn hai button hardcode trong scene
                 foreach (var go in scene.GetRootGameObjects())

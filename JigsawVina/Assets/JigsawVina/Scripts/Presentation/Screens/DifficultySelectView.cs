@@ -44,7 +44,7 @@ namespace JigsawVina.Presentation.Screens
             gameObject.SetActive(active);
         }
 
-        public void SetDifficultyState(int difficultyId, bool isUnlocked, string achievementText)
+        public void SetDifficultyState(int difficultyId, bool isConfigured, bool isUnlocked, string achievementText)
         {
             Button targetButton = null;
             switch (difficultyId)
@@ -56,7 +56,11 @@ namespace JigsawVina.Presentation.Screens
 
             if (targetButton != null)
             {
-                targetButton.interactable = isUnlocked;
+                targetButton.gameObject.SetActive(isConfigured);
+                if (isConfigured)
+                {
+                    targetButton.interactable = isUnlocked;
+                }
             }
 
             if (_lockIcons != null && difficultyId >= 0 && difficultyId < _lockIcons.Length)
@@ -64,7 +68,7 @@ namespace JigsawVina.Presentation.Screens
                 var lockIcon = _lockIcons[difficultyId];
                 if (lockIcon != null)
                 {
-                    lockIcon.SetActive(!isUnlocked);
+                    lockIcon.SetActive(isConfigured && !isUnlocked);
                 }
             }
 
@@ -73,7 +77,11 @@ namespace JigsawVina.Presentation.Screens
                 var textElement = _achievementTexts[difficultyId];
                 if (textElement != null)
                 {
-                    textElement.text = achievementText;
+                    textElement.gameObject.SetActive(isConfigured);
+                    if (isConfigured)
+                    {
+                        textElement.text = achievementText;
+                    }
                 }
             }
         }

@@ -38,20 +38,38 @@ namespace JigsawVina.Presentation.Screens
             var save = _saveDataService.Load() ?? new PlayerSave();
             save.Normalize();
 
+            var difficulties = _staticDataService.GetPictureDifficulties(pictureId);
             for (int difficultyId = 0; difficultyId < 3; difficultyId++)
             {
-                bool isUnlocked = _progressionService.IsDifficultyUnlocked(pictureId, difficultyId);
-                
-                var difficultyConfig = _staticDataService.GetPictureDifficulty(pictureId, difficultyId);
-                int maxStars = difficultyConfig.PictureId != 0 ? difficultyConfig.StarReward : (difficultyId + 1);
+                PictureDifficultyConfig difficultyConfig = default;
+                bool isConfigured = false;
+                foreach (var config in difficulties)
+                {
+                    if (config.DifficultyId == difficultyId)
+                    {
+                        difficultyConfig = config;
+                        isConfigured = true;
+                        break;
+                    }
+                }
 
-                var completion = save.CompletedPuzzles.Find(c => c.PictureId == pictureId && c.DifficultyId == difficultyId);
-                int bestStar = completion != null ? completion.BestStar : 0;
-                string bestTimeText = completion != null ? completion.BestTimeSeconds.ToString("F1") + "s" : "--";
-                
-                string achievementText = $"Best Star: {bestStar}/{maxStars}\nBest Time: {bestTimeText}";
-                
-                _view.SetDifficultyState(difficultyId, isUnlocked, achievementText);
+                if (isConfigured)
+                {
+                    bool isUnlocked = _progressionService.IsDifficultyUnlocked(pictureId, difficultyId);
+                    int maxStars = difficultyConfig.PictureId != 0 ? difficultyConfig.StarReward : (difficultyId + 1);
+
+                    var completion = save.CompletedPuzzles.Find(c => c.PictureId == pictureId && c.DifficultyId == difficultyId);
+                    int bestStar = completion != null ? completion.BestStar : 0;
+                    string bestTimeText = completion != null ? completion.BestTimeSeconds.ToString("F1") + "s" : "--";
+                    
+                    string achievementText = $"Best Star: {bestStar}/{maxStars}\nBest Time: {bestTimeText}";
+                    
+                    _view.SetDifficultyState(difficultyId, isConfigured: true, isUnlocked, achievementText);
+                }
+                else
+                {
+                    _view.SetDifficultyState(difficultyId, isConfigured: false, isUnlocked: false, achievementText: "");
+                }
             }
         }
 

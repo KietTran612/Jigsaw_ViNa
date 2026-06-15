@@ -1,11 +1,12 @@
 # Current Handoff
 
 - **Task 40: Scene Wiring, Regeneration & Manual Verification**:
-  - Appended Picture 6 (initially locked, requiring Key Item 107) and its difficulty configurations to `jigsaw_vina_game_data.json`.
+  - Appended Picture 6 (initially locked, requiring Key Item 107) and its difficulty configurations to `jigsaw_vina_game_data.json`, and created its own unique premium image asset at `Textures/Pictures/Picture_6/MAIN_old_village_north_002` to avoid duplicate content reuse.
   - Refactored `ThinVerticalSliceSceneSetup.cs` to position difficulty selection buttons, dynamically spawn lock icons and achievement text elements, and automatically wire them to the serialized fields of `DifficultySelectView` using `SerializedObject`.
-  - Updated the setup scene version marker to `SetupVersionMarker_v5` to force scene regeneration and verified idempotency on subsequent runs.
-  - Extended `LifetimeScopeRegistrationTests.cs` with the `HomeScene_DifficultySelectView_IsWiredCorrectly` test to assert correct wiring of lock icons and achievement texts on `DifficultySelectView` in the regenerated scene.
-  - Added targeted `RunTask40Tests` helper to `TestRunnerHelper` and verified all 74 EditMode and 8 PlayMode tests pass cleanly.
+  - Reverted the Gameplay scene setup check to `SetupVersionMarker_v4` and restored `Gameplay.unity` to prevent unnecessary regeneration and scene churn, while keeping `Home.unity` at `SetupVersionMarker_v5`.
+  - Fixed a potential crash in `DifficultySelectPresenter` when loading valid pictures with fewer than three difficulties by checking configured difficulties first and dynamically hiding unconfigured difficulty buttons on the view.
+  - Extended `LifetimeScopeRegistrationTests.cs` with tests asserting correct wiring of lock icons/achievement texts on `DifficultySelectView`, and card prefab fields (`_lockOverlay`, `_missingItemsHintText`, `_unlockButton`).
+  - Added targeted `RunTask40Tests` helper to `TestRunnerHelper` and verified all 75 EditMode and 8 PlayMode tests pass cleanly.
 
 - **Task 39: Update DifficultySelect View & Presenter with Leak Fix**:
   - Updated `DifficultySelectView` to add serialized arrays for lock icons (`_lockIcons`) and achievement texts (`_achievementTexts`), exposing `LockIcons`, `AchievementTexts`, and public helper `SetDifficultyState`.

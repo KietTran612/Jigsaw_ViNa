@@ -212,6 +212,63 @@ namespace JigsawVina.Tests
         }
 
         [Test]
+        public void Presenter_Refresh_FewerThanThreeDifficulties_HidesMissingDifficulties()
+        {
+            var staticData = new MockStaticDataServiceWithOneDifficulty();
+            var saveData = new MockSaveDataService();
+            var progression = new ProgressionService(staticData, saveData);
+            var session = new GameSessionService();
+            var sceneLoader = new MockSceneLoader();
+
+            var presenter = new DifficultySelectPresenter(
+                _view,
+                session,
+                sceneLoader,
+                progression,
+                saveData,
+                staticData);
+
+            presenter.Refresh(1);
+
+            // Easy should be active (configured)
+            Assert.IsTrue(_easyButton.gameObject.activeSelf);
+            Assert.IsTrue(_easyButton.interactable);
+
+            // Normal and Hard should be disabled/inactive (not configured)
+            Assert.IsFalse(_normalButton.gameObject.activeSelf);
+            Assert.IsFalse(_hardButton.gameObject.activeSelf);
+
+            presenter.Dispose();
+        }
+
+        private class MockStaticDataServiceWithOneDifficulty : IStaticDataService
+        {
+            public IReadOnlyList<PictureConfig> GetAllPictures() => new List<PictureConfig>
+            {
+                new PictureConfig(1, "pic1", "Pic 1", "Textures/pic1", "key.name", "key.desc", true, "sequential", new List<int>())
+            };
+
+            public PictureConfig GetPictureById(int id) => GetAllPictures()[0];
+
+            public PictureDifficultyConfig GetPictureDifficulty(int pictureId, int difficultyId)
+            {
+                if (difficultyId == 0)
+                    return new PictureDifficultyConfig(1, 0, "Easy", 6, 4, 1, 30, 0, 10, new List<int>());
+                throw new KeyNotFoundException();
+            }
+
+            public ItemDto GetItemById(int id) => null;
+            public IReadOnlyList<ItemDto> GetAllItems() => new List<ItemDto>();
+
+            public IReadOnlyList<PictureDifficultyConfig> GetPictureDifficulties(int pictureId) => new List<PictureDifficultyConfig>
+            {
+                new PictureDifficultyConfig(1, 0, "Easy", 6, 4, 1, 30, 0, 10, new List<int>())
+            };
+
+            public IReadOnlyList<PictureDifficultyConfig> GetAllPictureDifficulties() => GetPictureDifficulties(1);
+        }
+
+        [Test]
         public void HomeFlowController_RefreshesPresenter_OnPictureSelected()
         {
             var selectViewGo = new GameObject("PictureSelectView");
