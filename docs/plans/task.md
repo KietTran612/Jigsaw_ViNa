@@ -43,9 +43,9 @@
 | **Task 40: Scene Wiring, Regeneration & Manual Verification** | [x] | Bổ sung Picture 6 khóa và cấu hình vào JSON, cập nhật ThinVerticalSliceSceneSetup.cs, chạy setup regenerate Home.unity, mở rộng LifetimeScopeRegistrationTests.cs để kiểm chứng scene wiring mới, chạy idempotency và test thủ công. |
 | **Task 41: Editor Integration & Static Data Validation** | [x] | Preserve drop tables/items lists in editor configurations and validate drop configurations. |
 | **Task 42: PlayerSave Structure, Save Migration & RNG/Service Contracts** | [x] | Add LastSaveDateString and DailyDropCounts to PlayerSave, implementing calendar daily reset and registering the new service contracts. |
-| **Task 43: Daily Drop Decay Tests** | [ ] | Write EditMode TDD unit tests for decay rolls, probability clamping, and replay drop integration. |
-| **Task 44: Implement Daily Drop Reward Service** | [ ] | Extract RNG logic to DropRewardService and integrate replay rewards inside RewardSummaryPresenter. |
-| **Task 45: Inventory / Collection UI** | [ ] | Implement uGUI Collection screen, display owned items with sources, and add quick navigation jump. |
+| **Task 43: Daily Drop Decay Tests** | [x] | Added TDD coverage for independent rolls, decay/minimum clamp, inclusive amounts, exclusions, partial stacks, and daily counters. |
+| **Task 44: Implement Daily Drop Reward Service** | [x] | Implemented drop rolling and replay reward application for coins, hints, key items, and clamped consumables. |
+| **Task 45: Inventory / Collection UI** | [x] | Added Collection screen/presenter, owned key-item sources, quick navigation, lifecycle cleanup, Home scene v6 wiring, and targeted tests. |
 
 ## Completed
 

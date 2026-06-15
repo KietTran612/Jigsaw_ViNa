@@ -132,7 +132,7 @@ namespace JigsawVina.Editor
 
         private static void CreateHomeScene()
         {
-            if (CheckSceneAlreadyUpdated(HomeScenePath, "SetupVersionMarker_v5"))
+            if (CheckSceneAlreadyUpdated(HomeScenePath, "SetupVersionMarker_v6"))
             {
                 return;
             }
@@ -140,7 +140,7 @@ namespace JigsawVina.Editor
             var scene = EditorSceneManager.NewScene(NewSceneSetup.EmptyScene, NewSceneMode.Single);
             scene.name = "Home";
 
-            new GameObject("SetupVersionMarker_v5");
+            new GameObject("SetupVersionMarker_v6");
 
             CreateCamera();
             CreateEventSystem();
@@ -153,6 +153,13 @@ namespace JigsawVina.Editor
             var pictureView = pictureScreen.AddComponent<PictureSelectView>();
 
             AddHeader(pictureScreen.transform, "Chọn Tranh", new Vector2(0f, 320f), new Vector2(760f, 80f));
+
+            var collectionButton = CreateButton(
+                pictureScreen.transform,
+                "CollectionButton",
+                "Collection",
+                new Vector2(690f, 320f),
+                new Vector2(260f, 60f));
 
             var scrollViewObj = new GameObject("PictureScrollView", typeof(RectTransform));
             scrollViewObj.transform.SetParent(pictureScreen.transform, false);
@@ -207,6 +214,8 @@ namespace JigsawVina.Editor
 
             Assign(pictureView, "_cardPrefab", cardPrefab);
             Assign(pictureView, "_contentContainer", contentRect);
+            Assign(pictureView, "_scrollRect", scrollRect);
+            Assign(pictureView, "_collectionButton", collectionButton);
             
             var difficultyScreen = CreateScreen(canvas.transform, "DifficultySelectScreen");
             var difficultyView = difficultyScreen.AddComponent<DifficultySelectView>();
@@ -246,6 +255,104 @@ namespace JigsawVina.Editor
             viewSo.ApplyModifiedPropertiesWithoutUndo();
 
             difficultyScreen.SetActive(false);
+
+            var collectionScreen = CreateScreen(canvas.transform, "CollectionScreen");
+            var collectionView = collectionScreen.AddComponent<CollectionView>();
+            collectionScreen.AddComponent<Image>().color =
+                new Color(0.04f, 0.06f, 0.1f, 0.98f);
+
+            AddHeader(
+                collectionScreen.transform,
+                "Collection",
+                new Vector2(0f, 430f),
+                new Vector2(760f, 70f));
+            var closeCollectionButton = CreateButton(
+                collectionScreen.transform,
+                "CloseCollectionButton",
+                "Close",
+                new Vector2(760f, 430f),
+                new Vector2(220f, 55f));
+
+            var itemContentObject = new GameObject(
+                "CollectionItemContent",
+                typeof(RectTransform));
+            itemContentObject.transform.SetParent(collectionScreen.transform, false);
+            var itemContentRect = (RectTransform)itemContentObject.transform;
+            itemContentRect.anchoredPosition = new Vector2(-560f, -20f);
+            itemContentRect.sizeDelta = new Vector2(420f, 760f);
+            var itemLayout = itemContentObject.AddComponent<VerticalLayoutGroup>();
+            itemLayout.spacing = 12f;
+            itemLayout.childControlWidth = false;
+            itemLayout.childControlHeight = false;
+            itemLayout.childForceExpandWidth = false;
+            itemLayout.childForceExpandHeight = false;
+            itemLayout.childAlignment = TextAnchor.UpperCenter;
+
+            var itemButtonTemplate = CreateButton(
+                itemContentRect,
+                "ItemButtonTemplate",
+                "Item",
+                Vector2.zero,
+                new Vector2(380f, 64f));
+            itemButtonTemplate.gameObject.SetActive(false);
+
+            var thumbnailObject = new GameObject(
+                "CollectionItemThumbnail",
+                typeof(RectTransform),
+                typeof(Image));
+            thumbnailObject.transform.SetParent(collectionScreen.transform, false);
+            var thumbnailRect = (RectTransform)thumbnailObject.transform;
+            thumbnailRect.anchoredPosition = new Vector2(-80f, 180f);
+            thumbnailRect.sizeDelta = new Vector2(260f, 220f);
+            var thumbnailImage = thumbnailObject.GetComponent<Image>();
+            thumbnailImage.preserveAspect = true;
+            thumbnailImage.color = new Color(1f, 1f, 1f, 0.9f);
+
+            var itemNameText = AddHeader(
+                collectionScreen.transform,
+                "Select an item",
+                new Vector2(300f, 280f),
+                new Vector2(650f, 70f));
+            var itemDescriptionText = AddHeader(
+                collectionScreen.transform,
+                "",
+                new Vector2(300f, 170f),
+                new Vector2(650f, 140f));
+            itemDescriptionText.fontSize = 22f;
+            itemDescriptionText.enableWordWrapping = true;
+
+            var sourceContentObject = new GameObject(
+                "CollectionSourceContent",
+                typeof(RectTransform));
+            sourceContentObject.transform.SetParent(collectionScreen.transform, false);
+            var sourceContentRect = (RectTransform)sourceContentObject.transform;
+            sourceContentRect.anchoredPosition = new Vector2(300f, -170f);
+            sourceContentRect.sizeDelta = new Vector2(650f, 420f);
+            var sourceLayout = sourceContentObject.AddComponent<VerticalLayoutGroup>();
+            sourceLayout.spacing = 10f;
+            sourceLayout.childControlWidth = false;
+            sourceLayout.childControlHeight = false;
+            sourceLayout.childForceExpandWidth = false;
+            sourceLayout.childForceExpandHeight = false;
+            sourceLayout.childAlignment = TextAnchor.UpperCenter;
+
+            var sourceButtonTemplate = CreateButton(
+                sourceContentRect,
+                "SourceButtonTemplate",
+                "Item source",
+                Vector2.zero,
+                new Vector2(600f, 58f));
+            sourceButtonTemplate.gameObject.SetActive(false);
+
+            Assign(collectionView, "_itemContent", itemContentRect);
+            Assign(collectionView, "_itemButtonTemplate", itemButtonTemplate);
+            Assign(collectionView, "_itemNameText", itemNameText);
+            Assign(collectionView, "_itemDescriptionText", itemDescriptionText);
+            Assign(collectionView, "_itemThumbnail", thumbnailImage);
+            Assign(collectionView, "_sourceContent", sourceContentRect);
+            Assign(collectionView, "_sourceButtonTemplate", sourceButtonTemplate);
+            Assign(collectionView, "_closeButton", closeCollectionButton);
+            collectionScreen.SetActive(false);
 
             EditorSceneManager.SaveScene(scene, HomeScenePath);
         }

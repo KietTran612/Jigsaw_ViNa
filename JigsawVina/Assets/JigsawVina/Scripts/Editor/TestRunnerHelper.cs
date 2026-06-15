@@ -69,6 +69,33 @@ namespace JigsawVina.Editor
             });
         }
 
+        public static void RunTask43Tests()
+        {
+            RunTests(TestMode.EditMode, new[]
+            {
+                "JigsawVina.Tests.DropRewardTests"
+            });
+        }
+
+        public static void RunTask44Tests()
+        {
+            RunTests(TestMode.EditMode, new[]
+            {
+                "JigsawVina.Tests.DropRewardTests",
+                "JigsawVina.Tests.ProgressionTests"
+            });
+        }
+
+        public static void RunTask45Tests()
+        {
+            RunTests(TestMode.EditMode, new[]
+            {
+                "JigsawVina.Tests.CollectionFlowTests",
+                "JigsawVina.Tests.PictureSelectFlowTests",
+                "JigsawVina.Tests.LifetimeScopeRegistrationTests"
+            });
+        }
+
         [MenuItem("JigsawVina/Run PlayMode Tests")]
         public static void RunPlayModeTests()
         {

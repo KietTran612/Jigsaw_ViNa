@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Runtime.CompilerServices;
 using UnityEngine;
+using UnityEngine.UI;
 
 [assembly: InternalsVisibleTo("JigsawVina.Tests")]
 
@@ -11,13 +12,33 @@ namespace JigsawVina.Presentation.Screens
     {
         public event Action<int> OnPictureSelected;
         public event Action<int> OnPictureUnlockRequested;
+        public event Action OnCollectionRequested;
 
         [SerializeField] private PictureSelectCard _cardPrefab;
         [SerializeField] private RectTransform _contentContainer;
+        [SerializeField] private ScrollRect _scrollRect;
+        [SerializeField] private Button _collectionButton;
 
         private readonly List<PictureSelectCard> _instantiatedCards = new();
 
         internal IReadOnlyList<PictureSelectCard> InstantiatedCards => _instantiatedCards;
+
+        private void Awake()
+        {
+            if (_collectionButton != null)
+            {
+                _collectionButton.onClick.AddListener(RequestCollection);
+            }
+        }
+
+        private void OnDestroy()
+        {
+            if (_collectionButton != null)
+            {
+                _collectionButton.onClick.RemoveListener(RequestCollection);
+            }
+            ClearExistingCards();
+        }
 
         public void Setup(IReadOnlyList<PictureCardPresentationModel> models)
         {
@@ -65,6 +86,36 @@ namespace JigsawVina.Presentation.Screens
         public void SetActive(bool active)
         {
             gameObject.SetActive(active);
+        }
+
+        public void RequestPictureSelection(int pictureId)
+        {
+            OnPictureSelected?.Invoke(pictureId);
+        }
+
+        public void FocusCard(int pictureId)
+        {
+            int index = _instantiatedCards.FindIndex(card =>
+                card != null && card.PictureId == pictureId);
+            if (index < 0)
+            {
+                return;
+            }
+
+            if (_scrollRect != null)
+            {
+                Canvas.ForceUpdateCanvases();
+                LayoutRebuilder.ForceRebuildLayoutImmediate(_contentContainer);
+                _scrollRect.verticalNormalizedPosition = _instantiatedCards.Count <= 1
+                    ? 1f
+                    : 1f - (float)index / (_instantiatedCards.Count - 1);
+            }
+            _instantiatedCards[index].Highlight();
+        }
+
+        private void RequestCollection()
+        {
+            OnCollectionRequested?.Invoke();
         }
 
         private void ClearExistingCards()

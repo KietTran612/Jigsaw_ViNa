@@ -1,5 +1,7 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
+using System.Reflection;
 using JigsawVina.Core.Data;
 using JigsawVina.Core.Services;
 using JigsawVina.Presentation.Screens;
@@ -187,6 +189,72 @@ namespace JigsawVina.Tests
             Assert.AreEqual(100 + 20, save.Coins); // Replay coin only
             Assert.AreEqual(2, save.Hints);        // Hints not awarded on replay
             Assert.AreEqual(20, session.LastCoinEarned);
+        }
+
+        [Test]
+        public void ProcessRewards_Replay_AppliesDropRewardsAndDisplaysActualAmounts()
+        {
+            var saveService = new MockSaveDataService();
+            saveService.SaveData.Coins = 100;
+            saveService.SaveData.Hints = 2;
+            saveService.SaveData.Inventory.Add(new InventoryItem { ItemId = 10, Amount = 2 });
+            saveService.SaveData.CompletedPuzzles.Add(new CompletedPuzzleData
+            {
+                PictureId = 1,
+                DifficultyId = 0,
+                BestTimeSeconds = 30f,
+                BestStar = 1
+            });
+
+            var session = new GameSessionService();
+            session.SetSelectedPicture(1);
+            session.SetSelectedDifficulty(0);
+            var staticData = new RewardStaticDataService();
+            var dropService = new FakeDropRewardService(
+                new DropRewardResult { ItemId = 1, Amount = 4 },
+                new DropRewardResult { ItemId = 2, Amount = 2 },
+                new DropRewardResult { ItemId = 101, Amount = 1 },
+                new DropRewardResult { ItemId = 10, Amount = 3 });
+            var presenter = CreateRewardPresenter(
+                session,
+                saveService,
+                staticData,
+                dropService);
+
+            presenter.ProcessRewardsAndDisplay(15f);
+
+            Assert.That(dropService.LastDropTableId, Is.EqualTo(1001));
+            Assert.That(saveService.SaveData.Coins, Is.EqualTo(114));
+            Assert.That(saveService.SaveData.Hints, Is.EqualTo(4));
+            Assert.That(saveService.SaveData.OwnedItemIds, Contains.Item(101));
+            Assert.That(saveService.SaveData.Inventory.Single(item => item.ItemId == 10).Amount, Is.EqualTo(3));
+            Assert.That(session.LastCoinEarned, Is.EqualTo(14));
+            Assert.That(GetRewardedItemsLabel(presenter), Does.Contain("Hint x2"));
+            Assert.That(GetRewardedItemsLabel(presenter), Does.Contain("Key 101"));
+            Assert.That(GetRewardedItemsLabel(presenter), Does.Contain("Stamp x1"));
+            Assert.That(GetRewardedItemsLabel(presenter), Does.Not.Contain("x3"));
+        }
+
+        [Test]
+        public void ProcessRewards_FirstClear_DoesNotRollDropTable()
+        {
+            var saveService = new MockSaveDataService();
+            var session = new GameSessionService();
+            session.SetSelectedPicture(1);
+            session.SetSelectedDifficulty(0);
+            var staticData = new RewardStaticDataService();
+            var dropService = new FakeDropRewardService(
+                new DropRewardResult { ItemId = 1, Amount = 100 });
+            var presenter = CreateRewardPresenter(
+                session,
+                saveService,
+                staticData,
+                dropService);
+
+            presenter.ProcessRewardsAndDisplay(15f);
+
+            Assert.That(dropService.CallCount, Is.Zero);
+            Assert.That(saveService.SaveData.Coins, Is.EqualTo(30));
         }
 
         [Test]
@@ -575,6 +643,101 @@ namespace JigsawVina.Tests
 
             var service = new StaticDataService(false);
             Assert.Throws<InvalidOperationException>(() => service.LoadFromText(json));
+        }
+
+        private static RewardSummaryPresenter CreateRewardPresenter(
+            GameSessionService session,
+            ISaveDataService saveData,
+            IStaticDataService staticData,
+            IDropRewardService dropReward)
+        {
+            var constructor = typeof(RewardSummaryPresenter).GetConstructor(new[]
+            {
+                typeof(RewardSummaryView),
+                typeof(GameSessionService),
+                typeof(ISaveDataService),
+                typeof(IStaticDataService),
+                typeof(IDropRewardService)
+            });
+            Assert.That(constructor, Is.Not.Null, "RewardSummaryPresenter must expose the drop service constructor.");
+            return (RewardSummaryPresenter)constructor.Invoke(new object[]
+            {
+                null,
+                session,
+                saveData,
+                staticData,
+                dropReward
+            });
+        }
+
+        private static string GetRewardedItemsLabel(RewardSummaryPresenter presenter)
+        {
+            return (string)typeof(RewardSummaryPresenter)
+                .GetField("_lastRewardedItemsLabel", BindingFlags.Instance | BindingFlags.NonPublic)
+                ?.GetValue(presenter);
+        }
+
+        private sealed class FakeDropRewardService : IDropRewardService
+        {
+            private readonly List<DropRewardResult> _results;
+
+            public int CallCount { get; private set; }
+            public int LastDropTableId { get; private set; }
+
+            public FakeDropRewardService(params DropRewardResult[] results)
+            {
+                _results = results.ToList();
+            }
+
+            public List<DropRewardResult> RollDropRewards(int dropTableId, PlayerSave save)
+            {
+                CallCount++;
+                LastDropTableId = dropTableId;
+                return new List<DropRewardResult>(_results);
+            }
+        }
+
+        private sealed class RewardStaticDataService : IStaticDataService
+        {
+            private readonly List<ItemDto> _items = new()
+            {
+                new ItemDto { id = 1, display_name = "Coin", item_type = "currency", status = "active" },
+                new ItemDto { id = 2, display_name = "Hint", item_type = "currency", status = "active" },
+                new ItemDto
+                {
+                    id = 10,
+                    display_name = "Stamp",
+                    item_type = "consumable",
+                    is_consumable = true,
+                    max_stack = 3,
+                    status = "active"
+                },
+                new ItemDto
+                {
+                    id = 101,
+                    display_name = "Key 101",
+                    item_type = "key_item",
+                    max_stack = 1,
+                    status = "active"
+                }
+            };
+
+            public IReadOnlyList<PictureConfig> GetAllPictures() => new List<PictureConfig>();
+            public PictureConfig GetPictureById(int id) => default;
+            public PictureDifficultyConfig GetPictureDifficulty(int pictureId, int difficultyId) =>
+                new PictureDifficultyConfig(
+                    1, 0, "Easy", 6, 4, 1, 30, 0, 10, new List<int>(), 1001);
+            public ItemDto GetItemById(int id) => _items.FirstOrDefault(item => item.id == id);
+            public IReadOnlyList<ItemDto> GetAllItems() => _items;
+            public IReadOnlyList<PictureDifficultyConfig> GetPictureDifficulties(int pictureId) =>
+                new List<PictureDifficultyConfig>();
+            public IReadOnlyList<PictureDifficultyConfig> GetAllPictureDifficulties() =>
+                new List<PictureDifficultyConfig>();
+            public IReadOnlyList<DropTableConfig> GetAllDropTables() => new List<DropTableConfig>();
+            public IReadOnlyList<DropTableItemConfig> GetDropTableItems(int dropTableId) =>
+                new List<DropTableItemConfig>();
+            public IReadOnlyList<DropTableItemConfig> GetAllDropTableItems() =>
+                new List<DropTableItemConfig>();
         }
     }
 }

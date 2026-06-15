@@ -3,6 +3,7 @@ using JigsawVina.Core.Services;
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
+using System.Collections;
 
 namespace JigsawVina.Presentation.Screens
 {
@@ -18,6 +19,9 @@ namespace JigsawVina.Presentation.Screens
         private Action<int> _onSelected;
         private Action<int> _onUnlockRequested;
         private int _pictureId;
+        private Coroutine _highlightCoroutine;
+
+        public int PictureId => _pictureId;
 
         private void Awake()
         {
@@ -102,6 +106,12 @@ namespace JigsawVina.Presentation.Screens
 
         public void Unbind()
         {
+            if (_highlightCoroutine != null)
+            {
+                StopCoroutine(_highlightCoroutine);
+                _highlightCoroutine = null;
+            }
+
             _onSelected = null;
             _onUnlockRequested = null;
             _pictureId = 0;
@@ -137,6 +147,29 @@ namespace JigsawVina.Presentation.Screens
             {
                 _lockOverlay.SetActive(false);
             }
+        }
+
+        public void Highlight()
+        {
+            if (!isActiveAndEnabled)
+            {
+                return;
+            }
+
+            if (_highlightCoroutine != null)
+            {
+                StopCoroutine(_highlightCoroutine);
+            }
+            _highlightCoroutine = StartCoroutine(HighlightRoutine());
+        }
+
+        private IEnumerator HighlightRoutine()
+        {
+            Vector3 originalScale = transform.localScale;
+            transform.localScale = originalScale * 1.05f;
+            yield return new WaitForSecondsRealtime(0.25f);
+            transform.localScale = originalScale;
+            _highlightCoroutine = null;
         }
     }
 }

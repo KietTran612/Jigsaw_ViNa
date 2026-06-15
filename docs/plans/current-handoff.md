@@ -1,5 +1,13 @@
 # Current Handoff
 
+- **Tasks 43-45: Daily Drop Rewards & Collection UI**:
+  - Implemented `DropRewardService` with per-item daily decay, minimum-rate clamping, independent active-entry rolls, inclusive amount ranges, owned Key Item/full consumable exclusion, partial-stack rewards, and success counters.
+  - Integrated replay drops into `RewardSummaryPresenter` while preserving its old constructor; applied coins, hints, Key Items, and consumables using the actual granted amount.
+  - Added `CollectionView` and `CollectionPresenter` for owned Key Items, deterministic first-clear/drop-table source mapping, source navigation, and event cleanup.
+  - Extended picture selection and Home flow with Collection open/close, unlocked-picture navigation to Difficulty Select, and locked-picture focus/highlight.
+  - Updated `ThinVerticalSliceSceneSetup` to Home marker v6, regenerated `Home.unity`, and kept Gameplay marker/scene at v4.
+  - Added targeted `RunTask43Tests`, `RunTask44Tests`, and `RunTask45Tests` routes.
+
 - **Task 42: PlayerSave Structure, Save Migration & RNG/Service Contracts**:
   - Extended `PlayerSave` with `LastSaveDateString`, `DailyDropCounts`, and `Inventory` lists.
   - Added a `Normalize(string localDateString)` overload to reset daily drop counters on calendar date change.
@@ -141,6 +149,12 @@
 
 ## Verification
 
+- **Tasks 43-45 targeted verification**:
+  - Unity script compilation completed with no compiler errors.
+  - Task 44 route (`DropRewardTests` + `ProgressionTests`): 31/31 passed.
+  - Task 45 route (`CollectionFlowTests` + `PictureSelectFlowTests` + `LifetimeScopeRegistrationTests`): 21/21 passed.
+  - Home v6 scene setup idempotency passed; SHA-256 hashes for both `Home.unity` and `Gameplay.unity` were unchanged on the second setup run.
+  - Full EditMode/PlayMode suites: not run - project policy requires a separately approved broad validation scope.
 - **Task 42 targeted verification**:
   - Unity script compilation completed with no compiler errors.
   - `SaveDataServiceTests`: Added `Load_DailyDropCounts_ResetsOnDateChange` verifying daily drop counts are cleared and LastSaveDateString is set on new date. Passed.
@@ -148,15 +162,12 @@
   - Unity script compilation completed with no compiler errors.
   - `StaticDataServiceTests`: Verified drop table configurations and strict constraints (rates, IDs, references). Passed.
   - `JigsawVinaGameDataEditorTests`: Verified that configurations round-trip correctly. Passed.
-- **Compiler Status**: Unity compiled successfully with 100% no warnings/errors.
-- **Automated Tests**:
-  - EditMode tests: 84/84 passed.
-  - PlayMode tests: 8/8 passed.
+- **Compiler Status**: Unity compiled successfully with no compiler errors.
 
 ## Current Uncommitted Scope
 
-- Task 41 & 42 static DTO extensions, validations, PlayerSave daily counters and VContainer registrations.
+- Tasks 43-45 drop reward logic, replay presenter integration, Collection UI/navigation, Home v6 scene regeneration, tests, and handoff documentation.
 
 ## Recommended Next Steps
 
-- Proceed to Task 43 (Daily Drop Decay Tests).
+- Run the optional manual Home Collection and replay-drop click-through before a user-requested commit.

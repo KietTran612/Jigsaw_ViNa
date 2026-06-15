@@ -161,6 +161,54 @@ namespace JigsawVina.Tests
             }
         }
 
+        [Test]
+        public void HomeScene_CollectionView_IsWiredCorrectly()
+        {
+            var scene = EditorSceneManager.OpenScene(
+                "Assets/Scenes/Home.unity",
+                OpenSceneMode.Additive);
+            try
+            {
+                var pictureView = FindInScene<PictureSelectView>(
+                    scene.GetRootGameObjects());
+                var collectionView = FindInScene<CollectionView>(
+                    scene.GetRootGameObjects());
+                Assert.That(collectionView, Is.Not.Null);
+
+                var pictureSo = new UnityEditor.SerializedObject(pictureView);
+                Assert.That(
+                    pictureSo.FindProperty("_scrollRect").objectReferenceValue,
+                    Is.Not.Null);
+                Assert.That(
+                    pictureSo.FindProperty("_collectionButton").objectReferenceValue,
+                    Is.Not.Null);
+
+                var collectionSo = new UnityEditor.SerializedObject(collectionView);
+                string[] requiredFields =
+                {
+                    "_itemContent",
+                    "_itemButtonTemplate",
+                    "_itemNameText",
+                    "_itemDescriptionText",
+                    "_itemThumbnail",
+                    "_sourceContent",
+                    "_sourceButtonTemplate",
+                    "_closeButton"
+                };
+                foreach (string fieldName in requiredFields)
+                {
+                    Assert.That(
+                        collectionSo.FindProperty(fieldName).objectReferenceValue,
+                        Is.Not.Null,
+                        $"{fieldName} should be wired.");
+                }
+            }
+            finally
+            {
+                EditorSceneManager.CloseScene(scene, true);
+            }
+        }
+
         private static T FindInScene<T>(UnityEngine.GameObject[] rootObjects)
             where T : UnityEngine.Component
         {
