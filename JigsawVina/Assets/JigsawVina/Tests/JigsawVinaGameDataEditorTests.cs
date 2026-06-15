@@ -127,7 +127,7 @@ namespace JigsawVina.Tests
         {
             var dto = new StaticDataDto();
             dto.categories.Add(new CategoryDto { id = 1, id_string = "cat1", display_name = "Category 1" });
-            dto.pictures.Add(new PictureDto { id = 1, id_string = "pic1", display_name = "Picture 1", category_id = 1, asset_path = "" });
+            dto.pictures.Add(new PictureDto { id = 1, id_string = "pic1", display_name = "Picture 1", category_id = 1, asset_path = "", is_initially_unlocked = true, difficulty_unlock_policy = "sequential", unlock_requirements = new List<int>() });
             
             dto.picture_difficulties.Add(new PictureDifficultyDto
             {
@@ -468,7 +468,7 @@ namespace JigsawVina.Tests
         {
             var dto = new StaticDataDto();
             dto.categories.Add(new CategoryDto { id = 1, id_string = "cat1", display_name = "Category 1" });
-            dto.pictures.Add(new PictureDto { id = 1, id_string = "pic1", display_name = "Picture 1", category_id = 1 });
+            dto.pictures.Add(new PictureDto { id = 1, id_string = "pic1", display_name = "Picture 1", category_id = 1, is_initially_unlocked = true, difficulty_unlock_policy = "sequential", unlock_requirements = new List<int>() });
 
             _window.LoadStateFromDto(dto);
 

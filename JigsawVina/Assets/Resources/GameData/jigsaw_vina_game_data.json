@@ -19,7 +19,9 @@
             "asset_path": "Textures/Pictures/Picture_1/MAIN_old_village_north_001",
             "difficulty_unlock_policy": "sequential",
             "display_name_key": "picture.house_oldvillage_1.name",
-            "description_key": "picture.house_oldvillage_1.description"
+            "description_key": "picture.house_oldvillage_1.description",
+            "is_initially_unlocked": true,
+            "unlock_requirements": []
         },
         {
             "id": 2,
@@ -29,7 +31,9 @@
             "asset_path": "Textures/Pictures/Picture_2/MAIN_old_village_central_001",
             "difficulty_unlock_policy": "sequential",
             "display_name_key": "picture.old_village_central_001.name",
-            "description_key": "picture.old_village_central_001.description"
+            "description_key": "picture.old_village_central_001.description",
+            "is_initially_unlocked": true,
+            "unlock_requirements": []
         },
         {
             "id": 3,
@@ -39,7 +43,9 @@
             "asset_path": "Textures/Pictures/Picture_3/MAIN_old_village_south_001",
             "difficulty_unlock_policy": "sequential",
             "display_name_key": "picture.old_village_south_001.name",
-            "description_key": "picture.old_village_south_001.description"
+            "description_key": "picture.old_village_south_001.description",
+            "is_initially_unlocked": true,
+            "unlock_requirements": []
         },
         {
             "id": 4,
@@ -49,7 +55,9 @@
             "asset_path": "Textures/Pictures/Picture_4/MAIN_festival_tet_001",
             "difficulty_unlock_policy": "sequential",
             "display_name_key": "picture.festival_tet_001.name",
-            "description_key": "picture.festival_tet_001.description"
+            "description_key": "picture.festival_tet_001.description",
+            "is_initially_unlocked": true,
+            "unlock_requirements": []
         },
         {
             "id": 5,
@@ -59,7 +67,9 @@
             "asset_path": "Textures/Pictures/Picture_5/MAIN_bridge_001",
             "difficulty_unlock_policy": "sequential",
             "display_name_key": "picture.bridge_001.name",
-            "description_key": "picture.bridge_001.description"
+            "description_key": "picture.bridge_001.description",
+            "is_initially_unlocked": true,
+            "unlock_requirements": []
         }
     ],
     "items": [

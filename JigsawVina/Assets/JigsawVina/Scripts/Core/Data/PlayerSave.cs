@@ -11,8 +11,20 @@ namespace JigsawVina.Core.Data
         public readonly string AssetPath;
         public readonly string DisplayNameKey;
         public readonly string DescriptionKey;
+        public readonly bool IsInitiallyUnlocked;
+        public readonly string DifficultyUnlockPolicy;
+        public readonly IReadOnlyList<int> UnlockRequirements;
 
-        public PictureConfig(int id, string idString, string displayName, string assetPath, string displayNameKey, string descriptionKey)
+        public PictureConfig(
+            int id, 
+            string idString, 
+            string displayName, 
+            string assetPath, 
+            string displayNameKey, 
+            string descriptionKey,
+            bool isInitiallyUnlocked,
+            string difficultyUnlockPolicy,
+            IReadOnlyList<int> unlockRequirements)
         {
             Id = id;
             IdString = idString;
@@ -20,6 +32,9 @@ namespace JigsawVina.Core.Data
             AssetPath = assetPath;
             DisplayNameKey = displayNameKey;
             DescriptionKey = descriptionKey;
+            IsInitiallyUnlocked = isInitiallyUnlocked;
+            DifficultyUnlockPolicy = difficultyUnlockPolicy;
+            UnlockRequirements = unlockRequirements != null ? new List<int>(unlockRequirements) : new List<int>();
         }
     }
 
@@ -39,5 +54,13 @@ namespace JigsawVina.Core.Data
         public int Hints;
         public List<CompletedPuzzleData> CompletedPuzzles = new();
         public List<int> OwnedItemIds = new();
+        public List<int> UnlockedPictureIds = new();
+
+        public void Normalize()
+        {
+            if (CompletedPuzzles == null) CompletedPuzzles = new();
+            if (OwnedItemIds == null) OwnedItemIds = new();
+            if (UnlockedPictureIds == null) UnlockedPictureIds = new();
+        }
     }
 }

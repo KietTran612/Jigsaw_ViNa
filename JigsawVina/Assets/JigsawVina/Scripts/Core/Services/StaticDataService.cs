@@ -45,8 +45,8 @@ namespace JigsawVina.Core.Services
         {
             _pictures = new List<PictureConfig>
             {
-                new PictureConfig(1, "ho_guom", "Hồ Gươm", "Textures/ho_guom", "picture.ho_guom.name", "picture.ho_guom.description"),
-                new PictureConfig(2, "ha_long", "Vịnh Hạ Long", "Textures/ha_long", "picture.ha_long.name", "picture.ha_long.description")
+                new PictureConfig(1, "ho_guom", "Hồ Gươm", "Textures/ho_guom", "picture.ho_guom.name", "picture.ho_guom.description", true, "sequential", new List<int>()),
+                new PictureConfig(2, "ha_long", "Vịnh Hạ Long", "Textures/ha_long", "picture.ha_long.name", "picture.ha_long.description", true, "sequential", new List<int>())
             };
 
             _difficulties = new Dictionary<(int, int), PictureDifficultyConfig>
@@ -84,7 +84,10 @@ namespace JigsawVina.Core.Services
                 p.display_name, 
                 p.asset_path,
                 p.display_name_key,
-                p.description_key
+                p.description_key,
+                p.is_initially_unlocked,
+                p.difficulty_unlock_policy,
+                p.unlock_requirements
             )).ToList();
 
             _difficulties = new Dictionary<(int, int), PictureDifficultyConfig>();
@@ -234,5 +237,23 @@ namespace JigsawVina.Core.Services
         }
 
         public IReadOnlyList<ItemDto> GetAllItems() => _items;
+
+        public IReadOnlyList<PictureDifficultyConfig> GetPictureDifficulties(int pictureId)
+        {
+            var list = new List<PictureDifficultyConfig>();
+            foreach (var kvp in _difficulties)
+            {
+                if (kvp.Key.PictureId == pictureId)
+                {
+                    list.Add(kvp.Value);
+                }
+            }
+            return list;
+        }
+
+        public IReadOnlyList<PictureDifficultyConfig> GetAllPictureDifficulties()
+        {
+            return _difficulties.Values.ToList();
+        }
     }
 }

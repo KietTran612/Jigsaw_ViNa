@@ -24,6 +24,8 @@ namespace JigsawVina.Core.Data
         public string difficulty_unlock_policy;
         public string display_name_key;
         public string description_key;
+        public bool is_initially_unlocked;
+        public List<int> unlock_requirements = new();
     }
 
     [Serializable]

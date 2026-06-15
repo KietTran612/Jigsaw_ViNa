@@ -69,8 +69,8 @@ namespace JigsawVina.Tests
         {
             var configs = new List<PictureConfig>
             {
-                new PictureConfig(1, "pic1", "Pic 1", "Textures/pic1", "key.name", "key.desc"),
-                new PictureConfig(2, "pic2", "Pic 2", "Textures/pic2", "key.name", "key.desc")
+                new PictureConfig(1, "pic1", "Pic 1", "Textures/pic1", "key.name", "key.desc", true, "sequential", new List<int>()),
+                new PictureConfig(2, "pic2", "Pic 2", "Textures/pic2", "key.name", "key.desc", true, "sequential", new List<int>())
             };
 
             _view.Setup(configs);
@@ -83,12 +83,12 @@ namespace JigsawVina.Tests
         {
             var configs1 = new List<PictureConfig>
             {
-                new PictureConfig(1, "pic1", "Pic 1", "Textures/pic1", "key.name", "key.desc")
+                new PictureConfig(1, "pic1", "Pic 1", "Textures/pic1", "key.name", "key.desc", true, "sequential", new List<int>())
             };
             var configs2 = new List<PictureConfig>
             {
-                new PictureConfig(2, "pic2", "Pic 2", "Textures/pic2", "key.name", "key.desc"),
-                new PictureConfig(3, "pic3", "Pic 3", "Textures/pic3", "key.name", "key.desc")
+                new PictureConfig(2, "pic2", "Pic 2", "Textures/pic2", "key.name", "key.desc", true, "sequential", new List<int>()),
+                new PictureConfig(3, "pic3", "Pic 3", "Textures/pic3", "key.name", "key.desc", true, "sequential", new List<int>())
             };
 
             _view.Setup(configs1);
@@ -107,7 +107,7 @@ namespace JigsawVina.Tests
         {
             var configs = new List<PictureConfig>
             {
-                new PictureConfig(3, "pic3", "Pic 3", "Textures/pic3", "key.name", "key.desc")
+                new PictureConfig(3, "pic3", "Pic 3", "Textures/pic3", "key.name", "key.desc", true, "sequential", new List<int>())
             };
             _view.Setup(configs);
             TriggerCardAwake(_view.InstantiatedCards[0]);
@@ -134,7 +134,7 @@ namespace JigsawVina.Tests
             int selectedId = 0;
             _view.OnPictureSelected += id => selectedId = id;
 
-            var configs = new List<PictureConfig> { new PictureConfig(5, "pic5", "Pic 5", "Textures/pic5", "key.name", "key.desc") };
+            var configs = new List<PictureConfig> { new PictureConfig(5, "pic5", "Pic 5", "Textures/pic5", "key.name", "key.desc", true, "sequential", new List<int>()) };
             _view.Setup(configs);
             TriggerCardAwake(_view.InstantiatedCards[0]);
 
@@ -176,7 +176,7 @@ namespace JigsawVina.Tests
 
             var configs = new List<PictureConfig>
             {
-                new PictureConfig(5, "pic5", "Pic 5", "Textures/pic5", "key.name", "key.desc")
+                new PictureConfig(5, "pic5", "Pic 5", "Textures/pic5", "key.name", "key.desc", true, "sequential", new List<int>())
             };
             _view.Setup(configs);
             TriggerCardAwake(_view.InstantiatedCards[0]);
@@ -205,12 +205,14 @@ namespace JigsawVina.Tests
         {
             public IReadOnlyList<PictureConfig> GetAllPictures() => new List<PictureConfig>
             {
-                new PictureConfig(1, "pic1", "Pic 1", "Textures/pic1", "key.name", "key.desc")
+                new PictureConfig(1, "pic1", "Pic 1", "Textures/pic1", "key.name", "key.desc", true, "sequential", new List<int>())
             };
             public PictureConfig GetPictureById(int id) => default;
             public PictureDifficultyConfig GetPictureDifficulty(int pictureId, int difficultyId) => default;
             public ItemDto GetItemById(int id) => null;
             public IReadOnlyList<ItemDto> GetAllItems() => null;
+            public IReadOnlyList<PictureDifficultyConfig> GetPictureDifficulties(int pictureId) => null;
+            public IReadOnlyList<PictureDifficultyConfig> GetAllPictureDifficulties() => null;
         }
     }
 }

@@ -2,6 +2,23 @@
 
 ## Latest Completed Work
 
+- **Task 36: Write Progression & Validator Unit Tests (TDD)**:
+  - Added test case `PlayerSave_Normalize_InitializesNullLists` for save migration / normalization.
+  - Added test cases `GetPictureState_InitiallyUnlocked_ReturnsUnlockedOrCompleted`, `GetPictureState_NotInitiallyUnlocked_Locked_AndTransitionToReadyToUnlock`, `GetPictureState_AfterUnlocking_ReturnsUnlocked`, and `GetPictureState_LockedEvenWithCompletions_IfUnlockFlagMissing`.
+  - Added atomic unlock lifecycle and constraints test case `TryUnlockPicture_FlowAndConstraints`.
+  - Added tests `IsDifficultyUnlocked_SequentialPolicy` and `IsDifficultyUnlocked_AllUnlockedPolicy` verifying difficulty locking rules.
+  - Added test case `GetItemSourceHints_ReturnsCorrectSources` for source item tracking.
+  - Added static data validator tests `ValidateStaticData_DeadlockRequiredItemUnreachable_ThrowsException`, `ValidateStaticData_DeadlockCircularRequirement_ThrowsException`, and `ValidateStaticData_UnlockRequirementNotKeyItem_ThrowsException`.
+  - Verified they compile cleanly and fail correctly (11 failing tests due to skeletal implementations and lack of deadlock detection).
+
+- **Task 35: Data Model, Save Migration, Static Data Contract & Editor Integration**:
+  - Expanded `EditorTabState` in `JigsawVinaGameDataEditor.cs` with fields: `isInitiallyUnlocked`, `difficultyUnlockPolicy`, and `unlockRequirements`.
+  - Implemented GUI Editor fields in the Picture Configuration detail view (toggle, popup, list elements).
+  - Updated mapping logic `LoadStateFromDto` and `TryBuildConfig` to support serializing and deserializing these new locking attributes.
+  - Enhanced the "Unlock All" cheat editor button to automatically populate `UnlockedPictureIds` inside the save database for non-initially unlocked pictures.
+  - Cleaned up compile-breaking string literal unescaped quotes in both `StaticDataServiceTests.cs` and `ProgressionTests.cs`.
+  - Verified 100% test success: 45/45 EditMode tests and 8/8 PlayMode tests pass.
+
 - **Review Fixes (P1 & P2)**:
   - Fixed VContainer DI resolution issue by registering `StaticDataService` using a factory lambda in `ProjectLifetimeScope.cs`, bypassing the boolean parameter injection error.
   - Fixed `KeyNotFoundException` in PlayMode when starting directly from the `Gameplay` scene by defaulting to the first available picture configuration and difficulty 0 if `SelectedPictureId == 0` (in `PuzzlePlayingPresenter.Initialize()`).
@@ -89,8 +106,8 @@
 
 ## Current Uncommitted Scope
 
-- All changed scripts, prefabs, tests, and updated scene file `Home.unity` (v4 regenerated setup).
+- Các tệp kế hoạch triển khai Milestone 2 dưới thư mục `docs/plans/`.
 
 ## Recommended Next Steps
 
-- Ask the user if they wish to commit the dynamic Home UI implementation changes to git.
+- Bắt đầu triển khai Task 37 thuộc Milestone 2: Implement Core Progression Service & Validator Logic (hoàn thiện ProgressionService.cs và validator phát hiện deadlock).

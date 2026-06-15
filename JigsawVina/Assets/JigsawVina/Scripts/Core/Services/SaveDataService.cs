@@ -11,10 +11,14 @@ namespace JigsawVina.Core.Services
         {
             if (!PlayerPrefs.HasKey(SaveKey))
             {
-                return new PlayerSave();
+                var newSave = new PlayerSave();
+                newSave.Normalize();
+                return newSave;
             }
             string json = PlayerPrefs.GetString(SaveKey);
-            return JsonUtility.FromJson<PlayerSave>(json) ?? new PlayerSave();
+            var save = JsonUtility.FromJson<PlayerSave>(json) ?? new PlayerSave();
+            save.Normalize();
+            return save;
         }
 
         public void Save(PlayerSave save)

@@ -43,6 +43,11 @@ namespace JigsawVina.Editor
             public string displayNameKey = "";
             public string descriptionKey = "";
 
+            // New locking fields
+            public bool isInitiallyUnlocked = true;
+            public string difficultyUnlockPolicy = "sequential";
+            public List<int> unlockRequirements = new();
+
             // Foldout states
             public bool easyExpanded = true;
             public bool normalExpanded = true;
@@ -189,7 +194,10 @@ namespace JigsawVina.Editor
                         displayName = pic.display_name,
                         categoryId = pic.category_id != 0 ? pic.category_id : 1,
                         displayNameKey = pic.display_name_key,
-                        descriptionKey = pic.description_key
+                        descriptionKey = pic.description_key,
+                        isInitiallyUnlocked = pic.is_initially_unlocked,
+                        difficultyUnlockPolicy = string.IsNullOrEmpty(pic.difficulty_unlock_policy) ? "sequential" : pic.difficulty_unlock_policy,
+                        unlockRequirements = pic.unlock_requirements != null ? new List<int>(pic.unlock_requirements) : new List<int>()
                     };
 
                     // Reconstruct folder asset path
@@ -949,6 +957,7 @@ namespace JigsawVina.Editor
         {
             if (save == null) return;
             save.CompletedPuzzles ??= new List<CompletedPuzzleData>();
+            save.UnlockedPictureIds ??= new List<int>();
 
             var newCompletions = new List<CompletedPuzzleData>();
             var processedPicIds = new HashSet<int>();
@@ -957,6 +966,11 @@ namespace JigsawVina.Editor
             {
                 if (tab.pictureId <= 0 || !processedPicIds.Add(tab.pictureId))
                     continue;
+
+                if (!tab.isInitiallyUnlocked && !save.UnlockedPictureIds.Contains(tab.pictureId))
+                {
+                    save.UnlockedPictureIds.Add(tab.pictureId);
+                }
 
                 for (int diffId = 0; diffId <= 2; diffId++)
                 {
@@ -1097,6 +1111,34 @@ namespace JigsawVina.Editor
                 state.displayName = EditorGUILayout.TextField("Tên Tranh", state.displayName);
                 state.displayNameKey = EditorGUILayout.TextField("Khóa tên hiển thị", state.displayNameKey);
                 state.descriptionKey = EditorGUILayout.TextField("Khóa mô tả", state.descriptionKey);
+
+                state.isInitiallyUnlocked = EditorGUILayout.Toggle("Mở khóa mặc định", state.isInitiallyUnlocked);
+                
+                string[] policies = { "sequential", "all_unlocked" };
+                int policyIdx = Array.IndexOf(policies, state.difficultyUnlockPolicy);
+                if (policyIdx < 0) policyIdx = 0;
+                policyIdx = EditorGUILayout.Popup("Cơ chế mở khóa độ khó", policyIdx, policies);
+                state.difficultyUnlockPolicy = policies[policyIdx];
+
+                state.unlockRequirements ??= new List<int>();
+                EditorGUILayout.Space();
+                GUILayout.Label("Yêu cầu Mở khóa (Key Item IDs)", EditorStyles.boldLabel);
+                for (int u = 0; u < state.unlockRequirements.Count; u++)
+                {
+                    GUILayout.BeginHorizontal();
+                    state.unlockRequirements[u] = EditorGUILayout.IntField($"Vật phẩm yêu cầu {u + 1}", state.unlockRequirements[u]);
+                    if (GUILayout.Button("Xóa", GUILayout.Width(60)))
+                    {
+                        state.unlockRequirements.RemoveAt(u);
+                        u--;
+                    }
+                    GUILayout.EndHorizontal();
+                }
+                if (GUILayout.Button("Thêm Key Item ID yêu cầu", GUILayout.Width(200)))
+                {
+                    state.unlockRequirements.Add(0);
+                }
+                EditorGUILayout.Space();
 
                 if (_categories != null && _categories.Count > 0)
                 {
@@ -1578,9 +1620,11 @@ namespace JigsawVina.Editor
                     display_name = tab.displayName,
                     category_id = tab.categoryId,
                     asset_path = mainPath,
-                    difficulty_unlock_policy = "sequential",
+                    difficulty_unlock_policy = string.IsNullOrEmpty(tab.difficultyUnlockPolicy) ? "sequential" : tab.difficultyUnlockPolicy,
                     display_name_key = string.IsNullOrEmpty(tab.displayNameKey) ? $"picture.{tab.idString}.name" : tab.displayNameKey,
-                    description_key = string.IsNullOrEmpty(tab.descriptionKey) ? $"picture.{tab.idString}.description" : tab.descriptionKey
+                    description_key = string.IsNullOrEmpty(tab.descriptionKey) ? $"picture.{tab.idString}.description" : tab.descriptionKey,
+                    is_initially_unlocked = tab.isInitiallyUnlocked,
+                    unlock_requirements = tab.unlockRequirements != null ? new List<int>(tab.unlockRequirements) : new List<int>()
                 });
 
                 // Map scanned items DTO

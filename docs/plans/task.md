@@ -35,6 +35,12 @@
 | **Task 32: Regenerate Home Scene Setup v4** | [x] | Updated `ThinVerticalSliceSceneSetup`, replaced hardcoded buttons with a scroll view, wired prefab/container references, and regenerated `Home.unity`. |
 | **Task 33: Add Targeted Home UI EditMode Tests** | [x] | Created `PictureSelectFlowTests` and added `HomeScene_PictureSelectView_IsWiredCorrectly` to `LifetimeScopeRegistrationTests` for full setup/wiring validation. |
 | **Task 34: Verify and Update Dynamic Home UI Documentation** | [x] | Verified EditMode (45/45) and PlayMode (8/8) tests pass. Confirmed scene regeneration idempotency and updated documentation. |
+| **Task 35: Data Model, Save Migration, Static Data Contract & Editor Integration** | [x] | Triển khai DTO, Config runtime, save migration, GUI Editor quản lý khóa tranh, nâng cấp cheat "Unlock All", tạo skeletons PictureCardPresentationModel.cs và ProgressionService.cs để tránh lỗi compile, sửa test fixtures cũ và cập nhật JSON Tranh 1-5. |
+| **Task 36: Write Progression & Validator Unit Tests (TDD)** | [x] | Viết các failing tests trong ProgressionTests.cs (migration, atomic unlock, sequential/all_unlocked, hint, deadlock check). |
+| **Task 37: Implement Core Progression Service & Validator Logic** | [ ] | Hoàn thiện ProgressionService.cs (TryUnlockPicture, GetPictureState, hints) và tích hợp logic validation cùng thuật toán deadlock detector. |
+| **Task 38: Update PictureSelect Card, Presenter & UI Prefab** | [ ] | Bổ sung Lock Overlay, Key Item panel, nút Unlock vào card prefab. Chặn click điều hướng (interactable = false) và refresh UI. |
+| **Task 39: Update DifficultySelect View & Presenter with Leak Fix** | [ ] | Khóa nút độ khó dựa trên policy, hiển thị thành tích, refresh đúng ID khi show, implement IDisposable hủy đăng ký event, và viết unit tests kiểm tra presenter/view logic và lifecycle. |
+| **Task 40: Scene Wiring, Regeneration & Manual Verification** | [ ] | Bổ sung Picture 6 khóa và cấu hình vào JSON, cập nhật ThinVerticalSliceSceneSetup.cs, chạy setup regenerate Home.unity, mở rộng LifetimeScopeRegistrationTests.cs để kiểm chứng scene wiring mới, chạy idempotency và test thủ công. |
 
 ## Completed
 
