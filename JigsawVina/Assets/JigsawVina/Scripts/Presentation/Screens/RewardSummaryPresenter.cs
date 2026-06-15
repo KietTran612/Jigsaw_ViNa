@@ -11,6 +11,8 @@ namespace JigsawVina.Presentation.Screens
         private readonly ISaveDataService _saveDataService;
         private readonly IStaticDataService _staticDataService;
 
+        private string _lastRewardedItemsLabel = "";
+
         public RewardSummaryPresenter(
             RewardSummaryView view,
             GameSessionService sessionService,
@@ -25,6 +27,7 @@ namespace JigsawVina.Presentation.Screens
 
         public void ProcessRewardsAndDisplay(float elapsedTimeSeconds)
         {
+            _lastRewardedItemsLabel = "";
             ProcessRewards(elapsedTimeSeconds);
             DisplayProcessedReward();
         }
@@ -69,6 +72,7 @@ namespace JigsawVina.Presentation.Screens
                     save.Coins += coins;
                     save.Hints += config.FirstClearHint;
 
+                    var rewardedNames = new List<string>();
                     if (config.FirstClearRewardItemIds != null)
                     {
                         if (save.OwnedItemIds == null)
@@ -80,9 +84,21 @@ namespace JigsawVina.Presentation.Screens
                             if (!save.OwnedItemIds.Contains(itemId))
                             {
                                 save.OwnedItemIds.Add(itemId);
+
+                                var itemDto = _staticDataService.GetItemById(itemId);
+                                if (itemDto != null)
+                                {
+                                    rewardedNames.Add(itemDto.display_name);
+                                }
+                                else
+                                {
+                                    rewardedNames.Add($"Mục #{itemId}");
+                                }
                             }
                         }
                     }
+
+                    _lastRewardedItemsLabel = rewardedNames.Count > 0 ? string.Join(", ", rewardedNames) : "";
 
                     save.CompletedPuzzles.Add(new CompletedPuzzleData
                     {
@@ -103,7 +119,7 @@ namespace JigsawVina.Presentation.Screens
         {
             if (_view != null)
             {
-                _view.DisplayReward(_sessionService.LastStarCount, _sessionService.LastCoinEarned);
+                _view.DisplayReward(_sessionService.LastStarCount, _sessionService.LastCoinEarned, _lastRewardedItemsLabel);
             }
         }
     }

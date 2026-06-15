@@ -399,9 +399,12 @@ namespace JigsawVina.Editor
 
             var starsText = AddHeader(rewardScreen.transform, "Stars: 0", new Vector2(0f, 120f), new Vector2(600f, 80f));
             var coinsText = AddHeader(rewardScreen.transform, "Coins Earned: 0", new Vector2(0f, 40f), new Vector2(600f, 80f));
+            var keyItemsText = AddHeader(rewardScreen.transform, "", new Vector2(0f, -30f), new Vector2(800f, 60f));
+            keyItemsText.fontSize = 26f;
             var returnButton = CreateButton(rewardScreen.transform, "ReturnHomeButton", "Return Home", new Vector2(0f, -100f), new Vector2(300f, 60f));
             Assign(rewardView, "_starsText", starsText);
             Assign(rewardView, "_coinsText", coinsText);
+            Assign(rewardView, "_keyItemsText", keyItemsText);
             Assign(rewardView, "_returnButton", returnButton);
 
             rewardScreen.SetActive(false);

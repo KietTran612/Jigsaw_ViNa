@@ -11,6 +11,7 @@ namespace JigsawVina.Presentation.Screens
 
         [SerializeField] private TMP_Text _starsText;
         [SerializeField] private TMP_Text _coinsText;
+        [SerializeField] private TMP_Text _keyItemsText;
         [SerializeField] private Button _returnButton;
 
         private void Awake()
@@ -21,7 +22,7 @@ namespace JigsawVina.Presentation.Screens
             }
         }
 
-        public void DisplayReward(int stars, int coins)
+        public void DisplayReward(int stars, int coins, string keyItemsLabel = "")
         {
             if (_starsText != null)
             {
@@ -31,6 +32,12 @@ namespace JigsawVina.Presentation.Screens
             if (_coinsText != null)
             {
                 _coinsText.text = $"Coins Earned: {coins}";
+            }
+
+            if (_keyItemsText != null)
+            {
+                _keyItemsText.text = string.IsNullOrEmpty(keyItemsLabel) ? "" : $"Vật phẩm nhận được: {keyItemsLabel}";
+                _keyItemsText.gameObject.SetActive(!string.IsNullOrEmpty(keyItemsLabel));
             }
         }
 

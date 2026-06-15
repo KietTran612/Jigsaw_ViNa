@@ -78,6 +78,7 @@ namespace JigsawVina.Editor
         private int _mainTabSelected = 0;
         [SerializeField] internal List<ItemDto> _globalItems = new();
         private Vector2 _itemsScroll;
+        private Vector2 _keyItemsScroll;
         private PlayerSave _cachedSave = new();
         [NonSerialized] private bool _saveLoaded = false;
         [NonSerialized] private string _saveJsonText = "";
@@ -771,6 +772,7 @@ namespace JigsawVina.Editor
 
             GUILayout.BeginVertical(GUI.skin.box, GUILayout.ExpandWidth(true), GUILayout.ExpandHeight(true));
             GUILayout.Label("Trình sửa Save (Cheat & Player Save Editor)", EditorStyles.boldLabel);
+            EditorGUILayout.HelpBox("Dùng để xem và sửa đổi dữ liệu lưu trữ trực tiếp của người chơi lưu trong PlayerPrefs.", MessageType.Info);
             EditorGUILayout.Space();
 
             // Load & Save Buttons
@@ -790,13 +792,99 @@ namespace JigsawVina.Editor
             EditorGUILayout.Space();
 
             // Edit basic fields: Coins & Hints
+            GUILayout.Label("Tài Nguyên Người Chơi", EditorStyles.boldLabel);
+            
+            var wordWrapMiniLabel = new GUIStyle(EditorStyles.miniLabel) { wordWrap = true };
+
             _cachedSave.Coins = EditorGUILayout.IntField("Số Xu (Coins)", _cachedSave.Coins);
+            EditorGUILayout.LabelField("-> Coins (Số Xu): Đơn vị tiền tệ chính để mở khóa tranh hoặc tính năng trong tương lai.", wordWrapMiniLabel);
+            
             _cachedSave.Hints = EditorGUILayout.IntField("Số Gợi Ý (Hints)", _cachedSave.Hints);
+            EditorGUILayout.LabelField("-> Hints (Số Gợi Ý): Số lượng gợi ý hỗ trợ tự động tìm vị trí đúng của mảnh ghép.", wordWrapMiniLabel);
+
+            EditorGUILayout.Space();
+
+            // Owned Key Items section
+            GUILayout.Label("Vật Phẩm Sở Hữu (OwnedItemIds)", EditorStyles.boldLabel);
+            EditorGUILayout.LabelField("-> OwnedItemIds (Key Items): Các vật phẩm vĩnh viễn thu được khi vượt màn lần đầu (First Clear), dùng để đáp ứng điều kiện mở khóa tranh.", wordWrapMiniLabel);
+            
+            _cachedSave.OwnedItemIds ??= new List<int>();
+
+            // Collect all Key Items from pictures/tabs
+            var keyItems = new List<(int id, string displayName)>();
+            foreach (var tab in _tabs)
+            {
+                tab.itemStates.Sort((a, b) => string.Compare(a.filename, b.filename, StringComparison.Ordinal));
+                for (int i = 0; i < tab.itemStates.Count; i++)
+                {
+                    int itemId = tab.pictureId * 100 + (i + 1);
+                    string name = string.IsNullOrEmpty(tab.itemStates[i].displayName) 
+                        ? tab.itemStates[i].filename 
+                        : tab.itemStates[i].displayName;
+                    keyItems.Add((itemId, $"[{tab.displayName}] {name} (ID: {itemId})"));
+                }
+            }
+
+            _keyItemsScroll = EditorGUILayout.BeginScrollView(_keyItemsScroll, GUILayout.Height(120));
+            if (keyItems.Count == 0)
+            {
+                GUILayout.Label("Không có Key Item nào được cấu hình trong các tranh.", EditorStyles.miniLabel);
+            }
+            else
+            {
+                foreach (var item in keyItems)
+                {
+                    bool owned = _cachedSave.OwnedItemIds.Contains(item.id);
+                    
+                    GUILayout.BeginHorizontal();
+                    bool newOwned = EditorGUILayout.Toggle(owned, GUILayout.Width(20));
+                    GUILayout.Label(item.displayName);
+                    GUILayout.EndHorizontal();
+
+                    if (newOwned != owned)
+                    {
+                        if (newOwned)
+                        {
+                            if (!_cachedSave.OwnedItemIds.Contains(item.id))
+                                _cachedSave.OwnedItemIds.Add(item.id);
+                        }
+                        else
+                        {
+                            _cachedSave.OwnedItemIds.Remove(item.id);
+                        }
+                        _saveJsonText = JsonUtility.ToJson(_cachedSave, true);
+                    }
+                }
+            }
+            EditorGUILayout.EndScrollView();
+
+            GUILayout.BeginHorizontal();
+            if (GUILayout.Button("Sở hữu tất cả Key Items", GUILayout.Width(200)))
+            {
+                _cachedSave.OwnedItemIds ??= new List<int>();
+                foreach (var item in keyItems)
+                {
+                    if (!_cachedSave.OwnedItemIds.Contains(item.id))
+                    {
+                        _cachedSave.OwnedItemIds.Add(item.id);
+                    }
+                }
+                SavePlayerSave();
+                EditorUtility.DisplayDialog("Thành Công", "Đã thêm tất cả Key Items vào danh sách sở hữu!", "OK");
+            }
+            if (GUILayout.Button("Xóa sạch Key Items", GUILayout.Width(200)))
+            {
+                _cachedSave.OwnedItemIds.Clear();
+                SavePlayerSave();
+                EditorUtility.DisplayDialog("Thành Công", "Đã xóa sạch toàn bộ Key Items sở hữu!", "OK");
+            }
+            GUILayout.EndHorizontal();
 
             EditorGUILayout.Space();
 
             // Unlock All & Reset Save Buttons
             GUILayout.Label("Trình Cheat / Hỗ Trợ Test", EditorStyles.boldLabel);
+            EditorGUILayout.LabelField("-> CompletedPuzzles: Lưu trữ lịch sử vượt màn tốt nhất (sao, thời gian) để kiểm tra mở khóa độ khó tuần tự.", wordWrapMiniLabel);
             GUILayout.BeginHorizontal();
 
             if (GUILayout.Button("Mở Khóa Toàn Bộ Tranh (Unlock All)", GUILayout.Width(240)))
