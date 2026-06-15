@@ -579,8 +579,8 @@ namespace JigsawVina.Editor
             return slider;
         }
 
-        [MenuItem("JigsawVina/Task 28/Create Picture Select Card Prefab")]
-        public static void CreatePictureSelectCardPrefabForTask28()
+        [MenuItem("JigsawVina/Task 38/Create Picture Select Card Prefab")]
+        public static void CreatePictureSelectCardPrefabForTask38()
         {
             const string prefabPath = PrefabsFolder + "/PictureSelectCard.prefab";
 
@@ -638,10 +638,91 @@ namespace JigsawVina.Editor
                 label.fontSize = 24f;
                 label.alignment = TextAlignmentOptions.MidlineLeft;
 
+                var lockOverlay = new GameObject(
+                    "LockOverlay",
+                    typeof(RectTransform),
+                    typeof(CanvasRenderer),
+                    typeof(Image));
+                lockOverlay.transform.SetParent(root.transform, false);
+                var overlayRect = (RectTransform)lockOverlay.transform;
+                overlayRect.anchorMin = Vector2.zero;
+                overlayRect.anchorMax = Vector2.one;
+                overlayRect.offsetMin = Vector2.zero;
+                overlayRect.offsetMax = Vector2.zero;
+                var overlayImage = lockOverlay.GetComponent<Image>();
+                overlayImage.color = new Color(0.04f, 0.06f, 0.1f, 0.88f);
+
+                var lockLabelObject = new GameObject(
+                    "LockIcon",
+                    typeof(RectTransform),
+                    typeof(CanvasRenderer),
+                    typeof(TextMeshProUGUI));
+                lockLabelObject.transform.SetParent(lockOverlay.transform, false);
+                var lockLabelRect = (RectTransform)lockLabelObject.transform;
+                lockLabelRect.anchorMin = new Vector2(0f, 0.5f);
+                lockLabelRect.anchorMax = new Vector2(0f, 0.5f);
+                lockLabelRect.anchoredPosition = new Vector2(70f, 32f);
+                lockLabelRect.sizeDelta = new Vector2(110f, 36f);
+                var lockLabel = lockLabelObject.GetComponent<TextMeshProUGUI>();
+                lockLabel.text = "LOCK";
+                lockLabel.fontSize = 20f;
+                lockLabel.fontStyle = FontStyles.Bold;
+                lockLabel.alignment = TextAlignmentOptions.Center;
+                lockLabel.color = new Color(1f, 0.82f, 0.25f);
+                lockLabel.raycastTarget = false;
+
+                var keyItemPanel = new GameObject(
+                    "KeyItemPanel",
+                    typeof(RectTransform),
+                    typeof(CanvasRenderer),
+                    typeof(Image));
+                keyItemPanel.transform.SetParent(lockOverlay.transform, false);
+                var keyItemPanelRect = (RectTransform)keyItemPanel.transform;
+                keyItemPanelRect.anchorMin = new Vector2(0f, 0f);
+                keyItemPanelRect.anchorMax = new Vector2(1f, 1f);
+                keyItemPanelRect.offsetMin = new Vector2(125f, 8f);
+                keyItemPanelRect.offsetMax = new Vector2(-135f, -8f);
+                var keyItemPanelImage = keyItemPanel.GetComponent<Image>();
+                keyItemPanelImage.color = new Color(0.12f, 0.18f, 0.28f, 0.95f);
+                keyItemPanelImage.raycastTarget = false;
+
+                var hintObject = new GameObject(
+                    "MissingItemsHint",
+                    typeof(RectTransform),
+                    typeof(CanvasRenderer),
+                    typeof(TextMeshProUGUI));
+                hintObject.transform.SetParent(keyItemPanel.transform, false);
+                var hintRect = (RectTransform)hintObject.transform;
+                hintRect.anchorMin = Vector2.zero;
+                hintRect.anchorMax = Vector2.one;
+                hintRect.offsetMin = new Vector2(10f, 4f);
+                hintRect.offsetMax = new Vector2(-10f, -4f);
+                var hintText = hintObject.GetComponent<TextMeshProUGUI>();
+                hintText.text = "Missing item source hint";
+                hintText.fontSize = 16f;
+                hintText.alignment = TextAlignmentOptions.MidlineLeft;
+                hintText.color = Color.white;
+                hintText.raycastTarget = false;
+
+                var unlockButton = CreateButton(
+                    lockOverlay.transform,
+                    "UnlockButton",
+                    "Unlock",
+                    new Vector2(215f, 0f),
+                    new Vector2(120f, 52f));
+                var unlockRect = (RectTransform)unlockButton.transform;
+                unlockRect.anchorMin = new Vector2(0.5f, 0.5f);
+                unlockRect.anchorMax = new Vector2(0.5f, 0.5f);
+
                 var card = root.GetComponent<PictureSelectCard>();
                 Assign(card, "_button", button);
                 Assign(card, "_thumbnailImage", thumbnailImage);
                 Assign(card, "_displayNameText", label);
+                Assign(card, "_lockOverlay", lockOverlay);
+                Assign(card, "_missingItemsHintText", hintText);
+                Assign(card, "_unlockButton", unlockButton);
+
+                lockOverlay.SetActive(false);
 
                 PrefabUtility.SaveAsPrefabAsset(root, prefabPath);
                 AssetDatabase.SaveAssets();

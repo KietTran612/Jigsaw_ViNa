@@ -1,5 +1,5 @@
 using System;
-using JigsawVina.Core.Data;
+using JigsawVina.Core.Services;
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
@@ -11,22 +11,63 @@ namespace JigsawVina.Presentation.Screens
         [SerializeField] private Button _button;
         [SerializeField] private Image _thumbnailImage;
         [SerializeField] private TMP_Text _displayNameText;
+        [SerializeField] private GameObject _lockOverlay;
+        [SerializeField] private TMP_Text _missingItemsHintText;
+        [SerializeField] private Button _unlockButton;
 
-        private Action<int> _onClicked;
+        private Action<int> _onSelected;
+        private Action<int> _onUnlockRequested;
         private int _pictureId;
 
         private void Awake()
         {
             if (_button != null)
             {
-                _button.onClick.AddListener(() => _onClicked?.Invoke(_pictureId));
+                _button.onClick.AddListener(() => _onSelected?.Invoke(_pictureId));
+            }
+
+            if (_unlockButton != null)
+            {
+                _unlockButton.onClick.AddListener(() => _onUnlockRequested?.Invoke(_pictureId));
             }
         }
 
-        public void Bind(PictureConfig config, Action<int> onClicked)
+        public void Bind(
+            PictureCardPresentationModel model,
+            Action<int> onSelected,
+            Action<int> onUnlockRequested)
         {
+            var config = model.Config;
             _pictureId = config.Id;
-            _onClicked = onClicked;
+            _onSelected = onSelected;
+            _onUnlockRequested = onUnlockRequested;
+
+            bool isLocked = model.State == PictureCardState.Locked ||
+                            model.State == PictureCardState.ReadyToUnlock;
+            bool canUnlock = model.State == PictureCardState.ReadyToUnlock;
+
+            if (_button != null)
+            {
+                _button.interactable = !isLocked;
+            }
+
+            if (_lockOverlay != null)
+            {
+                _lockOverlay.SetActive(isLocked);
+            }
+
+            if (_unlockButton != null)
+            {
+                _unlockButton.gameObject.SetActive(canUnlock);
+                _unlockButton.interactable = canUnlock;
+            }
+
+            if (_missingItemsHintText != null)
+            {
+                _missingItemsHintText.text = model.MissingItemsHint ?? string.Empty;
+                _missingItemsHintText.gameObject.SetActive(
+                    isLocked && !string.IsNullOrEmpty(model.MissingItemsHint));
+            }
 
             if (_displayNameText != null)
             {
@@ -61,10 +102,40 @@ namespace JigsawVina.Presentation.Screens
 
         public void Unbind()
         {
-            _onClicked = null;
+            _onSelected = null;
+            _onUnlockRequested = null;
+            _pictureId = 0;
+
+            if (_button != null)
+            {
+                _button.interactable = false;
+            }
+
             if (_thumbnailImage != null)
             {
                 _thumbnailImage.sprite = null;
+            }
+
+            if (_displayNameText != null)
+            {
+                _displayNameText.text = string.Empty;
+            }
+
+            if (_missingItemsHintText != null)
+            {
+                _missingItemsHintText.text = string.Empty;
+                _missingItemsHintText.gameObject.SetActive(false);
+            }
+
+            if (_unlockButton != null)
+            {
+                _unlockButton.interactable = false;
+                _unlockButton.gameObject.SetActive(false);
+            }
+
+            if (_lockOverlay != null)
+            {
+                _lockOverlay.SetActive(false);
             }
         }
     }

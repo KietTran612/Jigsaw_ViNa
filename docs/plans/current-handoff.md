@@ -2,6 +2,25 @@
 
 ## Latest Completed Work
 
+- **Task 38: Update PictureSelect Card, Presenter & UI Prefab**:
+  - Updated `PictureSelectCard` to bind `PictureCardPresentationModel`, block selection while locked, display lock/hint UI, and expose a separate Unlock action only for `ReadyToUnlock`.
+  - Updated `PictureSelectView` with `OnPictureUnlockRequested` and model-based dynamic card setup.
+  - Updated `PictureSelectPresenter` to build progression-aware models, generate missing item source hints, unlock through `ProgressionService`, refresh cards after success, and unsubscribe both view events.
+  - Updated the prefab generator and regenerated `PictureSelectCard.prefab` with `LockOverlay`, `LockIcon`, `KeyItemPanel`, `MissingItemsHint`, and `UnlockButton` while preserving the existing `.meta`.
+  - Added targeted card/view/presenter tests covering locked, ready, unlocked, hint, refresh, and disposal behavior.
+
+- **Task 36-37 Review Fixes**:
+  - Fixed unlock validation to require `item.status == "active"` instead of accepting missing/empty status.
+  - Added regression tests for missing active status, consumable requirements, duplicate requirements, invalid difficulty policies, and sequential difficulty gaps.
+  - Strengthened atomic unlock coverage to verify failed/repeated attempts do not save or create duplicate unlocked picture IDs.
+  - Updated legacy test fixtures so validator tests reach the intended rule instead of failing on unrelated missing status fields.
+
+- **Task 37: Implement Core Progression Service & Validator Logic**:
+  - Implemented `ProgressionService` picture states, atomic unlock persistence without consuming key items, difficulty policies, and deterministic item source hints.
+  - Extended `StaticDataService` validation for unlock requirements, policy values, difficulty continuity, and unreachable/circular progression deadlocks.
+  - Registered `ProgressionService` as a VContainer singleton and added a targeted `RunTask37Tests` route.
+  - Migrated affected test fixtures to satisfy the new difficulty and reachability contract.
+
 - **Task 36: Write Progression & Validator Unit Tests (TDD)**:
   - Added test case `PlayerSave_Normalize_InitializesNullLists` for save migration / normalization.
   - Added test cases `GetPictureState_InitiallyUnlocked_ReturnsUnlockedOrCompleted`, `GetPictureState_NotInitiallyUnlocked_Locked_AndTransitionToReadyToUnlock`, `GetPictureState_AfterUnlocking_ReturnsUnlocked`, and `GetPictureState_LockedEvenWithCompletions_IfUnlockFlagMissing`.
@@ -96,6 +115,16 @@
 
 ## Verification
 
+- **Task 38 targeted verification**:
+  - Unity script compilation completed with no compiler errors.
+  - `PictureSelectFlowTests`: 10/10 passed, 0 failed, 0 skipped.
+  - Prefab serialization confirms all Task 38 child objects and serialized references are present.
+  - Home scene regeneration and Task 40 scene wiring assertions: not run - intentionally deferred to Task 40.
+  - Full EditMode/PlayMode suites: not run - not approved and not required for this targeted change.
+- **Task 37 targeted verification**:
+  - Unity script compilation completed with no compiler errors.
+  - `ProgressionTests` + `StaticDataServiceTests`: 29/29 passed, 0 failed, 0 skipped after review fixes.
+  - Full EditMode/PlayMode suites: not run - not relevant to this narrowly scoped core progression change.
 - **Task 32, 33 & 34**: Verified scene structure, ran idempotency check, and confirmed tests.
 - **Compiler Status**: Unity compiled successfully with 100% no warnings/errors.
 - **Automated Tests**:
@@ -106,8 +135,9 @@
 
 ## Current Uncommitted Scope
 
-- Các tệp kế hoạch triển khai Milestone 2 dưới thư mục `docs/plans/`.
+- Task 36-38 progression core, strict validator, Picture Select unlock UI/presenter/prefab, targeted tests, and handoff documentation changes.
+- Existing Milestone 2 planning files under `docs/plans/`.
 
 ## Recommended Next Steps
 
-- Bắt đầu triển khai Task 37 thuộc Milestone 2: Implement Core Progression Service & Validator Logic (hoàn thiện ProgressionService.cs và validator phát hiện deadlock).
+- Begin Task 39: update Difficulty Select view/presenter with progression locks, achievements, refresh behavior, and lifecycle coverage.

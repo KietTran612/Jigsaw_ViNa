@@ -152,6 +152,7 @@ namespace JigsawVina.Core.Services
 
             var itemIds = new HashSet<int>();
             var itemIdStrings = new HashSet<string>();
+            var itemsById = new Dictionary<int, ItemDto>();
             if (dto.items != null)
             {
                 foreach (var item in dto.items)
@@ -164,10 +165,12 @@ namespace JigsawVina.Core.Services
                         throw new InvalidOperationException($"Duplicate Item ID found: {item.id}");
                     if (!itemIdStrings.Add(item.id_string))
                         throw new InvalidOperationException($"Duplicate Item ID String found: {item.id_string}");
+                    itemsById.Add(item.id, item);
                 }
             }
 
             var diffKeys = new HashSet<(int, int)>();
+            var difficultiesByPicture = new Dictionary<int, List<PictureDifficultyDto>>();
             if (dto.picture_difficulties != null)
             {
                 foreach (var diff in dto.picture_difficulties)
@@ -181,6 +184,13 @@ namespace JigsawVina.Core.Services
                     var key = (diff.picture_id, diff.difficulty_id);
                     if (!diffKeys.Add(key))
                         throw new InvalidOperationException($"Duplicate Difficulty configuration found for Picture {diff.picture_id}, Difficulty {diff.difficulty_id}.");
+
+                    if (!difficultiesByPicture.TryGetValue(diff.picture_id, out var pictureDifficulties))
+                    {
+                        pictureDifficulties = new List<PictureDifficultyDto>();
+                        difficultiesByPicture.Add(diff.picture_id, pictureDifficulties);
+                    }
+                    pictureDifficulties.Add(diff);
 
                     if (diff.grid_columns <= 0 || diff.grid_rows <= 0)
                         throw new InvalidOperationException($"Grid size columns ({diff.grid_columns}) and rows ({diff.grid_rows}) must be positive integers.");
@@ -201,6 +211,141 @@ namespace JigsawVina.Core.Services
                     }
                 }
             }
+
+            ValidateUnlockConfiguration(dto.pictures, itemsById, difficultiesByPicture);
+            ValidateProgressionReachability(dto.pictures, difficultiesByPicture);
+        }
+
+        private static void ValidateUnlockConfiguration(
+            IReadOnlyList<PictureDto> pictures,
+            IReadOnlyDictionary<int, ItemDto> itemsById,
+            IReadOnlyDictionary<int, List<PictureDifficultyDto>> difficultiesByPicture)
+        {
+            foreach (var picture in pictures)
+            {
+                picture.unlock_requirements ??= new List<int>();
+
+                if (picture.difficulty_unlock_policy != "sequential" &&
+                    picture.difficulty_unlock_policy != "all_unlocked")
+                {
+                    throw new InvalidOperationException(
+                        $"Picture {picture.id} has invalid difficulty unlock policy '{picture.difficulty_unlock_policy}'.");
+                }
+
+                var uniqueRequirements = new HashSet<int>();
+                foreach (int requirementId in picture.unlock_requirements)
+                {
+                    if (!uniqueRequirements.Add(requirementId))
+                    {
+                        throw new InvalidOperationException(
+                            $"Picture {picture.id} has duplicate unlock requirement item {requirementId}.");
+                    }
+
+                    if (!itemsById.TryGetValue(requirementId, out var item))
+                    {
+                        throw new InvalidOperationException(
+                            $"Picture {picture.id} requires missing item ID {requirementId}.");
+                    }
+
+                    if (item.item_type != "key_item" ||
+                        item.is_consumable ||
+                        item.status != "active")
+                    {
+                        throw new InvalidOperationException(
+                            $"Picture {picture.id} unlock requirement {requirementId} must be an active, non-consumable key item.");
+                    }
+                }
+
+                if (!difficultiesByPicture.TryGetValue(picture.id, out var difficulties) ||
+                    difficulties.All(difficulty => difficulty.difficulty_id != 0))
+                {
+                    throw new InvalidOperationException(
+                        $"Picture {picture.id} must configure difficulty 0.");
+                }
+
+                if (picture.difficulty_unlock_policy != "sequential")
+                {
+                    continue;
+                }
+
+                var configuredIds = new HashSet<int>(
+                    difficulties.Select(difficulty => difficulty.difficulty_id));
+                int maximumDifficultyId = configuredIds.Max();
+                for (int difficultyId = 0; difficultyId <= maximumDifficultyId; difficultyId++)
+                {
+                    if (!configuredIds.Contains(difficultyId))
+                    {
+                        throw new InvalidOperationException(
+                            $"Picture {picture.id} sequential difficulties must be contiguous from 0.");
+                    }
+                }
+            }
+        }
+
+        private static void ValidateProgressionReachability(
+            IReadOnlyList<PictureDto> pictures,
+            IReadOnlyDictionary<int, List<PictureDifficultyDto>> difficultiesByPicture)
+        {
+            var unlockedPictures = new HashSet<int>(
+                pictures.Where(picture => picture.is_initially_unlocked)
+                    .Select(picture => picture.id));
+
+            bool unlockedAny;
+            do
+            {
+                unlockedAny = false;
+                foreach (var picture in pictures)
+                {
+                    if (unlockedPictures.Contains(picture.id))
+                    {
+                        continue;
+                    }
+
+                    bool allRequirementsReachable = picture.unlock_requirements.All(requirementId =>
+                        IsItemReachable(requirementId, unlockedPictures, difficultiesByPicture));
+                    if (allRequirementsReachable)
+                    {
+                        unlockedPictures.Add(picture.id);
+                        unlockedAny = true;
+                    }
+                }
+            } while (unlockedAny);
+
+            if (unlockedPictures.Count == pictures.Count)
+            {
+                return;
+            }
+
+            string lockedIds = string.Join(", ", pictures
+                .Where(picture => !unlockedPictures.Contains(picture.id))
+                .Select(picture => picture.id));
+            throw new InvalidOperationException(
+                $"Progression deadlock detected. Unreachable picture IDs: {lockedIds}.");
+        }
+
+        private static bool IsItemReachable(
+            int itemId,
+            HashSet<int> unlockedPictures,
+            IReadOnlyDictionary<int, List<PictureDifficultyDto>> difficultiesByPicture)
+        {
+            foreach (int pictureId in unlockedPictures)
+            {
+                if (!difficultiesByPicture.TryGetValue(pictureId, out var difficulties))
+                {
+                    continue;
+                }
+
+                foreach (var difficulty in difficulties)
+                {
+                    if (difficulty.first_clear_reward_item_ids != null &&
+                        difficulty.first_clear_reward_item_ids.Contains(itemId))
+                    {
+                        return true;
+                    }
+                }
+            }
+
+            return false;
         }
 
         public IReadOnlyList<PictureConfig> GetAllPictures() => _pictures;

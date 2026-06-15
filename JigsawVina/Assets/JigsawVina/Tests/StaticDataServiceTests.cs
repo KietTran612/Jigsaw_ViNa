@@ -21,7 +21,7 @@ namespace JigsawVina.Tests
                     { ""id"": 1, ""id_string"": ""pic1"", ""display_name"": ""Pic 1"", ""category_id"": 1, ""asset_path"": ""Textures/pic1"", ""is_initially_unlocked"": true, ""difficulty_unlock_policy"": ""sequential"", ""unlock_requirements"": [] }
                 ],
                 ""items"": [
-                    { ""id"": 101, ""id_string"": ""item1"", ""display_name"": ""Item 1"", ""item_type"": ""key_item"", ""asset_path"": ""Items/item1"" }
+                    { ""id"": 101, ""id_string"": ""item1"", ""display_name"": ""Item 1"", ""item_type"": ""key_item"", ""is_consumable"": false, ""status"": ""active"", ""asset_path"": ""Items/item1"" }
                 ],
                 ""picture_difficulties"": [
                     { ""picture_id"": 1, ""difficulty_id"": 0, ""display_name"": ""Easy"", ""grid_columns"": 6, ""grid_rows"": 4, ""piece_count"": 24, ""star_reward"": 1, ""first_clear_coin"": 30, ""first_clear_hint"": 5, ""replay_coin"": 10, ""first_clear_reward_item_ids"": [101] }

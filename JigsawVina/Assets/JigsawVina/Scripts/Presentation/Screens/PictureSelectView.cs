@@ -1,7 +1,6 @@
 using System;
 using System.Collections.Generic;
 using System.Runtime.CompilerServices;
-using JigsawVina.Core.Data;
 using UnityEngine;
 
 [assembly: InternalsVisibleTo("JigsawVina.Tests")]
@@ -11,6 +10,7 @@ namespace JigsawVina.Presentation.Screens
     public class PictureSelectView : MonoBehaviour
     {
         public event Action<int> OnPictureSelected;
+        public event Action<int> OnPictureUnlockRequested;
 
         [SerializeField] private PictureSelectCard _cardPrefab;
         [SerializeField] private RectTransform _contentContainer;
@@ -19,13 +19,13 @@ namespace JigsawVina.Presentation.Screens
 
         internal IReadOnlyList<PictureSelectCard> InstantiatedCards => _instantiatedCards;
 
-        public void Setup(IReadOnlyList<PictureConfig> pictures)
+        public void Setup(IReadOnlyList<PictureCardPresentationModel> models)
         {
             ClearExistingCards();
 
-            if (pictures == null || pictures.Count == 0)
+            if (models == null || models.Count == 0)
             {
-                Debug.LogError("[JigsawVina] PictureSelectView: Pictures list is null or empty.");
+                Debug.LogError("[JigsawVina] PictureSelectView: Models list is null or empty.");
                 return;
             }
 
@@ -41,19 +41,23 @@ namespace JigsawVina.Presentation.Screens
                 return;
             }
 
-            foreach (var picture in pictures)
+            foreach (var model in models)
             {
-                if (picture.Id <= 0)
+                if (model == null || model.Config.Id <= 0)
                 {
-                    Debug.LogError($"[JigsawVina] Data error: Picture has an invalid ID ({picture.Id}).");
+                    Debug.LogError("[JigsawVina] Data error: Picture card model is null or has an invalid ID.");
                     continue;
                 }
 
+                var picture = model.Config;
                 var cardInstance = Instantiate(_cardPrefab, _contentContainer, false);
                 cardInstance.gameObject.name = $"PictureCard_{picture.Id}_{picture.IdString}";
                 cardInstance.gameObject.SetActive(true);
 
-                cardInstance.Bind(picture, id => OnPictureSelected?.Invoke(id));
+                cardInstance.Bind(
+                    model,
+                    id => OnPictureSelected?.Invoke(id),
+                    id => OnPictureUnlockRequested?.Invoke(id));
                 _instantiatedCards.Add(cardInstance);
             }
         }

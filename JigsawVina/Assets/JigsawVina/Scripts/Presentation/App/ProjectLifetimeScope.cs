@@ -10,6 +10,7 @@ namespace JigsawVina.Presentation.App
         {
             builder.Register<SaveDataService>(Lifetime.Singleton).AsImplementedInterfaces();
             builder.Register(c => new StaticDataService(), Lifetime.Singleton).AsImplementedInterfaces();
+            builder.Register<ProgressionService>(Lifetime.Singleton);
             builder.Register<GameSessionService>(Lifetime.Singleton);
             builder.Register<SceneLoader>(Lifetime.Singleton);
         }

@@ -36,13 +36,30 @@ namespace JigsawVina.Editor
             RunTests(TestMode.EditMode);
         }
 
+        public static void RunTask37Tests()
+        {
+            RunTests(TestMode.EditMode, new[]
+            {
+                "JigsawVina.Tests.ProgressionTests",
+                "JigsawVina.Tests.StaticDataServiceTests"
+            });
+        }
+
+        public static void RunTask38Tests()
+        {
+            RunTests(TestMode.EditMode, new[]
+            {
+                "JigsawVina.Tests.PictureSelectFlowTests"
+            });
+        }
+
         [MenuItem("JigsawVina/Run PlayMode Tests")]
         public static void RunPlayModeTests()
         {
             RunTests(TestMode.PlayMode);
         }
 
-        private static void RunTests(TestMode mode)
+        private static void RunTests(TestMode mode, string[] testNames = null)
         {
             _logSb.Clear();
             _logSb.AppendLine($"=== {mode} Test Run Logs ===");
@@ -60,7 +77,8 @@ namespace JigsawVina.Editor
             _executionApi.Execute(new ExecutionSettings(new Filter
             {
                 testMode = mode,
-                assemblyNames = new[] { assemblyName }
+                assemblyNames = new[] { assemblyName },
+                testNames = testNames
             }));
         }
         

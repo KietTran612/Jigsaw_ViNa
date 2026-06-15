@@ -10,6 +10,7 @@ namespace JigsawVina.Tests
     public class MockSaveDataService : ISaveDataService
     {
         public PlayerSave SaveData = new();
+        public int SaveCallCount;
 
         public PlayerSave Load()
         {
@@ -19,6 +20,7 @@ namespace JigsawVina.Tests
         public void Save(PlayerSave save)
         {
             SaveData = save;
+            SaveCallCount++;
         }
     }
 
@@ -118,9 +120,10 @@ namespace JigsawVina.Tests
                     { ""id"": 1, ""id_string"": ""pic1"", ""display_name"": ""Pic 1"", ""category_id"": 1, ""asset_path"": ""Textures/pic1"", ""is_initially_unlocked"": true, ""difficulty_unlock_policy"": ""sequential"", ""unlock_requirements"": [] }
                 ],
                 ""items"": [
-                    { ""id"": 101, ""id_string"": ""item1"", ""display_name"": ""Item 1"", ""item_type"": ""key_item"", ""asset_path"": ""Items/item1"" }
+                    { ""id"": 101, ""id_string"": ""item1"", ""display_name"": ""Item 1"", ""item_type"": ""key_item"", ""is_consumable"": false, ""status"": ""active"", ""asset_path"": ""Items/item1"" }
                 ],
                 ""picture_difficulties"": [
+                    { ""picture_id"": 1, ""difficulty_id"": 0, ""display_name"": ""Easy"", ""grid_columns"": 6, ""grid_rows"": 4, ""piece_count"": 24 },
                     { ""picture_id"": 1, ""difficulty_id"": 1, ""display_name"": ""Medium"", ""grid_columns"": 8, ""grid_rows"": 6, ""piece_count"": 48, ""star_reward"": 2, ""first_clear_coin"": 60, ""first_clear_hint"": 3, ""replay_coin"": 20, ""first_clear_reward_item_ids"": [101] }
                 ]
             }";
@@ -167,9 +170,10 @@ namespace JigsawVina.Tests
                     { ""id"": 1, ""id_string"": ""pic1"", ""display_name"": ""Pic 1"", ""category_id"": 1, ""asset_path"": ""Textures/pic1"", ""is_initially_unlocked"": true, ""difficulty_unlock_policy"": ""sequential"", ""unlock_requirements"": [] }
                 ],
                 ""items"": [
-                    { ""id"": 101, ""id_string"": ""item1"", ""display_name"": ""Item 1"", ""item_type"": ""key_item"", ""asset_path"": ""Items/item1"" }
+                    { ""id"": 101, ""id_string"": ""item1"", ""display_name"": ""Item 1"", ""item_type"": ""key_item"", ""is_consumable"": false, ""status"": ""active"", ""asset_path"": ""Items/item1"" }
                 ],
                 ""picture_difficulties"": [
+                    { ""picture_id"": 1, ""difficulty_id"": 0, ""display_name"": ""Easy"", ""grid_columns"": 6, ""grid_rows"": 4, ""piece_count"": 24 },
                     { ""picture_id"": 1, ""difficulty_id"": 1, ""display_name"": ""Medium"", ""grid_columns"": 8, ""grid_rows"": 6, ""piece_count"": 48, ""star_reward"": 2, ""first_clear_coin"": 60, ""first_clear_hint"": 3, ""replay_coin"": 20, ""first_clear_reward_item_ids"": [101] }
                 ]
             }";
@@ -213,27 +217,23 @@ namespace JigsawVina.Tests
                 ""pictures"": [
                     { ""id"": 1, ""id_string"": ""pic1"", ""display_name"": ""Pic 1"", ""category_id"": 1, ""is_initially_unlocked"": true, ""difficulty_unlock_policy"": ""sequential"", ""unlock_requirements"": [] },
                     { ""id"": 2, ""id_string"": ""pic2"", ""display_name"": ""Pic 2"", ""category_id"": 1, ""is_initially_unlocked"": false, ""difficulty_unlock_policy"": ""sequential"", ""unlock_requirements"": [101] },
-                    { ""id"": 3, ""id_string"": ""pic3"", ""display_name"": ""Pic 3"", ""category_id"": 1, ""is_initially_unlocked"": false, ""difficulty_unlock_policy"": ""all_unlocked"", ""unlock_requirements"": [102] },
-                    { ""id"": 4, ""id_string"": ""pic4"", ""display_name"": ""Pic 4"", ""category_id"": 1, ""is_initially_unlocked"": false, ""difficulty_unlock_policy"": ""sequential"", ""unlock_requirements"": [103] }
+                    { ""id"": 3, ""id_string"": ""pic3"", ""display_name"": ""Pic 3"", ""category_id"": 1, ""is_initially_unlocked"": false, ""difficulty_unlock_policy"": ""all_unlocked"", ""unlock_requirements"": [102] }
                 ],
                 ""items"": [
-                    { ""id"": 101, ""id_string"": ""key1"", ""display_name"": ""Key 1"", ""item_type"": ""key_item"", ""asset_path"": """" },
-                    { ""id"": 102, ""id_string"": ""key2"", ""display_name"": ""Key 2"", ""item_type"": ""key_item"", ""asset_path"": """" },
-                    { ""id"": 103, ""id_string"": ""key3"", ""display_name"": ""Key 3"", ""item_type"": ""key_item"", ""asset_path"": """" }
+                    { ""id"": 101, ""id_string"": ""key1"", ""display_name"": ""Key 1"", ""item_type"": ""key_item"", ""is_consumable"": false, ""status"": ""active"", ""asset_path"": """" },
+                    { ""id"": 102, ""id_string"": ""key2"", ""display_name"": ""Key 2"", ""item_type"": ""key_item"", ""is_consumable"": false, ""status"": ""active"", ""asset_path"": """" },
+                    { ""id"": 103, ""id_string"": ""key3"", ""display_name"": ""Key 3"", ""item_type"": ""key_item"", ""is_consumable"": false, ""status"": ""active"", ""asset_path"": """" }
                 ],
                 ""picture_difficulties"": [
-                    { ""picture_id"": 1, ""difficulty_id"": 0, ""display_name"": ""Easy"", ""grid_columns"": 6, ""grid_rows"": 4, ""piece_count"": 24, ""first_clear_reward_item_ids"": [101] },
-                    { ""picture_id"": 1, ""difficulty_id"": 1, ""display_name"": ""Normal"", ""grid_columns"": 8, ""grid_rows"": 6, ""piece_count"": 48 },
-                    { ""picture_id"": 1, ""difficulty_id"": 2, ""display_name"": ""Hard"", ""grid_columns"": 12, ""grid_rows"": 8, ""piece_count"": 96 },
-                    { ""picture_id"": 2, ""difficulty_id"": 0, ""display_name"": ""Easy"", ""grid_columns"": 6, ""grid_rows"": 4, ""piece_count"": 24, ""first_clear_reward_item_ids"": [102] },
-                    { ""picture_id"": 2, ""difficulty_id"": 1, ""display_name"": ""Normal"", ""grid_columns"": 8, ""grid_rows"": 6, ""piece_count"": 48 },
-                    { ""picture_id"": 2, ""difficulty_id"": 2, ""display_name"": ""Hard"", ""grid_columns"": 12, ""grid_rows"": 8, ""piece_count"": 96 },
-                    { ""picture_id"": 3, ""difficulty_id"": 0, ""display_name"": ""Easy"", ""grid_columns"": 6, ""grid_rows"": 4, ""piece_count"": 24 },
-                    { ""picture_id"": 3, ""difficulty_id"": 1, ""display_name"": ""Normal"", ""grid_columns"": 8, ""grid_rows"": 6, ""piece_count"": 48 },
-                    { ""picture_id"": 3, ""difficulty_id"": 2, ""display_name"": ""Hard"", ""grid_columns"": 12, ""grid_rows"": 8, ""piece_count"": 96 },
-                    { ""picture_id"": 4, ""difficulty_id"": 0, ""display_name"": ""Easy"", ""grid_columns"": 6, ""grid_rows"": 4, ""piece_count"": 24 },
-                    { ""picture_id"": 4, ""difficulty_id"": 1, ""display_name"": ""Normal"", ""grid_columns"": 8, ""grid_rows"": 6, ""piece_count"": 48 },
-                    { ""picture_id"": 4, ""difficulty_id"": 2, ""display_name"": ""Hard"", ""grid_columns"": 12, ""grid_rows"": 8, ""piece_count"": 96 }
+                    { ""picture_id"": 1, ""difficulty_id"": 0, ""display_name"": ""Easy"", ""grid_columns"": 6, ""grid_rows"": 4, ""piece_count"": 24, ""star_reward"": 1, ""first_clear_reward_item_ids"": [101] },
+                    { ""picture_id"": 1, ""difficulty_id"": 1, ""display_name"": ""Normal"", ""grid_columns"": 8, ""grid_rows"": 6, ""piece_count"": 48, ""star_reward"": 2 },
+                    { ""picture_id"": 1, ""difficulty_id"": 2, ""display_name"": ""Hard"", ""grid_columns"": 12, ""grid_rows"": 8, ""piece_count"": 96, ""star_reward"": 3 },
+                    { ""picture_id"": 2, ""difficulty_id"": 0, ""display_name"": ""Easy"", ""grid_columns"": 6, ""grid_rows"": 4, ""piece_count"": 24, ""star_reward"": 1, ""first_clear_reward_item_ids"": [102] },
+                    { ""picture_id"": 2, ""difficulty_id"": 1, ""display_name"": ""Normal"", ""grid_columns"": 8, ""grid_rows"": 6, ""piece_count"": 48, ""star_reward"": 2 },
+                    { ""picture_id"": 2, ""difficulty_id"": 2, ""display_name"": ""Hard"", ""grid_columns"": 12, ""grid_rows"": 8, ""piece_count"": 96, ""star_reward"": 3 },
+                    { ""picture_id"": 3, ""difficulty_id"": 0, ""display_name"": ""Easy"", ""grid_columns"": 6, ""grid_rows"": 4, ""piece_count"": 24, ""star_reward"": 1 },
+                    { ""picture_id"": 3, ""difficulty_id"": 1, ""display_name"": ""Normal"", ""grid_columns"": 8, ""grid_rows"": 6, ""piece_count"": 48, ""star_reward"": 2 },
+                    { ""picture_id"": 3, ""difficulty_id"": 2, ""display_name"": ""Hard"", ""grid_columns"": 12, ""grid_rows"": 8, ""piece_count"": 96, ""star_reward"": 3 }
                 ]
             }";
         }
@@ -313,18 +313,23 @@ namespace JigsawVina.Tests
 
             // Case 1: Picture not found
             Assert.AreEqual(UnlockResult.PictureNotFound, progression.TryUnlockPicture(999));
+            Assert.AreEqual(0, saveService.SaveCallCount);
 
             // Case 2: Already unlocked (Picture 1 is initially unlocked)
             Assert.AreEqual(UnlockResult.AlreadyUnlocked, progression.TryUnlockPicture(1));
+            Assert.AreEqual(0, saveService.SaveCallCount);
 
             // Case 3: Missing requirements (Picture 2 needs Item 101)
             Assert.AreEqual(UnlockResult.MissingRequirements, progression.TryUnlockPicture(2));
+            Assert.AreEqual(0, saveService.SaveCallCount);
 
             // Case 4: Ready to unlock (Player gets Item 101)
             saveService.SaveData.OwnedItemIds.Add(101);
             int ownedItemsCountBefore = saveService.SaveData.OwnedItemIds.Count;
             Assert.AreEqual(UnlockResult.Success, progression.TryUnlockPicture(2));
             Assert.Contains(2, saveService.SaveData.UnlockedPictureIds);
+            Assert.AreEqual(1, saveService.SaveCallCount);
+            Assert.AreEqual(1, saveService.SaveData.UnlockedPictureIds.FindAll(id => id == 2).Count);
             
             // Check that Key Item is NOT consumed
             Assert.AreEqual(ownedItemsCountBefore, saveService.SaveData.OwnedItemIds.Count);
@@ -332,6 +337,8 @@ namespace JigsawVina.Tests
 
             // Case 5: Try unlocking again -> AlreadyUnlocked
             Assert.AreEqual(UnlockResult.AlreadyUnlocked, progression.TryUnlockPicture(2));
+            Assert.AreEqual(1, saveService.SaveCallCount);
+            Assert.AreEqual(1, saveService.SaveData.UnlockedPictureIds.FindAll(id => id == 2).Count);
         }
 
         [Test]
@@ -423,7 +430,7 @@ namespace JigsawVina.Tests
                     { ""id"": 2, ""id_string"": ""pic2"", ""display_name"": ""Pic 2"", ""category_id"": 1, ""is_initially_unlocked"": false, ""difficulty_unlock_policy"": ""sequential"", ""unlock_requirements"": [101] }
                 ],
                 ""items"": [
-                    { ""id"": 101, ""id_string"": ""key1"", ""display_name"": ""Key 1"", ""item_type"": ""key_item"", ""asset_path"": """" }
+                    { ""id"": 101, ""id_string"": ""key1"", ""display_name"": ""Key 1"", ""item_type"": ""key_item"", ""is_consumable"": false, ""status"": ""active"", ""asset_path"": """" }
                 ],
                 ""picture_difficulties"": [
                     { ""picture_id"": 1, ""difficulty_id"": 0, ""display_name"": ""Easy"", ""grid_columns"": 6, ""grid_rows"": 4, ""piece_count"": 24 },
@@ -453,8 +460,8 @@ namespace JigsawVina.Tests
                     { ""id"": 3, ""id_string"": ""pic3"", ""display_name"": ""Pic 3"", ""category_id"": 1, ""is_initially_unlocked"": false, ""difficulty_unlock_policy"": ""sequential"", ""unlock_requirements"": [101] }
                 ],
                 ""items"": [
-                    { ""id"": 101, ""id_string"": ""key1"", ""display_name"": ""Key 1"", ""item_type"": ""key_item"", ""asset_path"": """" },
-                    { ""id"": 102, ""id_string"": ""key2"", ""display_name"": ""Key 2"", ""item_type"": ""key_item"", ""asset_path"": """" }
+                    { ""id"": 101, ""id_string"": ""key1"", ""display_name"": ""Key 1"", ""item_type"": ""key_item"", ""is_consumable"": false, ""status"": ""active"", ""asset_path"": """" },
+                    { ""id"": 102, ""id_string"": ""key2"", ""display_name"": ""Key 2"", ""item_type"": ""key_item"", ""is_consumable"": false, ""status"": ""active"", ""asset_path"": """" }
                 ],
                 ""picture_difficulties"": [
                     { ""picture_id"": 1, ""difficulty_id"": 0, ""display_name"": ""Easy"", ""grid_columns"": 6, ""grid_rows"": 4, ""piece_count"": 24 },
@@ -482,13 +489,89 @@ namespace JigsawVina.Tests
                     { ""id"": 2, ""id_string"": ""pic2"", ""display_name"": ""Pic 2"", ""category_id"": 1, ""is_initially_unlocked"": false, ""difficulty_unlock_policy"": ""sequential"", ""unlock_requirements"": [101] }
                 ],
                 ""items"": [
-                    { ""id"": 101, ""id_string"": ""coin"", ""display_name"": ""Coin"", ""item_type"": ""currency"", ""asset_path"": """" }
+                    { ""id"": 101, ""id_string"": ""coin"", ""display_name"": ""Coin"", ""item_type"": ""currency"", ""is_consumable"": false, ""status"": ""active"", ""asset_path"": """" }
                 ],
                 ""picture_difficulties"": [
                     { ""picture_id"": 1, ""difficulty_id"": 0, ""display_name"": ""Easy"", ""grid_columns"": 6, ""grid_rows"": 4, ""piece_count"": 24, ""first_clear_reward_item_ids"": [101] },
                     { ""picture_id"": 2, ""difficulty_id"": 0, ""display_name"": ""Easy"", ""grid_columns"": 6, ""grid_rows"": 4, ""piece_count"": 24 }
                 ]
             }";
+
+            var service = new StaticDataService(false);
+            Assert.Throws<InvalidOperationException>(() => service.LoadFromText(json));
+        }
+
+        private static string GetValidUnlockValidationJson()
+        {
+            return @"{
+                ""schema_version"": 1,
+                ""data_version"": 1,
+                ""categories"": [
+                    { ""id"": 1, ""id_string"": ""cat1"", ""display_name"": ""Cat 1"" }
+                ],
+                ""pictures"": [
+                    { ""id"": 1, ""id_string"": ""pic1"", ""display_name"": ""Pic 1"", ""category_id"": 1, ""is_initially_unlocked"": true, ""difficulty_unlock_policy"": ""sequential"", ""unlock_requirements"": [] },
+                    { ""id"": 2, ""id_string"": ""pic2"", ""display_name"": ""Pic 2"", ""category_id"": 1, ""is_initially_unlocked"": false, ""difficulty_unlock_policy"": ""sequential"", ""unlock_requirements"": [101] }
+                ],
+                ""items"": [
+                    { ""id"": 101, ""id_string"": ""key1"", ""display_name"": ""Key 1"", ""item_type"": ""key_item"", ""is_consumable"": false, ""status"": ""active"", ""asset_path"": """" }
+                ],
+                ""picture_difficulties"": [
+                    { ""picture_id"": 1, ""difficulty_id"": 0, ""display_name"": ""Easy"", ""grid_columns"": 6, ""grid_rows"": 4, ""piece_count"": 24, ""first_clear_reward_item_ids"": [101] },
+                    { ""picture_id"": 2, ""difficulty_id"": 0, ""display_name"": ""Easy"", ""grid_columns"": 6, ""grid_rows"": 4, ""piece_count"": 24 }
+                ]
+            }";
+        }
+
+        [Test]
+        public void ValidateStaticData_UnlockRequirementMissingActiveStatus_ThrowsException()
+        {
+            string json = GetValidUnlockValidationJson()
+                .Replace(@"""status"": ""active"", ", "");
+
+            var service = new StaticDataService(false);
+            Assert.Throws<InvalidOperationException>(() => service.LoadFromText(json));
+        }
+
+        [Test]
+        public void ValidateStaticData_UnlockRequirementConsumable_ThrowsException()
+        {
+            string json = GetValidUnlockValidationJson()
+                .Replace(@"""is_consumable"": false", @"""is_consumable"": true");
+
+            var service = new StaticDataService(false);
+            Assert.Throws<InvalidOperationException>(() => service.LoadFromText(json));
+        }
+
+        [Test]
+        public void ValidateStaticData_DuplicateUnlockRequirement_ThrowsException()
+        {
+            string json = GetValidUnlockValidationJson()
+                .Replace(@"""unlock_requirements"": [101]", @"""unlock_requirements"": [101, 101]");
+
+            var service = new StaticDataService(false);
+            Assert.Throws<InvalidOperationException>(() => service.LoadFromText(json));
+        }
+
+        [Test]
+        public void ValidateStaticData_InvalidDifficultyPolicy_ThrowsException()
+        {
+            string json = GetValidUnlockValidationJson()
+                .Replace(@"""difficulty_unlock_policy"": ""sequential""",
+                    @"""difficulty_unlock_policy"": ""invalid""");
+
+            var service = new StaticDataService(false);
+            Assert.Throws<InvalidOperationException>(() => service.LoadFromText(json));
+        }
+
+        [Test]
+        public void ValidateStaticData_SequentialDifficultyGap_ThrowsException()
+        {
+            string json = GetValidUnlockValidationJson()
+                .Replace(
+                    @"{ ""picture_id"": 1, ""difficulty_id"": 0, ""display_name"": ""Easy"", ""grid_columns"": 6, ""grid_rows"": 4, ""piece_count"": 24, ""first_clear_reward_item_ids"": [101] },",
+                    @"{ ""picture_id"": 1, ""difficulty_id"": 0, ""display_name"": ""Easy"", ""grid_columns"": 6, ""grid_rows"": 4, ""piece_count"": 24, ""first_clear_reward_item_ids"": [101] },
+                    { ""picture_id"": 1, ""difficulty_id"": 2, ""display_name"": ""Hard"", ""grid_columns"": 12, ""grid_rows"": 8, ""piece_count"": 96 },");
 
             var service = new StaticDataService(false);
             Assert.Throws<InvalidOperationException>(() => service.LoadFromText(json));
