@@ -43,5 +43,36 @@ namespace JigsawVina.Tests
             Assert.AreEqual(1, loadedSave.CompletedPuzzles.Count);
             Assert.AreEqual(45f, loadedSave.CompletedPuzzles[0].BestTimeSeconds);
         }
+
+        [Test]
+        public void Load_DailyDropCounts_ResetsOnDateChange()
+        {
+            var mockDateProvider = new MockLocalDateProvider { DateString = "2026-06-15" };
+            var service = new SaveDataService(mockDateProvider);
+
+            // Create and save a state with daily drop counts
+            var save = service.Load();
+            save.DailyDropCounts.Add(new DailyDropCount { ItemId = 10, Count = 5 });
+            service.Save(save);
+
+            // Load again on the SAME date, verify counts are preserved
+            var loadedSameDay = service.Load();
+            Assert.AreEqual("2026-06-15", loadedSameDay.LastSaveDateString);
+            Assert.AreEqual(1, loadedSameDay.DailyDropCounts.Count);
+            Assert.AreEqual(10, loadedSameDay.DailyDropCounts[0].ItemId);
+            Assert.AreEqual(5, loadedSameDay.DailyDropCounts[0].Count);
+
+            // Load on a DIFFERENT date, verify counts are cleared
+            mockDateProvider.DateString = "2026-06-16";
+            var loadedNextDay = service.Load();
+            Assert.AreEqual("2026-06-16", loadedNextDay.LastSaveDateString);
+            Assert.AreEqual(0, loadedNextDay.DailyDropCounts.Count);
+        }
+
+        private class MockLocalDateProvider : ILocalDateProvider
+        {
+            public string DateString;
+            public string GetCurrentLocalDateString() => DateString;
+        }
     }
 }

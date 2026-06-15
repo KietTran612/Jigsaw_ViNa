@@ -15,6 +15,8 @@ namespace JigsawVina.Core.Data
         public readonly int ReplayCoin;
         public readonly IReadOnlyList<int> FirstClearRewardItemIds;
 
+        public readonly int DropTableId;
+
         public int PieceCount => Columns * Rows;
 
         public PictureDifficultyConfig(
@@ -33,7 +35,8 @@ namespace JigsawVina.Core.Data
                 starReward * 10,
                 0,
                 0,
-                new List<int>())
+                new List<int>(),
+                0)
         {
         }
 
@@ -47,7 +50,33 @@ namespace JigsawVina.Core.Data
             int firstClearCoin,
             int firstClearHint,
             int replayCoin,
-            IReadOnlyList<int> firstClearRewardItemIds)
+            IReadOnlyList<int> firstClearRewardItemIds) : this(
+                pictureId,
+                difficultyId,
+                displayName,
+                columns,
+                rows,
+                starReward,
+                firstClearCoin,
+                firstClearHint,
+                replayCoin,
+                firstClearRewardItemIds,
+                0)
+        {
+        }
+
+        public PictureDifficultyConfig(
+            int pictureId,
+            int difficultyId,
+            string displayName,
+            int columns,
+            int rows,
+            int starReward,
+            int firstClearCoin,
+            int firstClearHint,
+            int replayCoin,
+            IReadOnlyList<int> firstClearRewardItemIds,
+            int dropTableId)
         {
             PictureId = pictureId;
             DifficultyId = difficultyId;
@@ -59,6 +88,7 @@ namespace JigsawVina.Core.Data
             FirstClearHint = firstClearHint;
             ReplayCoin = replayCoin;
             FirstClearRewardItemIds = firstClearRewardItemIds ?? new List<int>();
+            DropTableId = dropTableId;
         }
     }
 }

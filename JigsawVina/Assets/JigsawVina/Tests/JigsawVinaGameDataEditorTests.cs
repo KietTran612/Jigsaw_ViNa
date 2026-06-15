@@ -548,5 +548,54 @@ namespace JigsawVina.Tests
             Assert.IsNotNull(custom);
             Assert.AreEqual("event_item", custom.item_type);
         }
+
+        [Test]
+        public void DropTablesLoadStateFromDtoRoundTripTest()
+        {
+            var dto = new StaticDataDto();
+            dto.categories.Add(new CategoryDto { id = 1, id_string = "cat1", display_name = "Category 1" });
+            dto.pictures.Add(new PictureDto { id = 1, id_string = "pic1", display_name = "Picture 1", category_id = 1, asset_path = "", is_initially_unlocked = true, difficulty_unlock_policy = "sequential", unlock_requirements = new List<int>() });
+            
+            dto.picture_difficulties.Add(new PictureDifficultyDto
+            {
+                picture_id = 1,
+                difficulty_id = 0,
+                display_name = "Dễ",
+                grid_columns = 6,
+                grid_rows = 4,
+                first_clear_coin = 30,
+                replay_coin = 10,
+                first_clear_hint = 0,
+                first_clear_reward_item_ids = new List<int>(),
+                drop_table_id = 1001
+            });
+
+            var dropTable = new DropTableDto { id = 1001, id_string = "table1", display_name = "Table 1", status = "active", reset_rule = "daily" };
+            dto.drop_tables.Add(dropTable);
+
+            var dropItem = new DropTableItemDto { id = 11001, id_string = "drop1", display_name = "Drop 1", drop_table_id = 1001, item_id = 10, base_rate = 0.5f, decay_per_success = 0.1f, min_rate = 0.1f, amount_min = 1, amount_max = 2, status = "active" };
+            dto.drop_table_items.Add(dropItem);
+
+            _window.LoadStateFromDto(dto);
+
+            Assert.AreEqual(1, _window._dropTables.Count);
+            Assert.AreEqual("table1", _window._dropTables[0].id_string);
+
+            Assert.AreEqual(1, _window._dropTableItems.Count);
+            Assert.AreEqual("drop1", _window._dropTableItems[0].id_string);
+
+            bool success = _window.TryBuildConfig(out var outputConfig, out string err, false);
+            Assert.IsTrue(success, $"BuildConfig failed with: {err}");
+
+            Assert.AreEqual(1, outputConfig.drop_tables.Count);
+            Assert.AreEqual(1001, outputConfig.drop_tables[0].id);
+
+            Assert.AreEqual(1, outputConfig.drop_table_items.Count);
+            Assert.AreEqual(11001, outputConfig.drop_table_items[0].id);
+
+            var diff = outputConfig.picture_difficulties.Find(d => d.picture_id == 1 && d.difficulty_id == 0);
+            Assert.IsNotNull(diff);
+            Assert.AreEqual(1001, diff.drop_table_id);
+        }
     }
 }

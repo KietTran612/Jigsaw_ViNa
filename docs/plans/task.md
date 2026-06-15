@@ -41,6 +41,11 @@
 | **Task 38: Update PictureSelect Card, Presenter & UI Prefab** | [x] | Added lock overlay, lock indicator, key item hint panel, Unlock button, locked navigation guard, source hints, atomic unlock refresh, lifecycle cleanup, and regenerated the prefab. |
 | **Task 39: Update DifficultySelect View & Presenter with Leak Fix** | [x] | Khóa nút độ khó dựa trên policy, hiển thị thành tích, refresh đúng ID khi show, implement IDisposable hủy đăng ký event, và viết unit tests kiểm tra presenter/view logic và lifecycle. |
 | **Task 40: Scene Wiring, Regeneration & Manual Verification** | [x] | Bổ sung Picture 6 khóa và cấu hình vào JSON, cập nhật ThinVerticalSliceSceneSetup.cs, chạy setup regenerate Home.unity, mở rộng LifetimeScopeRegistrationTests.cs để kiểm chứng scene wiring mới, chạy idempotency và test thủ công. |
+| **Task 41: Editor Integration & Static Data Validation** | [x] | Preserve drop tables/items lists in editor configurations and validate drop configurations. |
+| **Task 42: PlayerSave Structure, Save Migration & RNG/Service Contracts** | [x] | Add LastSaveDateString and DailyDropCounts to PlayerSave, implementing calendar daily reset and registering the new service contracts. |
+| **Task 43: Daily Drop Decay Tests** | [ ] | Write EditMode TDD unit tests for decay rolls, probability clamping, and replay drop integration. |
+| **Task 44: Implement Daily Drop Reward Service** | [ ] | Extract RNG logic to DropRewardService and integrate replay rewards inside RewardSummaryPresenter. |
+| **Task 45: Inventory / Collection UI** | [ ] | Implement uGUI Collection screen, display owned items with sources, and add quick navigation jump. |
 
 ## Completed
 

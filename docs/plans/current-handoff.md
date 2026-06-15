@@ -1,5 +1,18 @@
 # Current Handoff
 
+- **Task 42: PlayerSave Structure, Save Migration & RNG/Service Contracts**:
+  - Extended `PlayerSave` with `LastSaveDateString`, `DailyDropCounts`, and `Inventory` lists.
+  - Added a `Normalize(string localDateString)` overload to reset daily drop counters on calendar date change.
+  - Implemented mockable `ILocalDateProvider` and `LocalDateProvider`.
+  - Added unit tests in `SaveDataServiceTests` asserting daily reset of counters upon date change.
+  - Registered `ILocalDateProvider`, `IRandomSource` (with `UnityRandomSource`), and `IDropRewardService` (with `DropRewardService` skeleton) in VContainer's `ProjectLifetimeScope`.
+
+- **Task 41: Editor Integration & Static Data Validation**:
+  - Added `DropTableDto`, `DropTableItemDto` DTOs, and immutable `DropTableConfig`, `DropTableItemConfig` classes.
+  - Implemented comprehensive static data validations for drop configurations (uniqueness of IDs/id_strings, rate bounds, amount bounds, item types, active references).
+  - Updated `JigsawVinaGameDataEditor` to display and configure `drop_table_id` fields per difficulty.
+  - Updated test mock assemblies and added validation tests in `StaticDataServiceTests` and round-trip tests in `JigsawVinaGameDataEditorTests`.
+
 - **Task 40: Scene Wiring, Regeneration & Manual Verification**:
   - Appended Picture 6 (initially locked, requiring Key Item 107) and its difficulty configurations to `jigsaw_vina_game_data.json`, and created its own unique premium image asset at `Textures/Pictures/Picture_6/MAIN_old_village_north_002` to avoid duplicate content reuse.
   - Refactored `ThinVerticalSliceSceneSetup.cs` to position difficulty selection buttons, dynamically spawn lock icons and achievement text elements, and automatically wire them to the serialized fields of `DifficultySelectView` using `SerializedObject`.
@@ -128,32 +141,22 @@
 
 ## Verification
 
-- **Task 40 targeted verification**:
+- **Task 42 targeted verification**:
   - Unity script compilation completed with no compiler errors.
-  - `LifetimeScopeRegistrationTests`: `HomeScene_DifficultySelectView_IsWiredCorrectly` passed, asserting that buttons, lock icons, and achievement texts are correctly wired on `DifficultySelectView`.
-  - Scene Regeneration: Successfully generated updated `Home.unity` and `Gameplay.unity` scenes using version marker `SetupVersionMarker_v5`.
-  - Idempotency Verification: Confirmed that running scene setup again does not recreate or dirty the scene files.
-- **Task 39 targeted verification**:
+  - `SaveDataServiceTests`: Added `Load_DailyDropCounts_ResetsOnDateChange` verifying daily drop counts are cleared and LastSaveDateString is set on new date. Passed.
+- **Task 41 targeted verification**:
   - Unity script compilation completed with no compiler errors.
-  - `DifficultySelectFlowTests`: 6/6 passed.
-- **Task 38 targeted verification**:
-  - Unity script compilation completed with no compiler errors.
-  - `PictureSelectFlowTests`: 10/10 passed, 0 failed, 0 skipped.
-  - Prefab serialization confirms all Task 38 child objects and serialized references are present.
-- **Task 37 targeted verification**:
-  - Unity script compilation completed with no compiler errors.
-  - `ProgressionTests` + `StaticDataServiceTests`: 29/29 passed, 0 failed, 0 skipped.
+  - `StaticDataServiceTests`: Verified drop table configurations and strict constraints (rates, IDs, references). Passed.
+  - `JigsawVinaGameDataEditorTests`: Verified that configurations round-trip correctly. Passed.
 - **Compiler Status**: Unity compiled successfully with 100% no warnings/errors.
 - **Automated Tests**:
-  - EditMode tests: 74/74 passed.
+  - EditMode tests: 84/84 passed.
   - PlayMode tests: 8/8 passed.
-- **Manual Verification**: Dynamic Scroll View, Picture Select Cards, and difficulty selection with achievements display and transition correctly in the editor.
 
 ## Current Uncommitted Scope
 
-- Task 35-40 progression core, strict validator, UI views/presenters/prefabs, scenes regeneration, tests, and plan documentation.
-- Existing Milestone 2 planning files under `docs/plans/`.
+- Task 41 & 42 static DTO extensions, validations, PlayerSave daily counters and VContainer registrations.
 
 ## Recommended Next Steps
 
-- Request final review for Milestone 2 from the user.
+- Proceed to Task 43 (Daily Drop Decay Tests).

@@ -48,6 +48,20 @@ namespace JigsawVina.Core.Data
     }
 
     [Serializable]
+    public class DailyDropCount
+    {
+        public int ItemId;
+        public int Count;
+    }
+
+    [Serializable]
+    public class InventoryItem
+    {
+        public int ItemId;
+        public int Amount;
+    }
+
+    [Serializable]
     public class PlayerSave
     {
         public int Coins;
@@ -55,12 +69,27 @@ namespace JigsawVina.Core.Data
         public List<CompletedPuzzleData> CompletedPuzzles = new();
         public List<int> OwnedItemIds = new();
         public List<int> UnlockedPictureIds = new();
+        public string LastSaveDateString;
+        public List<DailyDropCount> DailyDropCounts = new();
+        public List<InventoryItem> Inventory = new();
 
         public void Normalize()
         {
             if (CompletedPuzzles == null) CompletedPuzzles = new();
             if (OwnedItemIds == null) OwnedItemIds = new();
             if (UnlockedPictureIds == null) UnlockedPictureIds = new();
+            if (DailyDropCounts == null) DailyDropCounts = new();
+            if (Inventory == null) Inventory = new();
+        }
+
+        public void Normalize(string localDateString)
+        {
+            Normalize();
+            if (LastSaveDateString != localDateString)
+            {
+                DailyDropCounts.Clear();
+                LastSaveDateString = localDateString;
+            }
         }
     }
 }

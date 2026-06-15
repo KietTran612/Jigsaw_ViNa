@@ -678,6 +678,38 @@
             "status": "active",
             "sort_order": 506,
             "asset_path": "Textures/Pictures/Picture_5/Wooden_river_boat_5"
+        },
+        {
+            "id": 10,
+            "id_string": "postcard_stamp",
+            "display_name": "Tem Bưu Thiếp",
+            "description": "Tem thư dùng để gửi bưu thiếp kỷ niệm.",
+            "display_name_key": "item.postcard_stamp.name",
+            "description_key": "item.postcard_stamp.description",
+            "item_type": "consumable",
+            "rarity": "common",
+            "is_consumable": true,
+            "is_time_limited": false,
+            "max_stack": 999,
+            "status": "active",
+            "sort_order": 10,
+            "asset_path": ""
+        },
+        {
+            "id": 11,
+            "id_string": "harvest_token",
+            "display_name": "Xu Mùa Gặt",
+            "description": "Đồng xu kỷ niệm mùa gặt lúa vàng.",
+            "display_name_key": "item.harvest_token.name",
+            "description_key": "item.harvest_token.description",
+            "item_type": "consumable",
+            "rarity": "common",
+            "is_consumable": true,
+            "is_time_limited": false,
+            "max_stack": 999,
+            "status": "active",
+            "sort_order": 11,
+            "asset_path": ""
         }
     ],
     "picture_difficulties": [
@@ -694,7 +726,8 @@
             "replay_coin": 10,
             "first_clear_reward_item_ids": [
                 107
-            ]
+            ],
+            "drop_table_id": 1001
         },
         {
             "picture_id": 1,
@@ -709,7 +742,8 @@
             "replay_coin": 20,
             "first_clear_reward_item_ids": [
                 104
-            ]
+            ],
+            "drop_table_id": 1002
         },
         {
             "picture_id": 1,
@@ -724,7 +758,8 @@
             "replay_coin": 40,
             "first_clear_reward_item_ids": [
                 102
-            ]
+            ],
+            "drop_table_id": 1003
         },
         {
             "picture_id": 2,
@@ -944,6 +979,79 @@
             "first_clear_hint": 0,
             "replay_coin": 40,
             "first_clear_reward_item_ids": []
+        }
+    ],
+    "drop_tables": [
+        {
+            "id": 1001,
+            "id_string": "old_village_easy_drops",
+            "display_name": "Old Village Easy Drops",
+            "display_name_key": "droptable.old_village_easy_drops.name",
+            "description_key": "droptable.old_village_easy_drops.description",
+            "reset_rule": "daily",
+            "status": "active",
+            "sort_order": 1
+        },
+        {
+            "id": 1002,
+            "id_string": "old_village_normal_drops",
+            "display_name": "Old Village Normal Drops",
+            "display_name_key": "droptable.old_village_normal_drops.name",
+            "description_key": "droptable.old_village_normal_drops.description",
+            "reset_rule": "daily",
+            "status": "active",
+            "sort_order": 2
+        },
+        {
+            "id": 1003,
+            "id_string": "old_village_hard_drops",
+            "display_name": "Old Village Hard Drops",
+            "display_name_key": "droptable.old_village_hard_drops.name",
+            "description_key": "droptable.old_village_hard_drops.description",
+            "reset_rule": "daily",
+            "status": "active",
+            "sort_order": 3
+        }
+    ],
+    "drop_table_items": [
+        {
+            "id": 11001,
+            "id_string": "old_village_easy_stamp",
+            "display_name": "Old Village Easy Stamp",
+            "drop_table_id": 1001,
+            "item_id": 10,
+            "base_rate": 0.30,
+            "decay_per_success": 0.10,
+            "min_rate": 0.20,
+            "amount_min": 1,
+            "amount_max": 1,
+            "status": "active"
+        },
+        {
+            "id": 11002,
+            "id_string": "old_village_normal_stamp",
+            "display_name": "Old Village Normal Stamp",
+            "drop_table_id": 1002,
+            "item_id": 10,
+            "base_rate": 0.45,
+            "decay_per_success": 0.10,
+            "min_rate": 0.20,
+            "amount_min": 1,
+            "amount_max": 1,
+            "status": "active"
+        },
+        {
+            "id": 11003,
+            "id_string": "old_village_hard_stamp",
+            "display_name": "Old Village Hard Stamp",
+            "drop_table_id": 1003,
+            "item_id": 10,
+            "base_rate": 0.60,
+            "decay_per_success": 0.10,
+            "min_rate": 0.20,
+            "amount_min": 1,
+            "amount_max": 1,
+            "status": "active"
         }
     ]
 }

@@ -13,6 +13,9 @@ namespace JigsawVina.Core.Services
         private List<ItemDto> _items = new();
         private Dictionary<int, ItemDto> _itemsById = new();
         private Dictionary<(int PictureId, int DifficultyId), PictureDifficultyConfig> _difficulties = new();
+        private List<DropTableConfig> _dropTables = new();
+        private Dictionary<int, List<DropTableItemConfig>> _dropTableItemsByTableId = new();
+        private List<DropTableItemConfig> _allDropTableItems = new();
 
         public StaticDataService() : this(true)
         {
@@ -61,6 +64,9 @@ namespace JigsawVina.Core.Services
 
             _items = new List<ItemDto>();
             _itemsById = new Dictionary<int, ItemDto>();
+            _dropTables = new List<DropTableConfig>();
+            _allDropTableItems = new List<DropTableItemConfig>();
+            _dropTableItemsByTableId = new Dictionary<int, List<DropTableItemConfig>>();
         }
 
         public void LoadFromText(string jsonText)
@@ -72,6 +78,8 @@ namespace JigsawVina.Core.Services
             if (dto.pictures == null) dto.pictures = new List<PictureDto>();
             if (dto.items == null) dto.items = new List<ItemDto>();
             if (dto.picture_difficulties == null) dto.picture_difficulties = new List<PictureDifficultyDto>();
+            if (dto.drop_tables == null) dto.drop_tables = new List<DropTableDto>();
+            if (dto.drop_table_items == null) dto.drop_table_items = new List<DropTableItemDto>();
 
             ValidateStaticData(dto);
 
@@ -104,10 +112,40 @@ namespace JigsawVina.Core.Services
                     diff.first_clear_coin,
                     diff.first_clear_hint,
                     diff.replay_coin,
-                    diff.first_clear_reward_item_ids
+                    diff.first_clear_reward_item_ids,
+                    diff.drop_table_id
                 );
                 _difficulties[key] = config;
             }
+
+            _dropTables = dto.drop_tables.Select(d => new DropTableConfig(
+                d.id,
+                d.id_string,
+                d.display_name,
+                d.display_name_key,
+                d.description_key,
+                d.reset_rule,
+                d.status,
+                d.sort_order
+            )).ToList();
+
+            _allDropTableItems = dto.drop_table_items.Select(di => new DropTableItemConfig(
+                di.id,
+                di.id_string,
+                di.display_name,
+                di.drop_table_id,
+                di.item_id,
+                di.base_rate,
+                di.decay_per_success,
+                di.min_rate,
+                di.amount_min,
+                di.amount_max,
+                di.status
+            )).ToList();
+
+            _dropTableItemsByTableId = _allDropTableItems
+                .GroupBy(di => di.DropTableId)
+                .ToDictionary(g => g.Key, g => g.ToList());
         }
 
         private void ValidateStaticData(StaticDataDto dto)
@@ -207,6 +245,131 @@ namespace JigsawVina.Core.Services
                         {
                             if (!itemIds.Contains(rewardId))
                                 throw new InvalidOperationException($"Difficulty rewards missing item ID: {rewardId}");
+                        }
+                    }
+                }
+            }
+
+            // Validate Drop Tables
+            var dropTableIds = new HashSet<int>();
+            var dropTableIdStrings = new HashSet<string>();
+            var activeDropTables = new HashSet<int>();
+            
+            if (dto.drop_tables != null)
+            {
+                foreach (var dt in dto.drop_tables)
+                {
+                    if (dt.id <= 0)
+                        throw new InvalidOperationException($"Drop Table ID {dt.id} must be a positive integer.");
+                    if (string.IsNullOrEmpty(dt.id_string))
+                        throw new InvalidOperationException($"Drop Table ID {dt.id} has empty or null id_string.");
+                    if (!dropTableIds.Add(dt.id))
+                        throw new InvalidOperationException($"Duplicate Drop Table ID found: {dt.id}");
+                    if (!dropTableIdStrings.Add(dt.id_string))
+                        throw new InvalidOperationException($"Duplicate Drop Table ID String found: {dt.id_string}");
+                    if (dt.status != "active" && dt.status != "inactive")
+                        throw new InvalidOperationException($"Drop Table ID {dt.id} has invalid status '{dt.status}'.");
+                    if (dt.reset_rule != "daily" && dt.reset_rule != "none")
+                        throw new InvalidOperationException($"Drop Table ID {dt.id} has invalid reset_rule '{dt.reset_rule}'.");
+                    if (dt.status == "active")
+                    {
+                        activeDropTables.Add(dt.id);
+                    }
+                }
+            }
+
+            var dropTableItemIds = new HashSet<int>();
+            var dropTableItemIdStrings = new HashSet<string>();
+            var dropTableItemsByTable = new Dictionary<int, List<DropTableItemDto>>();
+            
+            if (dto.drop_table_items != null)
+            {
+                foreach (var dti in dto.drop_table_items)
+                {
+                    if (dti.id <= 0)
+                        throw new InvalidOperationException($"Drop Table Item ID {dti.id} must be a positive integer.");
+                    if (string.IsNullOrEmpty(dti.id_string))
+                        throw new InvalidOperationException($"Drop Table Item ID {dti.id} has empty or null id_string.");
+                    if (!dropTableItemIds.Add(dti.id))
+                        throw new InvalidOperationException($"Duplicate Drop Table Item ID found: {dti.id}");
+                    if (!dropTableItemIdStrings.Add(dti.id_string))
+                        throw new InvalidOperationException($"Duplicate Drop Table Item ID String found: {dti.id_string}");
+
+                    if (dti.base_rate < 0f || dti.base_rate > 1f)
+                        throw new InvalidOperationException($"Drop Table Item ID {dti.id} base_rate {dti.base_rate} must be between 0 and 1.");
+                    if (dti.min_rate < 0f || dti.min_rate > 1f)
+                        throw new InvalidOperationException($"Drop Table Item ID {dti.id} min_rate {dti.min_rate} must be between 0 and 1.");
+                    if (dti.min_rate > dti.base_rate)
+                        throw new InvalidOperationException($"Drop Table Item ID {dti.id} min_rate {dti.min_rate} cannot exceed base_rate {dti.base_rate}.");
+                    if (dti.decay_per_success < 0f)
+                        throw new InvalidOperationException($"Drop Table Item ID {dti.id} decay_per_success {dti.decay_per_success} must be non-negative.");
+
+                    if (dti.amount_min <= 0)
+                        throw new InvalidOperationException($"Drop Table Item ID {dti.id} amount_min {dti.amount_min} must be positive.");
+                    if (dti.amount_max < dti.amount_min)
+                        throw new InvalidOperationException($"Drop Table Item ID {dti.id} amount_max {dti.amount_max} must be >= amount_min {dti.amount_min}.");
+                    if (dti.amount_max >= int.MaxValue)
+                        throw new InvalidOperationException($"Drop Table Item ID {dti.id} amount_max {dti.amount_max} must be less than int.MaxValue.");
+
+                    if (dti.status != "active" && dti.status != "inactive")
+                        throw new InvalidOperationException($"Drop Table Item ID {dti.id} status must be 'active' or 'inactive'.");
+
+                    if (!dropTableIds.Contains(dti.drop_table_id))
+                        throw new InvalidOperationException($"Drop Table Item ID {dti.id} references missing Drop Table ID {dti.drop_table_id}.");
+
+                    if (!itemsById.TryGetValue(dti.item_id, out var item))
+                        throw new InvalidOperationException($"Drop Table Item ID {dti.id} references missing Item ID {dti.item_id}.");
+
+                    if (item.status != "active")
+                        throw new InvalidOperationException($"Drop Table Item ID {dti.id} references inactive Item ID {dti.item_id}.");
+
+                    bool isValidType = item.id == 1 || item.id == 2 || item.item_type == "key_item" || item.item_type == "consumable";
+                    if (!isValidType)
+                        throw new InvalidOperationException($"Drop Table Item ID {dti.id} references item {dti.item_id} of invalid type '{item.item_type}'.");
+
+                    if (item.item_type == "key_item")
+                    {
+                        if (item.is_consumable)
+                            throw new InvalidOperationException($"Drop Table Item ID {dti.id} references Key Item {dti.item_id} which is consumable.");
+                        if (item.max_stack != 1)
+                            throw new InvalidOperationException($"Drop Table Item ID {dti.id} references Key Item {dti.item_id} with max_stack {item.max_stack} != 1.");
+                        if (dti.amount_min != 1 || dti.amount_max != 1)
+                            throw new InvalidOperationException($"Drop Table Item ID {dti.id} references Key Item {dti.item_id} but drop amount is not exactly 1.");
+                    }
+                    else if (item.item_type == "consumable")
+                    {
+                        if (!item.is_consumable)
+                            throw new InvalidOperationException($"Drop Table Item ID {dti.id} references Consumable Item {dti.item_id} which has is_consumable == false.");
+                        if (item.max_stack <= 0)
+                            throw new InvalidOperationException($"Drop Table Item ID {dti.id} references Consumable Item {dti.item_id} with max_stack {item.max_stack} <= 0.");
+                    }
+
+                    if (!dropTableItemsByTable.TryGetValue(dti.drop_table_id, out var list))
+                    {
+                        list = new List<DropTableItemDto>();
+                        dropTableItemsByTable.Add(dti.drop_table_id, list);
+                    }
+                    if (list.Any(existing => existing.item_id == dti.item_id))
+                    {
+                        throw new InvalidOperationException($"Drop Table ID {dti.drop_table_id} has duplicate item_id {dti.item_id}.");
+                    }
+                    list.Add(dti);
+                }
+            }
+
+            if (dto.picture_difficulties != null)
+            {
+                foreach (var diff in dto.picture_difficulties)
+                {
+                    if (diff.drop_table_id > 0)
+                    {
+                        if (!dropTableIds.Contains(diff.drop_table_id))
+                        {
+                            throw new InvalidOperationException($"Difficulty for Picture {diff.picture_id}, Difficulty {diff.difficulty_id} references missing Drop Table ID {diff.drop_table_id}.");
+                        }
+                        if (!activeDropTables.Contains(diff.drop_table_id))
+                        {
+                            throw new InvalidOperationException($"Difficulty for Picture {diff.picture_id}, Difficulty {diff.difficulty_id} references inactive Drop Table ID {diff.drop_table_id}.");
                         }
                     }
                 }
@@ -400,5 +563,18 @@ namespace JigsawVina.Core.Services
         {
             return _difficulties.Values.ToList();
         }
+
+        public IReadOnlyList<DropTableConfig> GetAllDropTables() => _dropTables;
+        
+        public IReadOnlyList<DropTableItemConfig> GetDropTableItems(int dropTableId)
+        {
+            if (_dropTableItemsByTableId.TryGetValue(dropTableId, out var items))
+            {
+                return items;
+            }
+            return new List<DropTableItemConfig>();
+        }
+
+        public IReadOnlyList<DropTableItemConfig> GetAllDropTableItems() => _allDropTableItems;
     }
 }

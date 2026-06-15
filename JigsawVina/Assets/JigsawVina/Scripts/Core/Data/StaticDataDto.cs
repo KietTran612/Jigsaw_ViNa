@@ -61,6 +61,36 @@ namespace JigsawVina.Core.Data
         public int first_clear_hint;
         public int replay_coin;
         public List<int> first_clear_reward_item_ids = new();
+        public int drop_table_id;
+    }
+
+    [Serializable]
+    public class DropTableDto
+    {
+        public int id;
+        public string id_string;
+        public string display_name;
+        public string display_name_key;
+        public string description_key;
+        public string reset_rule;
+        public string status;
+        public int sort_order;
+    }
+
+    [Serializable]
+    public class DropTableItemDto
+    {
+        public int id;
+        public string id_string;
+        public string display_name;
+        public int drop_table_id;
+        public int item_id;
+        public float base_rate;
+        public float decay_per_success;
+        public float min_rate;
+        public int amount_min;
+        public int amount_max;
+        public string status;
     }
 
     [Serializable]
@@ -72,5 +102,7 @@ namespace JigsawVina.Core.Data
         public List<PictureDto> pictures = new();
         public List<ItemDto> items = new();
         public List<PictureDifficultyDto> picture_difficulties = new();
+        public List<DropTableDto> drop_tables = new();
+        public List<DropTableItemDto> drop_table_items = new();
     }
 }

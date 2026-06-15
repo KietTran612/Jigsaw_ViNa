@@ -57,14 +57,17 @@ namespace JigsawVina.Editor
             public int easyCols = 6, easyRows = 4;
             public int easyCoins = 30, easyReplayCoins = 10, easyHints = 0;
             public int easyKeyRewardIndex = 0;
+            public int easyDropTableId = 0;
 
             public int normalCols = 8, normalRows = 6;
             public int normalCoins = 60, normalReplayCoins = 20, normalHints = 0;
             public int normalKeyRewardIndex = 0;
+            public int normalDropTableId = 0;
 
             public int hardCols = 12, hardRows = 8;
             public int hardCoins = 120, hardReplayCoins = 40, hardHints = 0;
             public int hardKeyRewardIndex = 0;
+            public int hardDropTableId = 0;
         }
 
         [SerializeField] internal List<EditorTabState> _tabs = new();
@@ -82,6 +85,8 @@ namespace JigsawVina.Editor
         private Vector2 _categoryScroll;
         private int _mainTabSelected = 0;
         [SerializeField] internal List<ItemDto> _globalItems = new();
+        [SerializeField] internal List<DropTableDto> _dropTables = new();
+        [SerializeField] internal List<DropTableItemDto> _dropTableItems = new();
         private Vector2 _itemsScroll;
         private Vector2 _keyItemsScroll;
         private PlayerSave _cachedSave = new();
@@ -154,6 +159,17 @@ namespace JigsawVina.Editor
             _tabs.Clear();
             _categories.Clear();
             _globalItems.Clear();
+            _dropTables.Clear();
+            _dropTableItems.Clear();
+
+            if (dto.drop_tables != null)
+            {
+                _dropTables = new List<DropTableDto>(dto.drop_tables);
+            }
+            if (dto.drop_table_items != null)
+            {
+                _dropTableItems = new List<DropTableItemDto>(dto.drop_table_items);
+            }
 
             // 1. Hydrate Categories first
             if (dto.categories != null)
@@ -270,7 +286,7 @@ namespace JigsawVina.Editor
                                 }
                             }
 
-                            if (d.difficulty_id == 0)
+                             if (d.difficulty_id == 0)
                             {
                                 state.easyCols = d.grid_columns;
                                 state.easyRows = d.grid_rows;
@@ -278,6 +294,7 @@ namespace JigsawVina.Editor
                                 state.easyReplayCoins = d.replay_coin;
                                 state.easyHints = d.first_clear_hint;
                                 state.easyKeyRewardIndex = rewardIdx;
+                                state.easyDropTableId = d.drop_table_id;
                             }
                             else if (d.difficulty_id == 1)
                             {
@@ -287,6 +304,7 @@ namespace JigsawVina.Editor
                                 state.normalReplayCoins = d.replay_coin;
                                 state.normalHints = d.first_clear_hint;
                                 state.normalKeyRewardIndex = rewardIdx;
+                                state.normalDropTableId = d.drop_table_id;
                             }
                             else if (d.difficulty_id == 2)
                             {
@@ -296,6 +314,7 @@ namespace JigsawVina.Editor
                                 state.hardReplayCoins = d.replay_coin;
                                 state.hardHints = d.first_clear_hint;
                                 state.hardKeyRewardIndex = rewardIdx;
+                                state.hardDropTableId = d.drop_table_id;
                             }
                         }
                     }
@@ -1250,6 +1269,7 @@ namespace JigsawVina.Editor
                     state.easyCoins = EditorGUILayout.IntField("First Clear Coin", state.easyCoins);
                     state.easyReplayCoins = EditorGUILayout.IntField("Replay Coin", state.easyReplayCoins);
                     state.easyHints = EditorGUILayout.IntField("First Clear Hint", state.easyHints);
+                    state.easyDropTableId = EditorGUILayout.IntField("Drop Table ID", state.easyDropTableId);
 
                     GUILayout.BeginHorizontal();
                     state.easyKeyRewardIndex = EditorGUILayout.Popup(new GUIContent("Reward Key Item"), state.easyKeyRewardIndex, itemGUIContents);
@@ -1283,6 +1303,7 @@ namespace JigsawVina.Editor
                     state.normalCoins = EditorGUILayout.IntField("First Clear Coin", state.normalCoins);
                     state.normalReplayCoins = EditorGUILayout.IntField("Replay Coin", state.normalReplayCoins);
                     state.normalHints = EditorGUILayout.IntField("First Clear Hint", state.normalHints);
+                    state.normalDropTableId = EditorGUILayout.IntField("Drop Table ID", state.normalDropTableId);
 
                     GUILayout.BeginHorizontal();
                     state.normalKeyRewardIndex = EditorGUILayout.Popup(new GUIContent("Reward Key Item"), state.normalKeyRewardIndex, itemGUIContents);
@@ -1316,6 +1337,7 @@ namespace JigsawVina.Editor
                     state.hardCoins = EditorGUILayout.IntField("First Clear Coin", state.hardCoins);
                     state.hardReplayCoins = EditorGUILayout.IntField("Replay Coin", state.hardReplayCoins);
                     state.hardHints = EditorGUILayout.IntField("First Clear Hint", state.hardHints);
+                    state.hardDropTableId = EditorGUILayout.IntField("Drop Table ID", state.hardDropTableId);
 
                     GUILayout.BeginHorizontal();
                     state.hardKeyRewardIndex = EditorGUILayout.Popup(new GUIContent("Reward Key Item"), state.hardKeyRewardIndex, itemGUIContents);
@@ -1427,7 +1449,9 @@ namespace JigsawVina.Editor
             config = new StaticDataDto
             {
                 schema_version = 1,
-                data_version = 1
+                data_version = 1,
+                drop_tables = new List<DropTableDto>(_dropTables ?? new()),
+                drop_table_items = new List<DropTableItemDto>(_dropTableItems ?? new())
             };
             errorMessage = "";
 
@@ -1674,9 +1698,9 @@ namespace JigsawVina.Editor
                 }
 
                 // Map difficulties
-                AddDifficulty(config, tab.pictureId, 0, "Dễ", tab.easyCols, tab.easyRows, tab.easyCoins, tab.easyReplayCoins, tab.easyHints, tab.easyKeyRewardIndex, itemFilenames, localItems);
-                AddDifficulty(config, tab.pictureId, 1, "Trung bình", tab.normalCols, tab.normalRows, tab.normalCoins, tab.normalReplayCoins, tab.normalHints, tab.normalKeyRewardIndex, itemFilenames, localItems);
-                AddDifficulty(config, tab.pictureId, 2, "Khó", tab.hardCols, tab.hardRows, tab.hardCoins, tab.hardReplayCoins, tab.hardHints, tab.hardKeyRewardIndex, itemFilenames, localItems);
+                AddDifficulty(config, tab.pictureId, 0, "Dễ", tab.easyCols, tab.easyRows, tab.easyCoins, tab.easyReplayCoins, tab.easyHints, tab.easyKeyRewardIndex, itemFilenames, localItems, tab.easyDropTableId);
+                AddDifficulty(config, tab.pictureId, 1, "Trung bình", tab.normalCols, tab.normalRows, tab.normalCoins, tab.normalReplayCoins, tab.normalHints, tab.normalKeyRewardIndex, itemFilenames, localItems, tab.normalDropTableId);
+                AddDifficulty(config, tab.pictureId, 2, "Khó", tab.hardCols, tab.hardRows, tab.hardCoins, tab.hardReplayCoins, tab.hardHints, tab.hardKeyRewardIndex, itemFilenames, localItems, tab.hardDropTableId);
             }
 
             // Sort DTOs for deterministic, clean JSON output
@@ -1711,7 +1735,7 @@ namespace JigsawVina.Editor
             EditorUtility.DisplayDialog("Hoàn Thành", $"Đã lưu và cấu hình static data tại {SavePath}!", "OK");
         }
 
-        private void AddDifficulty(StaticDataDto config, int pictureId, int diffId, string displayName, int cols, int rows, int firstClearCoins, int replayCoins, int firstClearHints, int rewardIndex, List<string> items, Dictionary<string, int> localItems)
+        private void AddDifficulty(StaticDataDto config, int pictureId, int diffId, string displayName, int cols, int rows, int firstClearCoins, int replayCoins, int firstClearHints, int rewardIndex, List<string> items, Dictionary<string, int> localItems, int dropTableId)
         {
             var listRewards = new List<int>();
             if (rewardIndex > 0 && rewardIndex <= items.Count)
@@ -1735,7 +1759,8 @@ namespace JigsawVina.Editor
                 first_clear_coin = firstClearCoins,
                 first_clear_hint = firstClearHints,
                 replay_coin = replayCoins,
-                first_clear_reward_item_ids = listRewards
+                first_clear_reward_item_ids = listRewards,
+                drop_table_id = dropTableId
             });
         }
 

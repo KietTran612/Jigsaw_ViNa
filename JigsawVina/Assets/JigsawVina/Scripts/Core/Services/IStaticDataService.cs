@@ -12,5 +12,8 @@ namespace JigsawVina.Core.Services
         IReadOnlyList<ItemDto> GetAllItems();
         IReadOnlyList<PictureDifficultyConfig> GetPictureDifficulties(int pictureId);
         IReadOnlyList<PictureDifficultyConfig> GetAllPictureDifficulties();
+        IReadOnlyList<DropTableConfig> GetAllDropTables();
+        IReadOnlyList<DropTableItemConfig> GetDropTableItems(int dropTableId);
+        IReadOnlyList<DropTableItemConfig> GetAllDropTableItems();
     }
 }
