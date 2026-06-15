@@ -132,7 +132,7 @@ namespace JigsawVina.Editor
 
         private static void CreateHomeScene()
         {
-            if (CheckSceneAlreadyUpdated(HomeScenePath, "SetupVersionMarker_v3"))
+            if (CheckSceneAlreadyUpdated(HomeScenePath, "SetupVersionMarker_v4"))
             {
                 return;
             }
@@ -140,7 +140,7 @@ namespace JigsawVina.Editor
             var scene = EditorSceneManager.NewScene(NewSceneSetup.EmptyScene, NewSceneMode.Single);
             scene.name = "Home";
 
-            new GameObject("SetupVersionMarker_v3");
+            new GameObject("SetupVersionMarker_v4");
 
             CreateCamera();
             CreateEventSystem();
@@ -152,11 +152,61 @@ namespace JigsawVina.Editor
             var pictureScreen = CreateScreen(canvas.transform, "PictureSelectScreen");
             var pictureView = pictureScreen.AddComponent<PictureSelectView>();
 
-            AddHeader(pictureScreen.transform, "Chọn Tranh", new Vector2(0f, 170f), new Vector2(760f, 80f));
-            var pic1Button = CreateButton(pictureScreen.transform, "Ho GuomButton", "Hồ Gươm", new Vector2(0f, 70f), new Vector2(520f, 64f));
-            var pic2Button = CreateButton(pictureScreen.transform, "Ha LongButton", "Hạ Long", new Vector2(0f, -10f), new Vector2(520f, 64f));
-            Assign(pictureView, "_pic1Button", pic1Button);
-            Assign(pictureView, "_pic2Button", pic2Button);
+            AddHeader(pictureScreen.transform, "Chọn Tranh", new Vector2(0f, 320f), new Vector2(760f, 80f));
+
+            var scrollViewObj = new GameObject("PictureScrollView", typeof(RectTransform));
+            scrollViewObj.transform.SetParent(pictureScreen.transform, false);
+            var scrollViewRect = (RectTransform)scrollViewObj.transform;
+            scrollViewRect.anchoredPosition = new Vector2(0f, -50f);
+            scrollViewRect.sizeDelta = new Vector2(600f, 600f);
+
+            var scrollRect = scrollViewObj.AddComponent<ScrollRect>();
+            scrollRect.horizontal = false;
+            scrollRect.vertical = true;
+
+            var viewportObj = new GameObject("Viewport", typeof(RectTransform));
+            viewportObj.transform.SetParent(scrollViewObj.transform, false);
+            var viewportRect = (RectTransform)viewportObj.transform;
+            viewportRect.anchorMin = Vector2.zero;
+            viewportRect.anchorMax = Vector2.one;
+            viewportRect.offsetMin = Vector2.zero;
+            viewportRect.offsetMax = Vector2.zero;
+            viewportObj.AddComponent<Image>().color = new Color(0f, 0f, 0f, 0.05f);
+            viewportObj.AddComponent<Mask>().showMaskGraphic = false;
+
+            var contentObj = new GameObject("Content", typeof(RectTransform));
+            contentObj.transform.SetParent(viewportObj.transform, false);
+            var contentRect = (RectTransform)contentObj.transform;
+            contentRect.anchorMin = new Vector2(0f, 1f);
+            contentRect.anchorMax = new Vector2(1f, 1f);
+            contentRect.pivot = new Vector2(0.5f, 1f);
+            contentRect.offsetMin = Vector2.zero;
+            contentRect.offsetMax = Vector2.zero;
+            contentRect.sizeDelta = new Vector2(0f, 600f);
+
+            var layoutGroup = contentObj.AddComponent<VerticalLayoutGroup>();
+            layoutGroup.spacing = 20;
+            layoutGroup.childControlWidth = false;
+            layoutGroup.childControlHeight = false;
+            layoutGroup.childForceExpandWidth = false;
+            layoutGroup.childForceExpandHeight = false;
+            layoutGroup.childAlignment = TextAnchor.UpperCenter;
+
+            contentObj.AddComponent<ContentSizeFitter>().verticalFit = ContentSizeFitter.FitMode.PreferredSize;
+
+            scrollRect.viewport = viewportRect;
+            scrollRect.content = contentRect;
+
+            // Load card prefab
+            const string cardPrefabPath = "Assets/JigsawVina/Prefabs/PictureSelectCard.prefab";
+            var cardPrefab = AssetDatabase.LoadAssetAtPath<PictureSelectCard>(cardPrefabPath);
+            if (cardPrefab == null)
+            {
+                Debug.LogError($"[JigsawVina] Prefab not found at path: {cardPrefabPath}. Make sure Task 28 was run successfully.");
+            }
+
+            Assign(pictureView, "_cardPrefab", cardPrefab);
+            Assign(pictureView, "_contentContainer", contentRect);
 
             var difficultyScreen = CreateScreen(canvas.transform, "DifficultySelectScreen");
             var difficultyView = difficultyScreen.AddComponent<DifficultySelectView>();
@@ -526,12 +576,94 @@ namespace JigsawVina.Editor
             return slider;
         }
 
+        [MenuItem("JigsawVina/Task 28/Create Picture Select Card Prefab")]
+        public static void CreatePictureSelectCardPrefabForTask28()
+        {
+            const string prefabPath = PrefabsFolder + "/PictureSelectCard.prefab";
+
+            var root = new GameObject(
+                "PictureSelectCard",
+                typeof(RectTransform),
+                typeof(CanvasRenderer),
+                typeof(Image),
+                typeof(Button),
+                typeof(PictureSelectCard));
+
+            try
+            {
+                var rootRect = (RectTransform)root.transform;
+                rootRect.sizeDelta = new Vector2(560f, 120f);
+
+                var background = root.GetComponent<Image>();
+                background.color = new Color(0.15f, 0.38f, 0.72f, 1f);
+
+                var button = root.GetComponent<Button>();
+                button.targetGraphic = background;
+
+                var thumbnailObject = new GameObject(
+                    "Thumbnail",
+                    typeof(RectTransform),
+                    typeof(CanvasRenderer),
+                    typeof(Image));
+                thumbnailObject.transform.SetParent(root.transform, false);
+
+                var thumbnailRect = (RectTransform)thumbnailObject.transform;
+                thumbnailRect.anchorMin = new Vector2(0f, 0.5f);
+                thumbnailRect.anchorMax = new Vector2(0f, 0.5f);
+                thumbnailRect.pivot = new Vector2(0.5f, 0.5f);
+                thumbnailRect.anchoredPosition = new Vector2(80f, 0f);
+                thumbnailRect.sizeDelta = new Vector2(120f, 80f);
+
+                var thumbnailImage = thumbnailObject.GetComponent<Image>();
+                thumbnailImage.preserveAspect = true;
+
+                var labelObject = new GameObject(
+                    "Label",
+                    typeof(RectTransform),
+                    typeof(CanvasRenderer),
+                    typeof(TextMeshProUGUI));
+                labelObject.transform.SetParent(root.transform, false);
+
+                var labelRect = (RectTransform)labelObject.transform;
+                labelRect.anchorMin = new Vector2(0f, 0f);
+                labelRect.anchorMax = new Vector2(1f, 1f);
+                labelRect.offsetMin = new Vector2(160f, 20f);
+                labelRect.offsetMax = new Vector2(-30f, -20f);
+
+                var label = labelObject.GetComponent<TextMeshProUGUI>();
+                label.text = "Picture Name";
+                label.fontSize = 24f;
+                label.alignment = TextAlignmentOptions.MidlineLeft;
+
+                var card = root.GetComponent<PictureSelectCard>();
+                Assign(card, "_button", button);
+                Assign(card, "_thumbnailImage", thumbnailImage);
+                Assign(card, "_displayNameText", label);
+
+                PrefabUtility.SaveAsPrefabAsset(root, prefabPath);
+                AssetDatabase.SaveAssets();
+                AssetDatabase.Refresh();
+                Debug.Log($"[JigsawVina] Created PictureSelectCard prefab at {prefabPath}");
+            }
+            finally
+            {
+                UnityEngine.Object.DestroyImmediate(root);
+            }
+        }
+
         private static void Assign(UnityEngine.Object target, string fieldName, UnityEngine.Object value)
         {
             var serializedObject = new SerializedObject(target);
             var property = serializedObject.FindProperty(fieldName);
-            property.objectReferenceValue = value;
-            serializedObject.ApplyModifiedPropertiesWithoutUndo();
+            if (property != null)
+            {
+                property.objectReferenceValue = value;
+                serializedObject.ApplyModifiedPropertiesWithoutUndo();
+            }
+            else
+            {
+                Debug.LogWarning($"[JigsawVina] Field '{fieldName}' not found on '{target.GetType().Name}'. Skipping assignment.");
+            }
         }
     }
 }

@@ -1,3 +1,4 @@
+using System;
 using VContainer;
 using VContainer.Unity;
 
@@ -15,7 +16,7 @@ namespace JigsawVina.Presentation.Screens
         }
     }
 
-    public class HomeFlowController : IStartable
+    public class HomeFlowController : IStartable, IDisposable
     {
         private readonly PictureSelectView _pictureSelectView;
         private readonly DifficultySelectView _difficultySelectView;
@@ -37,19 +38,36 @@ namespace JigsawVina.Presentation.Screens
             _pictureSelectView.SetActive(true);
             _difficultySelectView.SetActive(false);
 
-            _pictureSelectView.OnPictureSelected += _ =>
-            {
-                _pictureSelectView.SetActive(false);
-                _difficultySelectView.SetActive(true);
-            };
+            _pictureSelectView.OnPictureSelected += HandlePictureSelected;
 
             if (_difficultySelectView.BackButton != null)
             {
-                _difficultySelectView.BackButton.onClick.AddListener(() =>
-                {
-                    _difficultySelectView.SetActive(false);
-                    _pictureSelectView.SetActive(true);
-                });
+                _difficultySelectView.BackButton.onClick.AddListener(HandleBackButtonClicked);
+            }
+        }
+
+        private void HandlePictureSelected(int pictureId)
+        {
+            _pictureSelectView.SetActive(false);
+            _difficultySelectView.SetActive(true);
+        }
+
+        private void HandleBackButtonClicked()
+        {
+            _difficultySelectView.SetActive(false);
+            _pictureSelectView.SetActive(true);
+        }
+
+        public void Dispose()
+        {
+            if (_pictureSelectView != null)
+            {
+                _pictureSelectView.OnPictureSelected -= HandlePictureSelected;
+            }
+
+            if (_difficultySelectView != null && _difficultySelectView.BackButton != null)
+            {
+                _difficultySelectView.BackButton.onClick.RemoveListener(HandleBackButtonClicked);
             }
         }
     }

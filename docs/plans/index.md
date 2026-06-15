@@ -15,3 +15,4 @@ This file lists detailed implementation plans under `docs/plans/`.
 - [2026-06-12-localization-keys-and-reviews.md](2026-06-12-localization-keys-and-reviews.md) - Expose localization keys for Picture, Category, and Key Items on GUI, and address outstanding reviews.
 - [2026-06-12-dynamic-home-ui-design.md](2026-06-12-dynamic-home-ui-design.md) - Design dynamic Home picture selection using reusable cards loaded from static data with explicit lifecycle cleanup.
 - [2026-06-12-dynamic-home-ui-implementation.md](2026-06-12-dynamic-home-ui-implementation.md) - Implement and verify dynamic Home cards, VContainer event cleanup, scene regeneration, and targeted tests.
+- [2026-06-15-dynamic-home-ui-reviews.md](2026-06-15-dynamic-home-ui-reviews.md) - Address review feedback on card horizontal clipping, manual lifecycle calls in test, layout verification, and task documentation inconsistencies.

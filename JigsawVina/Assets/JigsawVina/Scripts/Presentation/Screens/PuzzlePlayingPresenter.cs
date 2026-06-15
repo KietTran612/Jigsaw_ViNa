@@ -40,6 +40,16 @@ namespace JigsawVina.Presentation.Screens
 
         public void Initialize()
         {
+            if (_sessionService.SelectedPictureId == 0)
+            {
+                var allPics = _staticDataService.GetAllPictures();
+                if (allPics != null && allPics.Count > 0)
+                {
+                    _sessionService.SetSelectedPicture(allPics[0].Id);
+                    _sessionService.SetSelectedDifficulty(0);
+                }
+            }
+
             var picture = _staticDataService.GetPictureById(_sessionService.SelectedPictureId);
             var config = _staticDataService.GetPictureDifficulty(_sessionService.SelectedPictureId, _sessionService.SelectedDifficultyId);
 

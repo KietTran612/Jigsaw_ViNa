@@ -9,7 +9,7 @@ namespace JigsawVina.Presentation.App
         protected override void Configure(IContainerBuilder builder)
         {
             builder.Register<SaveDataService>(Lifetime.Singleton).AsImplementedInterfaces();
-            builder.Register<StaticDataService>(Lifetime.Singleton).AsImplementedInterfaces();
+            builder.Register(c => new StaticDataService(), Lifetime.Singleton).AsImplementedInterfaces();
             builder.Register<GameSessionService>(Lifetime.Singleton);
             builder.Register<SceneLoader>(Lifetime.Singleton);
         }

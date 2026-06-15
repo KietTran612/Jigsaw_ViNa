@@ -28,13 +28,13 @@
 | **Task 25: Hiển thị hình ảnh trong dropdown Reward Key Item và ô xem trước** | [x] | Thêm ảnh vào dropdown và ô xem trước bên cạnh dropdown cấu hình độ khó. |
 | **Task 26: Cấu hình Localization Keys & Sửa lỗi Review** | [x] | Thêm khóa ngôn ngữ cho Tranh/Danh mục/Key Items lên GUI, sửa validator runtime, dọn dẹp file dư thừa, và cập nhật/sửa các test case EditMode/PlayMode bị ảnh hưởng. |
 | **Task 27: Final Review Dynamic Home UI Plans** | [x] | Reviewed design/implementation plans, tightened presenter disposal assertion, and expanded flow-controller disposal coverage for both picture selection and Back button events. |
-| **Task 28: Create PictureSelectCard Component and Prefab** | [ ] | Create the reusable card component and Unity prefab; let Unity generate all required `.meta` files. |
-| **Task 29: Refactor PictureSelectView for Dynamic Cards** | [ ] | Replace hardcoded button references with prefab/container wiring, validation, and safe `Unbind()` plus card destruction. |
-| **Task 30: Connect PictureSelectPresenter to Static Data** | [ ] | Load picture configs through `IStaticDataService` and implement `IDisposable` event cleanup. |
-| **Task 31: Harden Home Flow and VContainer Lifecycle** | [ ] | Register lifecycle-aware components and replace anonymous flow listeners with removable named handlers. |
-| **Task 32: Regenerate Home Scene Setup v4** | [ ] | Update `ThinVerticalSliceSceneSetup`, remove hardcoded picture buttons, create one Scroll View, and wire the card prefab. |
-| **Task 33: Add Targeted Home UI EditMode Tests** | [ ] | Cover dynamic setup, repeated cleanup, presenter/controller disposal, prefab wiring, and unique Scroll View scene structure. |
-| **Task 34: Verify and Update Dynamic Home UI Documentation** | [ ] | Wait for Unity import/compile, run targeted tests and the idempotency check, perform manual verification, then update task/handoff/index documentation. |
+| **Task 28: Create PictureSelectCard Component and Prefab** | [x] | Created PictureSelectCard.cs component and programmatically generated PictureSelectCard.prefab asset with required `.meta` files. |
+| **Task 29: Refactor PictureSelectView for Dynamic Cards** | [x] | Replaced hardcoded button references with prefab/container references, added validation, implemented card instantiation and setup, and added safe Unbind plus card destruction. |
+| **Task 30: Connect PictureSelectPresenter to Static Data** | [x] | Loaded picture configs through `IStaticDataService` and implemented `IDisposable` event cleanup. |
+| **Task 31: Harden Home Flow and VContainer Lifecycle** | [x] | Registered lifecycle-aware components and replaced anonymous flow listeners with removable named handlers. |
+| **Task 32: Regenerate Home Scene Setup v4** | [x] | Updated `ThinVerticalSliceSceneSetup`, replaced hardcoded buttons with a scroll view, wired prefab/container references, and regenerated `Home.unity`. |
+| **Task 33: Add Targeted Home UI EditMode Tests** | [x] | Created `PictureSelectFlowTests` and added `HomeScene_PictureSelectView_IsWiredCorrectly` to `LifetimeScopeRegistrationTests` for full setup/wiring validation. |
+| **Task 34: Verify and Update Dynamic Home UI Documentation** | [x] | Verified EditMode (45/45) and PlayMode (8/8) tests pass. Confirmed scene regeneration idempotency and updated documentation. |
 
 ## Completed
 
@@ -51,6 +51,5 @@
 
 ## Pending
 
-- Tasks 28-34 are queued from `2026-06-12-dynamic-home-ui-implementation.md` and must not start without an explicit user request.
 - Manual full click-through from Home picture selection to Gameplay reward return can be run in the open Unity Editor if desired.
 - Manual full-flow/device verification remains optional before delivery.

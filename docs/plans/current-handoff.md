@@ -2,6 +2,62 @@
 
 ## Latest Completed Work
 
+- **Review Fixes (P1 & P2)**:
+  - Fixed VContainer DI resolution issue by registering `StaticDataService` using a factory lambda in `ProjectLifetimeScope.cs`, bypassing the boolean parameter injection error.
+  - Fixed `KeyNotFoundException` in PlayMode when starting directly from the `Gameplay` scene by defaulting to the first available picture configuration and difficulty 0 if `SelectedPictureId == 0` (in `PuzzlePlayingPresenter.Initialize()`).
+  - Successfully regenerated `PictureSelectCard.prefab` at the updated `560x120` dimensions on disk.
+  - Regenerated the `Home.unity` scene to reference the updated prefab.
+  - Verified that all 45 EditMode tests and 8 PlayMode tests pass cleanly with no compilation errors or runtime exceptions.
+
+- **Review Fixes (P2 & P3)**:
+  - Adjusted card width from `640f` to `560f` inside the `Setup` script and regenerated the prefab to prevent horizontal clipping under the `600f`-wide scroll view viewport.
+  - Refactored EditMode tests to use a reflection-based private `Awake()` helper, keeping production code free of manual lifecycle calls.
+  - Expanded `LifetimeScopeRegistrationTests.cs` to verify `VerticalLayoutGroup` configuration, `ContentSizeFitter` options, and assert card width fits within ScrollView width.
+  - Deduplicated Completed section entries and cleaned up Pending section in [task.md](file:///d:/soflware/Unity/Source/Jigsaw_ViNa/docs/plans/task.md).
+
+- **Task 34: Verify and Update Dynamic Home UI Documentation**:
+  - Verified compilation logs and ran all tests successfully.
+  - Performed scene regeneration idempotency check twice without issues.
+  - Updated [task.md](file:///d:/soflware/Unity/Source/Jigsaw_ViNa/docs/plans/task.md) and [current-handoff.md](file:///d:/soflware/Unity/Source/Jigsaw_ViNa/docs/plans/current-handoff.md).
+
+- **Task 33: Add Targeted Home UI EditMode Tests**:
+  - Created [PictureSelectFlowTests.cs](file:///d:/soflware/Unity/Source/Jigsaw_ViNa/JigsawVina/Assets/JigsawVina/Tests/PictureSelectFlowTests.cs) validating dynamic cards setup, unbind, twice setups, and proper Disposes on presenter/flow controller.
+  - Added `HomeScene_PictureSelectView_IsWiredCorrectly` test to [LifetimeScopeRegistrationTests.cs](file:///d:/soflware/Unity/Source/Jigsaw_ViNa/JigsawVina/Assets/JigsawVina/Tests/LifetimeScopeRegistrationTests.cs) verifying Scroll View layout, prefab properties, and that old buttons are gone.
+
+- **Task 32: Regenerate Home Scene Setup v4**:
+  - Updated [ThinVerticalSliceSceneSetup.cs](file:///d:/soflware/Unity/Source/Jigsaw_ViNa/JigsawVina/Assets/JigsawVina/Scripts/Editor/ThinVerticalSliceSceneSetup.cs) to build a Scroll View layout (Viewport/Content) and wire the prefab.
+  - Regenerated `Home.unity` to v4 marker with a clean Scroll View and wired prefabs.
+
+- **Task 31: Harden Home Flow and VContainer Lifecycle**:
+  - Refactored [HomeLifetimeScope.cs](file:///d:/soflware/Unity/Source/Jigsaw_ViNa/JigsawVina/Assets/JigsawVina/Scripts/Presentation/Screens/HomeLifetimeScope.cs).
+  - Implemented `IDisposable` on `HomeFlowController`.
+  - Replaced anonymous lambda listeners with named handlers (`HandlePictureSelected` and `HandleBackButtonClicked`) to prevent event listener leaks.
+  - Ensured correct cleanup of all flow listeners when the Home scope is disposed.
+
+- **Task 30: Connect PictureSelectPresenter to Static Data**:
+  - Modified [PictureSelectPresenter.cs](file:///d:/soflware/Unity/Source/Jigsaw_ViNa/JigsawVina/Assets/JigsawVina/Scripts/Presentation/Screens/PictureSelectPresenter.cs).
+  - Registered `IStaticDataService` dependency via constructor injection.
+  - In `Initialize()`, loaded the list of all available picture configs using `GetAllPictures()` and verified it's not null/empty, logging clear data errors.
+  - Wired data list to View dynamically by calling `Setup(pictures)`.
+  - Implemented `IDisposable` to cleanly unsubscribe from `OnPictureSelected` event when the presenter is destroyed.
+
+- **Task 29: Refactor PictureSelectView for Dynamic Cards**:
+  - Modified [PictureSelectView.cs](file:///d:/soflware/Unity/Source/Jigsaw_ViNa/JigsawVina/Assets/JigsawVina/Scripts/Presentation/Screens/PictureSelectView.cs) to remove hardcoded button references.
+  - Added fields for the `PictureSelectCard` prefab and a `RectTransform` content container.
+  - Implemented the dynamic card instantiation loop in `Setup()`, performing thorough null checks, assigning card names dynamically, and binding selected ID callbacks.
+  - Implemented `ClearExistingCards()`, ensuring instantiated cards are unbound cleanly via `Unbind()` before destruction to avoid memory leaks.
+  - Exposed the internal `IReadOnlyList<PictureSelectCard> InstantiatedCards` list for unit testing.
+
+- **Task 28: Create PictureSelectCard Component and Prefab**:
+  - Created new C# component script [PictureSelectCard.cs](file:///d:/soflware/Unity/Source/Jigsaw_ViNa/JigsawVina/Assets/JigsawVina/Scripts/Presentation/Screens/PictureSelectCard.cs) to bind/unbind UI card elements dynamically.
+  - Fix [P3]: Ensured `_thumbnailImage.sprite = null` is set if asset path is invalid or sprite loading fails to prevent reused cards from keeping old thumbnail.
+  - Programmatically generated prefab `PictureSelectCard.prefab` under `Assets/JigsawVina/Prefabs/` using the menu item helper `JigsawVina/Task 28/Create Picture Select Card Prefab`.
+  - Let Unity compile and generate the corresponding `.meta` files for both assets.
+
+- **Review Fixes [P2 & P3]**:
+  - Fix [P2]: Patched the `Assign` helper in [ThinVerticalSliceSceneSetup.cs](file:///d:/soflware/Unity/Source/Jigsaw_ViNa/JigsawVina/Assets/JigsawVina/Scripts/Editor/ThinVerticalSliceSceneSetup.cs) to check if the target serialized property is null before assigning value. This prevents the editor setup script from crashing on missing fields during intermediate refactoring states.
+  - Fix [P3]: Handled sprite reset in `PictureSelectCard.Bind()` on null path or load failures.
+
 - **Task 27: Final Review Dynamic Home UI Plans**:
   - Reviewed `2026-06-12-dynamic-home-ui-design.md` and `2026-06-12-dynamic-home-ui-implementation.md` for prefab setup order, VContainer disposal, dynamic card cleanup, sprite references, scene regeneration, and targeted verification scope.
   - Tightened `Presenter_OnDispose_UnsubscribesFromView` to assert the exact default session state.
@@ -23,18 +79,18 @@
 
 ## Verification
 
-- **Task 27**: Documentation-only review; Unity compile and tests not run because no runtime or asset implementation changed.
-- **Compiler Status**: Unity biên dịch thành công 100% không cảnh báo/lỗi.
+- **Task 32, 33 & 34**: Verified scene structure, ran idempotency check, and confirmed tests.
+- **Compiler Status**: Unity compiled successfully with 100% no warnings/errors.
 - **Automated Tests**:
-  - EditMode tests: 39/39 passed (bao gồm tất cả các kiểm tra logic, validator, cheat editor, và cấu trúc DTO).
-  - PlayMode tests: 8/8 passed (bao gồm kiểm thử kéo thả, hoàn thành màn chơi, gợi ý, trả khay tranh và lưu dữ liệu).
-- **Manual Verification**: Đã chạy phương thức `DebugSave()` từ xa qua MCP, tái tạo thành công file cấu hình JSON chính xác `jigsaw_vina_game_data.json` chứa đầy đủ các khóa ngôn ngữ hiển thị.
+  - EditMode tests: 45/45 passed (including new dynamic card setup, presenter/controller dispose, and Scroll View scene wiring tests).
+  - PlayMode tests: 8/8 passed (including gameplay dragging, snapping, hint system, and save game tests).
+- **Idempotency Verification**: Running scene setup multiple times did not dirty `Home.unity` or create duplicates.
+- **Manual Verification**: Dynamic Scroll View and Picture Select Cards display successfully, load static data, and transitions work cleanly.
 
 ## Current Uncommitted Scope
 
-- `JigsawVina/Assets/Scenes/Home.unity` contains a pre-existing unrelated Unity serialization change and is intentionally excluded from the Dynamic Home UI planning commit.
+- All changed scripts, prefabs, tests, and updated scene file `Home.unity` (v4 regenerated setup).
 
 ## Recommended Next Steps
 
-- Wait for an explicit user request before starting Task 28. Tasks 28-34 must be implemented in order according to `docs/plans/2026-06-12-dynamic-home-ui-implementation.md`.
-- Thực hiện commit toàn bộ thay đổi lên Git nhánh hiện tại nếu người dùng đồng ý.
+- Ask the user if they wish to commit the dynamic Home UI implementation changes to git.
