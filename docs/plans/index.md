@@ -21,4 +21,6 @@ This file lists detailed implementation plans under `docs/plans/`.
 - [2026-06-15-game-test-case-system-design.md](2026-06-15-game-test-case-system-design.md) - Design a Markdown-first QA test case system with validated, manually requested Excel export and later NUnit mapping.
 - [2026-06-15-game-test-case-system-implementation.md](2026-06-15-game-test-case-system-implementation.md) - Implement the Living Test Plan, 31 initial Smoke/Critical cases, validated Markdown parser, and manually invoked Excel exporter.
 - [2026-06-16-daily-login-reward-system.md](2026-06-16-daily-login-reward-system.md) - Implement Task 47 Daily Login Reward System: configure daily rewards in static data, track login streak in PlayerSave, implement DailyRewardService, and add Popup UI to Home screen.
-
+- [2026-06-16-ui-ux-design-system-and-screen-spec.md](2026-06-16-ui-ux-design-system-and-screen-spec.md) - Define the mobile landscape UI/UX direction, mini design system, DOTween animation rules, screen specs, and AI asset generation briefs for the full game flow.
+- [2026-06-16-ui-ux-ai-image-brief.md](2026-06-16-ui-ux-ai-image-brief.md) - Companion brief for AI image assistants to interpret the UI/UX design system and produce suitable mood boards, asset plans, and layered Unity-friendly image outputs.
+- [2026-06-16-long-csharp-files-refactor.md](2026-06-16-long-csharp-files-refactor.md) - Refactor the longest project-owned C# files with focused helper extraction while excluding third-party plugins and line-count-only test churn.

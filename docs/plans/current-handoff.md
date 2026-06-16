@@ -1,5 +1,28 @@
 # Current Handoff
 
+- **UI/UX Design System and Screen Specification**:
+  - Added `docs/plans/2026-06-16-ui-ux-design-system-and-screen-spec.md`.
+  - Captures the approved mobile landscape direction: 16:9 primary layout, 4:3-safe responsive behavior, two-handed play, icon-first Vietnamese-supported UI, and localization-ready text rules.
+  - Defines the warm Vietnamese handmade visual system: paper/album/stamp UI for meta screens, light wood/craft treatment for Gameplay, and restrained traditional accents.
+  - Establishes DOTween as the primary UI animation and feedback system, with cleanup rules and guidance for popup, card, gameplay, daily, reward, unlock, and collection animations.
+  - Includes detailed screen specs and AI layered asset briefs for Daily Reward, Home, Difficulty Select, Gameplay, Reward/Win, Collection, and Pause/Settings.
+  - Review pass tightened Daily Reward claim/skip policy, AI asset constraints, 16:9/4:3 reference targets, and Gameplay Pause/Back behavior to reduce implementation ambiguity.
+  - Added the design doc to `docs/plans/index.md`.
+
+- **AI Image Brief Companion**:
+  - Added `docs/plans/2026-06-16-ui-ux-ai-image-brief.md`.
+  - Companion file tells an AI image assistant how to interpret the UI/UX design system, classify expected outputs, avoid baked text/fake labels, respect transparent/9-slice-friendly layered asset constraints, and produce mood-board or production-oriented asset plans.
+  - Added explicit guidance for large full-screen mockups used only for AI review, art-direction alignment, and prompt iteration; these mockups are not Unity slicing sources or production assets.
+  - Added the companion brief to `docs/plans/index.md`.
+
+- **Task 48: Long C# Files Refactor Plan**:
+  - Replaced the narrow Game Data Editor-only plan with `docs/plans/2026-06-16-long-csharp-files-refactor.md`.
+  - Audited all `.cs` files with 200+ lines and classified them by project runtime/editor/test vs third-party plugin code.
+  - Recommended focused extraction for project-owned long files: `StaticDataService.cs`, `JigsawVinaGameDataEditor.cs`, `ThinVerticalSliceSceneSetup.cs`, and move-only split for `HomeFlowController`.
+  - Explicitly excludes third-party DOTween files and line-count-only test file churn.
+  - Review fix: line counts are now documented as snapshot-only and Task 1 reruns the baseline before implementation. `HomeFlowController` namespace preservation remains explicit. Stub-like plan snippets were replaced with move-only instructions or signature references.
+  - Final review fix: Task 5 now names `JigsawVinaGameDataBuildInput.cs` correctly; Task 6 now requires scene builders to replace `HomeScenePath`/`GameplayScenePath` with method parameters, share `ThinVerticalSliceSceneSetup.CheckSceneAlreadyUpdated(...)`, and update `CreatePictureSelectCardPrefabForTask38` to call moved UI factory helpers.
+
 - **Game Test Case System Design**:
   - Approved a Markdown-first test case workflow for QA, Codex, and Antigravity.
   - Scoped coverage to the full current player flow, save/load, progression, daily drops, Collection, and error cases; Game Data Editor is excluded.
@@ -195,6 +218,18 @@
   - Chạy toàn bộ EditMode test suite: 120/120 tests PASS.
   - Chạy toàn bộ PlayMode test suite: 8/8 tests PASS.
   - Home v7 scene setup và cấu hình daily reward button, badge, popup panel hoàn tất.
+- **Task 48 plan verification**:
+  - Docs-only change; Unity validation not run - not relevant to plan-only change.
+  - Plan index updated with the new detailed plan.
+  - Review fix verified with placeholder scan against `docs/plans/2026-06-16-long-csharp-files-refactor.md`.
+  - Final review verified by scanning source usages of `CreateButton`, `Assign`, `CheckSceneAlreadyUpdated`, `CreateHomeScene`, and `CreateGameplayScene` before updating the plan.
+- **UI/UX design verification**:
+  - Docs-only change; Unity validation not run - not relevant to design-only change.
+  - Spec self-review completed for placeholders, contradictory requirements, scope drift, and implementation ambiguity.
+  - Plan index updated with the new UI/UX design document.
+- **AI image brief verification**:
+  - Docs-only change; Unity validation not run - not relevant to companion brief change.
+  - Confirmed the new file is a companion instruction document rather than a prompt pack, matching the requested scope.
 - **Task 42 targeted verification**:
   - Unity script compilation completed with no compiler errors.
   - `SaveDataServiceTests`: Added `Load_DailyDropCounts_ResetsOnDateChange` verifying daily drop counts are cleared and LastSaveDateString is set on new date. Passed.
@@ -208,8 +243,14 @@
 
 - Tasks 43-45 drop reward logic, replay presenter integration, Collection UI/navigation, Home v6 scene regeneration, tests, handoff documentation, game test case system design, Living Test Plan, 31 test case Markdown files, and manual Excel exporter tooling.
 - Task 47 daily login reward system: RewardApplier, DailyRewardService, DailyRewardPresenter/View, Home v7 scene layout/badge wiring, daily reward config in static JSON, and EditMode tests.
+- Task 48 planning docs: long C# files refactor plan, plan index update, task tracker update, and current handoff update.
+- UI/UX planning docs: mobile landscape design system and screen specification, plan index update, task tracker update, and current handoff update.
+- AI image planning docs: companion image brief, plan index update, task tracker update, and current handoff update.
 
 ## Recommended Next Steps
 
+- Execute Task 48 long C# files refactor with targeted touched-area verification.
+- Review the UI/UX design doc, then split approved UI work into focused implementation plans when ready.
+- Use `2026-06-16-ui-ux-ai-image-brief.md` with the UI/UX design spec when asking an AI image assistant to produce prompt strategy, mood boards, or layered asset plans.
 - Map approved Planned test cases to existing NUnit coverage, then add only missing targeted tests.
 - Run the optional manual Home Collection and daily reward claim click-through before a user-requested commit.

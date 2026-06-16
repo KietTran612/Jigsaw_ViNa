@@ -48,6 +48,7 @@
 | **Task 45: Inventory / Collection UI** | [x] | Added Collection screen/presenter, owned key-item sources, quick navigation, lifecycle cleanup, Home scene v6 wiring, and targeted tests. |
 | **Task 46: Markdown Living Test Plan & Manual Excel Exporter** | [x] | Added Living Test Plan, 31 Smoke/Critical QA test cases, validated Markdown parser, manual PowerShell/Node Excel exporter, and exporter regression tests. |
 | **Task 47: Daily Login Reward System** | [x] | Configure daily rewards in static data, track login streak in PlayerSave, implement DailyRewardService, and add Popup UI to Home screen. |
+| **Task 48: Long C# Files Refactor** | [/] | Plan created to improve the longest project-owned C# files with focused helper extraction while excluding third-party plugins and line-count-only test churn. |
 
 ## Completed
 
@@ -64,10 +65,19 @@
 - Synced sample static/save JSON files with the current schema and MVP decisions.
 - Captured Unity framework decisions: Unity 6000.3.11f1, `JigsawVina/` subfolder, uGUI, one `Main` scene, UniTask, VContainer, and architecture rules.
 - Completed, verified, and polished Daily Login Reward system (Task 47), including slot state overlays, thumbnail bindings, coin validations on compensation path, flow controller unsubscription test verification, fallback wrapping fixes, and empty asset path view tests.
+- Created the Task 48 implementation plan for long C# file refactoring across project-owned runtime/editor files.
+- Reviewed and fixed Task 48 plan after feedback: line counts are now marked as snapshot-only, namespace preservation is explicit, and stub-like plan snippets were removed.
+- Final-reviewed Task 48 plan and clarified scene-builder path replacement, shared `CheckSceneAlreadyUpdated`, and prefab generator helper usage.
+- Created the UI/UX design system and full-flow screen specification for mobile landscape 16:9-to-4:3, DOTween-first animation, and AI-assisted layered asset generation.
+- Created the companion AI image brief explaining how an image assistant should interpret the UI/UX spec and produce mood boards, asset plans, and Unity-friendly layered image outputs.
+- Added guidance for large full-screen mockup images used only for AI review/art-direction alignment, not Unity slicing or production asset extraction.
 
 ## Pending
 
+- Execute Task 48: refactor long project-owned C# files with targeted helper extraction and focused verification.
+- Review and later convert the approved UI/UX design system into scoped implementation plans when ready.
+- Use the AI image brief together with the UI/UX design system when asking another AI to create image prompt strategy, mood boards, or layered asset plans.
+- Use large mockups only for visual review and prompt iteration; generate separate layered assets for Unity production use.
 - Map approved Planned test cases to existing NUnit coverage, then add only missing targeted tests (Deferred).
 - Manual full click-through from Home picture selection to Gameplay reward return can be run in the open Unity Editor if desired.
 - Manual full-flow/device verification remains optional before delivery.
-
