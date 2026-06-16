@@ -270,6 +270,7 @@ namespace JigsawVina.Tests
             public IReadOnlyList<DropTableItemConfig> GetDropTableItems(int dropTableId) =>
                 _dropItems.Where(item => item.DropTableId == dropTableId).ToList();
             public IReadOnlyList<DropTableItemConfig> GetAllDropTableItems() => _dropItems;
+            public IReadOnlyList<DailyRewardConfig> GetDailyRewards() => new List<DailyRewardConfig>();
         }
     }
 }

@@ -47,6 +47,7 @@
 | **Task 44: Implement Daily Drop Reward Service** | [x] | Implemented drop rolling and replay reward application for coins, hints, key items, and clamped consumables. |
 | **Task 45: Inventory / Collection UI** | [x] | Added Collection screen/presenter, owned key-item sources, quick navigation, lifecycle cleanup, Home scene v6 wiring, and targeted tests. |
 | **Task 46: Markdown Living Test Plan & Manual Excel Exporter** | [x] | Added Living Test Plan, 31 Smoke/Critical QA test cases, validated Markdown parser, manual PowerShell/Node Excel exporter, and exporter regression tests. |
+| **Task 47: Daily Login Reward System** | [x] | Configure daily rewards in static data, track login streak in PlayerSave, implement DailyRewardService, and add Popup UI to Home screen. |
 
 ## Completed
 
@@ -62,9 +63,11 @@
 - Synced `docs/jigsaw_vietnam_game_rules.md` and `docs/jigsaw_vietnam_data_design.md` with the kickoff decisions document.
 - Synced sample static/save JSON files with the current schema and MVP decisions.
 - Captured Unity framework decisions: Unity 6000.3.11f1, `JigsawVina/` subfolder, uGUI, one `Main` scene, UniTask, VContainer, and architecture rules.
+- Completed, verified, and polished Daily Login Reward system (Task 47), including slot state overlays, thumbnail bindings, coin validations on compensation path, flow controller unsubscription test verification, fallback wrapping fixes, and empty asset path view tests.
 
 ## Pending
 
-- Map approved Planned test cases to existing NUnit coverage, then add only missing targeted tests.
+- Map approved Planned test cases to existing NUnit coverage, then add only missing targeted tests (Deferred).
 - Manual full click-through from Home picture selection to Gameplay reward return can be run in the open Unity Editor if desired.
 - Manual full-flow/device verification remains optional before delivery.
+

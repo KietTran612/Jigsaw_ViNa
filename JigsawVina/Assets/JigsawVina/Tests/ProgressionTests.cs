@@ -122,11 +122,22 @@ namespace JigsawVina.Tests
                     { ""id"": 1, ""id_string"": ""pic1"", ""display_name"": ""Pic 1"", ""category_id"": 1, ""asset_path"": ""Textures/pic1"", ""is_initially_unlocked"": true, ""difficulty_unlock_policy"": ""sequential"", ""unlock_requirements"": [] }
                 ],
                 ""items"": [
+                    { ""id"": 1, ""id_string"": ""coin"", ""display_name"": ""Coin"", ""item_type"": ""currency"", ""is_consumable"": false, ""status"": ""active"", ""asset_path"": """" },
+                    { ""id"": 2, ""id_string"": ""hint"", ""display_name"": ""Hint"", ""item_type"": ""currency"", ""is_consumable"": false, ""status"": ""active"", ""asset_path"": """" },
                     { ""id"": 101, ""id_string"": ""item1"", ""display_name"": ""Item 1"", ""item_type"": ""key_item"", ""is_consumable"": false, ""status"": ""active"", ""asset_path"": ""Items/item1"" }
                 ],
                 ""picture_difficulties"": [
                     { ""picture_id"": 1, ""difficulty_id"": 0, ""display_name"": ""Easy"", ""grid_columns"": 6, ""grid_rows"": 4, ""piece_count"": 24 },
                     { ""picture_id"": 1, ""difficulty_id"": 1, ""display_name"": ""Medium"", ""grid_columns"": 8, ""grid_rows"": 6, ""piece_count"": 48, ""star_reward"": 2, ""first_clear_coin"": 60, ""first_clear_hint"": 3, ""replay_coin"": 20, ""first_clear_reward_item_ids"": [101] }
+                ],
+                ""daily_rewards"": [
+                    { ""day_index"": 1, ""item_id"": 1, ""amount"": 10 },
+                    { ""day_index"": 2, ""item_id"": 1, ""amount"": 10 },
+                    { ""day_index"": 3, ""item_id"": 1, ""amount"": 10 },
+                    { ""day_index"": 4, ""item_id"": 1, ""amount"": 10 },
+                    { ""day_index"": 5, ""item_id"": 1, ""amount"": 10 },
+                    { ""day_index"": 6, ""item_id"": 1, ""amount"": 10 },
+                    { ""day_index"": 7, ""item_id"": 1, ""amount"": 10 }
                 ]
             }";
             staticDataService.LoadFromText(json);
@@ -172,11 +183,22 @@ namespace JigsawVina.Tests
                     { ""id"": 1, ""id_string"": ""pic1"", ""display_name"": ""Pic 1"", ""category_id"": 1, ""asset_path"": ""Textures/pic1"", ""is_initially_unlocked"": true, ""difficulty_unlock_policy"": ""sequential"", ""unlock_requirements"": [] }
                 ],
                 ""items"": [
+                    { ""id"": 1, ""id_string"": ""coin"", ""display_name"": ""Coin"", ""item_type"": ""currency"", ""is_consumable"": false, ""status"": ""active"", ""asset_path"": """" },
+                    { ""id"": 2, ""id_string"": ""hint"", ""display_name"": ""Hint"", ""item_type"": ""currency"", ""is_consumable"": false, ""status"": ""active"", ""asset_path"": """" },
                     { ""id"": 101, ""id_string"": ""item1"", ""display_name"": ""Item 1"", ""item_type"": ""key_item"", ""is_consumable"": false, ""status"": ""active"", ""asset_path"": ""Items/item1"" }
                 ],
                 ""picture_difficulties"": [
                     { ""picture_id"": 1, ""difficulty_id"": 0, ""display_name"": ""Easy"", ""grid_columns"": 6, ""grid_rows"": 4, ""piece_count"": 24 },
                     { ""picture_id"": 1, ""difficulty_id"": 1, ""display_name"": ""Medium"", ""grid_columns"": 8, ""grid_rows"": 6, ""piece_count"": 48, ""star_reward"": 2, ""first_clear_coin"": 60, ""first_clear_hint"": 3, ""replay_coin"": 20, ""first_clear_reward_item_ids"": [101] }
+                ],
+                ""daily_rewards"": [
+                    { ""day_index"": 1, ""item_id"": 1, ""amount"": 10 },
+                    { ""day_index"": 2, ""item_id"": 1, ""amount"": 10 },
+                    { ""day_index"": 3, ""item_id"": 1, ""amount"": 10 },
+                    { ""day_index"": 4, ""item_id"": 1, ""amount"": 10 },
+                    { ""day_index"": 5, ""item_id"": 1, ""amount"": 10 },
+                    { ""day_index"": 6, ""item_id"": 1, ""amount"": 10 },
+                    { ""day_index"": 7, ""item_id"": 1, ""amount"": 10 }
                 ]
             }";
             staticDataService.LoadFromText(json);
@@ -288,6 +310,8 @@ namespace JigsawVina.Tests
                     { ""id"": 3, ""id_string"": ""pic3"", ""display_name"": ""Pic 3"", ""category_id"": 1, ""is_initially_unlocked"": false, ""difficulty_unlock_policy"": ""all_unlocked"", ""unlock_requirements"": [102] }
                 ],
                 ""items"": [
+                    { ""id"": 1, ""id_string"": ""coin"", ""display_name"": ""Coin"", ""item_type"": ""currency"", ""is_consumable"": false, ""status"": ""active"", ""asset_path"": """" },
+                    { ""id"": 2, ""id_string"": ""hint"", ""display_name"": ""Hint"", ""item_type"": ""currency"", ""is_consumable"": false, ""status"": ""active"", ""asset_path"": """" },
                     { ""id"": 101, ""id_string"": ""key1"", ""display_name"": ""Key 1"", ""item_type"": ""key_item"", ""is_consumable"": false, ""status"": ""active"", ""asset_path"": """" },
                     { ""id"": 102, ""id_string"": ""key2"", ""display_name"": ""Key 2"", ""item_type"": ""key_item"", ""is_consumable"": false, ""status"": ""active"", ""asset_path"": """" },
                     { ""id"": 103, ""id_string"": ""key3"", ""display_name"": ""Key 3"", ""item_type"": ""key_item"", ""is_consumable"": false, ""status"": ""active"", ""asset_path"": """" }
@@ -302,6 +326,15 @@ namespace JigsawVina.Tests
                     { ""picture_id"": 3, ""difficulty_id"": 0, ""display_name"": ""Easy"", ""grid_columns"": 6, ""grid_rows"": 4, ""piece_count"": 24, ""star_reward"": 1 },
                     { ""picture_id"": 3, ""difficulty_id"": 1, ""display_name"": ""Normal"", ""grid_columns"": 8, ""grid_rows"": 6, ""piece_count"": 48, ""star_reward"": 2 },
                     { ""picture_id"": 3, ""difficulty_id"": 2, ""display_name"": ""Hard"", ""grid_columns"": 12, ""grid_rows"": 8, ""piece_count"": 96, ""star_reward"": 3 }
+                ],
+                ""daily_rewards"": [
+                    { ""day_index"": 1, ""item_id"": 1, ""amount"": 10 },
+                    { ""day_index"": 2, ""item_id"": 1, ""amount"": 10 },
+                    { ""day_index"": 3, ""item_id"": 1, ""amount"": 10 },
+                    { ""day_index"": 4, ""item_id"": 1, ""amount"": 10 },
+                    { ""day_index"": 5, ""item_id"": 1, ""amount"": 10 },
+                    { ""day_index"": 6, ""item_id"": 1, ""amount"": 10 },
+                    { ""day_index"": 7, ""item_id"": 1, ""amount"": 10 }
                 ]
             }";
         }
@@ -507,7 +540,7 @@ namespace JigsawVina.Tests
             }";
 
             var service = new StaticDataService(false);
-            Assert.Throws<InvalidOperationException>(() => service.LoadFromText(json));
+            Assert.Throws<InvalidOperationException>(() => service.LoadFromTextEnriched(json));
         }
 
         [Test]
@@ -539,7 +572,7 @@ namespace JigsawVina.Tests
             }";
 
             var service = new StaticDataService(false);
-            Assert.Throws<InvalidOperationException>(() => service.LoadFromText(json));
+            Assert.Throws<InvalidOperationException>(() => service.LoadFromTextEnriched(json));
         }
 
         [Test]
@@ -566,7 +599,7 @@ namespace JigsawVina.Tests
             }";
 
             var service = new StaticDataService(false);
-            Assert.Throws<InvalidOperationException>(() => service.LoadFromText(json));
+            Assert.Throws<InvalidOperationException>(() => service.LoadFromTextEnriched(json));
         }
 
         private static string GetValidUnlockValidationJson()
@@ -582,11 +615,22 @@ namespace JigsawVina.Tests
                     { ""id"": 2, ""id_string"": ""pic2"", ""display_name"": ""Pic 2"", ""category_id"": 1, ""is_initially_unlocked"": false, ""difficulty_unlock_policy"": ""sequential"", ""unlock_requirements"": [101] }
                 ],
                 ""items"": [
+                    { ""id"": 1, ""id_string"": ""coin"", ""display_name"": ""Coin"", ""item_type"": ""currency"", ""is_consumable"": false, ""status"": ""active"", ""asset_path"": """" },
+                    { ""id"": 2, ""id_string"": ""hint"", ""display_name"": ""Hint"", ""item_type"": ""currency"", ""is_consumable"": false, ""status"": ""active"", ""asset_path"": """" },
                     { ""id"": 101, ""id_string"": ""key1"", ""display_name"": ""Key 1"", ""item_type"": ""key_item"", ""is_consumable"": false, ""status"": ""active"", ""asset_path"": """" }
                 ],
                 ""picture_difficulties"": [
                     { ""picture_id"": 1, ""difficulty_id"": 0, ""display_name"": ""Easy"", ""grid_columns"": 6, ""grid_rows"": 4, ""piece_count"": 24, ""first_clear_reward_item_ids"": [101] },
                     { ""picture_id"": 2, ""difficulty_id"": 0, ""display_name"": ""Easy"", ""grid_columns"": 6, ""grid_rows"": 4, ""piece_count"": 24 }
+                ],
+                ""daily_rewards"": [
+                    { ""day_index"": 1, ""item_id"": 1, ""amount"": 10 },
+                    { ""day_index"": 2, ""item_id"": 1, ""amount"": 10 },
+                    { ""day_index"": 3, ""item_id"": 1, ""amount"": 10 },
+                    { ""day_index"": 4, ""item_id"": 1, ""amount"": 10 },
+                    { ""day_index"": 5, ""item_id"": 1, ""amount"": 10 },
+                    { ""day_index"": 6, ""item_id"": 1, ""amount"": 10 },
+                    { ""day_index"": 7, ""item_id"": 1, ""amount"": 10 }
                 ]
             }";
         }
@@ -738,6 +782,35 @@ namespace JigsawVina.Tests
                 new List<DropTableItemConfig>();
             public IReadOnlyList<DropTableItemConfig> GetAllDropTableItems() =>
                 new List<DropTableItemConfig>();
+            public IReadOnlyList<DailyRewardConfig> GetDailyRewards() => new List<DailyRewardConfig>();
+        }
+    }
+
+    public static class TestJsonExtensions
+    {
+        public static void LoadFromTextEnriched(this StaticDataService service, string jsonText)
+        {
+            var dto = UnityEngine.JsonUtility.FromJson<StaticDataDto>(jsonText);
+            if (dto != null)
+            {
+                if (dto.items == null) dto.items = new List<ItemDto>();
+                if (!dto.items.Any(i => i.id == 1))
+                    dto.items.Add(new ItemDto { id = 1, id_string = "coin", display_name = "Coin", item_type = "currency", status = "active" });
+                if (!dto.items.Any(i => i.id == 2))
+                    dto.items.Add(new ItemDto { id = 2, id_string = "hint", display_name = "Hint", item_type = "currency", status = "active" });
+                
+                if (dto.daily_rewards == null || dto.daily_rewards.Count == 0)
+                {
+                    dto.daily_rewards = new List<DailyRewardDto>();
+                    for (int i = 1; i <= 7; i++)
+                    {
+                        dto.daily_rewards.Add(new DailyRewardDto { day_index = i, item_id = 1, amount = 10 });
+                    }
+                }
+                jsonText = UnityEngine.JsonUtility.ToJson(dto);
+                UnityEngine.Debug.LogWarning($"[LoadFromTextEnriched] Final JSON: {jsonText}");
+            }
+            service.LoadFromText(jsonText);
         }
     }
 }

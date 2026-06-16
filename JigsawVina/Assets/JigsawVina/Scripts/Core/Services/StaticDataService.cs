@@ -16,6 +16,7 @@ namespace JigsawVina.Core.Services
         private List<DropTableConfig> _dropTables = new();
         private Dictionary<int, List<DropTableItemConfig>> _dropTableItemsByTableId = new();
         private List<DropTableItemConfig> _allDropTableItems = new();
+        private List<DailyRewardConfig> _dailyRewards = new();
 
         public StaticDataService() : this(true)
         {
@@ -67,6 +68,7 @@ namespace JigsawVina.Core.Services
             _dropTables = new List<DropTableConfig>();
             _allDropTableItems = new List<DropTableItemConfig>();
             _dropTableItemsByTableId = new Dictionary<int, List<DropTableItemConfig>>();
+            _dailyRewards = new List<DailyRewardConfig>();
         }
 
         public void LoadFromText(string jsonText)
@@ -80,6 +82,7 @@ namespace JigsawVina.Core.Services
             if (dto.picture_difficulties == null) dto.picture_difficulties = new List<PictureDifficultyDto>();
             if (dto.drop_tables == null) dto.drop_tables = new List<DropTableDto>();
             if (dto.drop_table_items == null) dto.drop_table_items = new List<DropTableItemDto>();
+            if (dto.daily_rewards == null) dto.daily_rewards = new List<DailyRewardDto>();
 
             ValidateStaticData(dto);
 
@@ -146,6 +149,12 @@ namespace JigsawVina.Core.Services
             _dropTableItemsByTableId = _allDropTableItems
                 .GroupBy(di => di.DropTableId)
                 .ToDictionary(g => g.Key, g => g.ToList());
+
+            _dailyRewards = dto.daily_rewards.Select(dr => new DailyRewardConfig(
+                dr.day_index,
+                dr.item_id,
+                dr.amount
+            )).ToList();
         }
 
         private void ValidateStaticData(StaticDataDto dto)
@@ -205,6 +214,39 @@ namespace JigsawVina.Core.Services
                         throw new InvalidOperationException($"Duplicate Item ID String found: {item.id_string}");
                     itemsById.Add(item.id, item);
                 }
+            }
+
+            // Validate Coin (1) and Hint (2) exist and are active
+            if (!itemsById.TryGetValue(1, out var coinItem) || coinItem.status != "active")
+            {
+                throw new InvalidOperationException("Coin item (ID 1) must exist and be active in configuration.");
+            }
+            if (!itemsById.TryGetValue(2, out var hintItem) || hintItem.status != "active")
+            {
+                throw new InvalidOperationException("Hint item (ID 2) must exist and be active in configuration.");
+            }
+
+            // Validate Daily Rewards
+            if (dto.daily_rewards == null || dto.daily_rewards.Count != 7)
+                throw new InvalidOperationException("Daily rewards must contain exactly 7 configured rewards.");
+
+            for (int i = 0; i < 7; i++)
+            {
+                var dr = dto.daily_rewards[i];
+                if (dr.day_index != i + 1)
+                    throw new InvalidOperationException($"Daily rewards day_index sequence must be exactly 1 to 7. Found {dr.day_index} at position {i}.");
+
+                if (!itemsById.TryGetValue(dr.item_id, out var rewardItem))
+                    throw new InvalidOperationException($"Daily reward Day {dr.day_index} references missing Item ID {dr.item_id}.");
+
+                if (rewardItem.status != "active")
+                    throw new InvalidOperationException($"Daily reward Day {dr.day_index} references inactive Item ID {dr.item_id}.");
+
+                if (dr.amount <= 0)
+                    throw new InvalidOperationException($"Daily reward Day {dr.day_index} amount must be greater than 0.");
+
+                if (rewardItem.item_type == "key_item" && dr.amount != 1)
+                    throw new InvalidOperationException($"Daily reward Day {dr.day_index} is a Key Item and amount must be exactly 1.");
             }
 
             var diffKeys = new HashSet<(int, int)>();
@@ -576,5 +618,6 @@ namespace JigsawVina.Core.Services
         }
 
         public IReadOnlyList<DropTableItemConfig> GetAllDropTableItems() => _allDropTableItems;
+        public IReadOnlyList<DailyRewardConfig> GetDailyRewards() => _dailyRewards;
     }
 }

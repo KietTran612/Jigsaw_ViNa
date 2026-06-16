@@ -94,6 +94,14 @@ namespace JigsawVina.Core.Data
     }
 
     [Serializable]
+    public class DailyRewardDto
+    {
+        public int day_index;
+        public int item_id;
+        public int amount;
+    }
+
+    [Serializable]
     public class StaticDataDto
     {
         public int schema_version = 1;
@@ -104,5 +112,6 @@ namespace JigsawVina.Core.Data
         public List<PictureDifficultyDto> picture_difficulties = new();
         public List<DropTableDto> drop_tables = new();
         public List<DropTableItemDto> drop_table_items = new();
+        public List<DailyRewardDto> daily_rewards = new();
     }
 }

@@ -270,6 +270,7 @@ namespace JigsawVina.Tests
             public IReadOnlyList<DropTableConfig> GetAllDropTables() => new List<DropTableConfig>();
             public IReadOnlyList<DropTableItemConfig> GetDropTableItems(int dropTableId) => new List<DropTableItemConfig>();
             public IReadOnlyList<DropTableItemConfig> GetAllDropTableItems() => new List<DropTableItemConfig>();
+            public IReadOnlyList<DailyRewardConfig> GetDailyRewards() => new List<DailyRewardConfig>();
         }
 
         [Test]
@@ -432,6 +433,7 @@ namespace JigsawVina.Tests
             public IReadOnlyList<DropTableConfig> GetAllDropTables() => new List<DropTableConfig>();
             public IReadOnlyList<DropTableItemConfig> GetDropTableItems(int dropTableId) => new List<DropTableItemConfig>();
             public IReadOnlyList<DropTableItemConfig> GetAllDropTableItems() => new List<DropTableItemConfig>();
+            public IReadOnlyList<DailyRewardConfig> GetDailyRewards() => new List<DailyRewardConfig>();
         }
     }
 }

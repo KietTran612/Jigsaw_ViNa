@@ -18,6 +18,17 @@
   - Implemented `tools/test-cases/export_test_cases_to_excel.ps1` as the manual entrypoint that receives bundled Node/runtime paths, creates a verified temp junction, and cleans up safely.
   - No project `.xlsx` was generated; fixture workbook exports were created only in OS temp for verification and then cleaned up.
 
+- **Task 47: Daily Login Reward System**:
+  - Configured exactly 7 days of daily login rewards in static JSON data.
+  - Tracked login streak in `PlayerSave` (`LastDailyRewardClaimDateString`, `DailyRewardStreak`).
+  - Implemented `IRewardApplier` / `RewardApplier` to unify reward grants, handling stack clamping, owned Key Item duplicate detection, and 100 Coin duplicate compensation. Enforced active Coin config validation on the compensation path.
+  - Implemented `DailyRewardService` resolving claimability, streak progression/wrapping, clock-drift protection, and defensive date parse validation.
+  - Implemented `DailyRewardView` popup panel displaying the 7 reward slots with correct status overlays (resolving claimed/locked state bug), and loading sprites dynamically from `ItemDto.asset_path`. Added clean fallback logic deactivating the image component if the sprite is null and appending the item display name to the amount text. Enabled text wrapping and best fit sizing to prevent text clipping in the 120x30 slot area.
+  - Wired Home screen daily reward button, red notification badge, and Popup UI to the VContainer context and flow controller.
+  - Removed the hardcoded debug file writing code in `StaticDataService.cs` (`ValidateStaticData` method) and cleaned up `debug-json.txt` / `debug-error.txt`.
+  - Added new EditMode tests (`DailyRewardTests`) covering RewardApplier policy branches, streak bounds, wrapping logic, date parse failures, presenter/controller cleanups, and a direct view setup test with empty asset paths (fallback text and disabled image), with updated unsubscribe validation for the flow controller.
+  - Synchronized the plan file `2026-06-16-daily-login-reward-system.md` to match the actual code signature of `SetDailyRewardSlots`.
+
 - **Tasks 43-45: Daily Drop Rewards & Collection UI**:
   - Implemented `DropRewardService` with per-item daily decay, minimum-rate clamping, independent active-entry rolls, inclusive amount ranges, owned Key Item/full consumable exclusion, partial-stack rewards, and success counters.
   - Integrated replay drops into `RewardSummaryPresenter` while preserving its old constructor; applied coins, hints, Key Items, and consumables using the actual granted amount.
@@ -173,15 +184,17 @@
   - In-memory workbook verification for real cases: 31 cases across 8 sheets.
   - Manual PowerShell wrapper fixture export/render succeeded: 1 fixture case, 3 sheets.
   - Project artifact cleanup check: `PROJECT_XLSX=0`, `PROJECT_PREVIEW_DIRS=0`, `LOCAL_NODE_MODULES_JUNCTION=False`.
-  - Unity validation not run - not relevant to Markdown documentation and non-Unity exporter tooling.
-- **Game Test Case System Design**:
-  - Documentation-only change; Unity validation not run - not relevant to this change.
 - **Tasks 43-45 targeted verification**:
   - Unity script compilation completed with no compiler errors.
   - Task 44 route (`DropRewardTests` + `ProgressionTests`): 31/31 passed.
   - Task 45 route (`CollectionFlowTests` + `PictureSelectFlowTests` + `LifetimeScopeRegistrationTests`): 21/21 passed.
   - Home v6 scene setup idempotency passed; SHA-256 hashes for both `Home.unity` and `Gameplay.unity` were unchanged on the second setup run.
-  - Full EditMode/PlayMode suites: not run - project policy requires a separately approved broad validation scope.
+- **Task 47 targeted verification**:
+  - Unity script compilation completed with no compiler errors.
+  - `DailyRewardTests`: Verified 22 EditMode tests covering RewardApplier, DailyRewardService, StaticData validation, presenter lifecycle, flow controller event unsubscriptions, and empty asset path fallback behavior. All 22 tests pass.
+  - Chạy toàn bộ EditMode test suite: 120/120 tests PASS.
+  - Chạy toàn bộ PlayMode test suite: 8/8 tests PASS.
+  - Home v7 scene setup và cấu hình daily reward button, badge, popup panel hoàn tất.
 - **Task 42 targeted verification**:
   - Unity script compilation completed with no compiler errors.
   - `SaveDataServiceTests`: Added `Load_DailyDropCounts_ResetsOnDateChange` verifying daily drop counts are cleared and LastSaveDateString is set on new date. Passed.
@@ -189,13 +202,14 @@
   - Unity script compilation completed with no compiler errors.
   - `StaticDataServiceTests`: Verified drop table configurations and strict constraints (rates, IDs, references). Passed.
   - `JigsawVinaGameDataEditorTests`: Verified that configurations round-trip correctly. Passed.
-- **Compiler Status**: Unity compiled successfully with no compiler errors.
+- **Compiler Status**: Unity compiled successfully with no compiler errors. All 120 EditMode and 8 PlayMode tests passed cleanly.
 
 ## Current Uncommitted Scope
 
 - Tasks 43-45 drop reward logic, replay presenter integration, Collection UI/navigation, Home v6 scene regeneration, tests, handoff documentation, game test case system design, Living Test Plan, 31 test case Markdown files, and manual Excel exporter tooling.
+- Task 47 daily login reward system: RewardApplier, DailyRewardService, DailyRewardPresenter/View, Home v7 scene layout/badge wiring, daily reward config in static JSON, and EditMode tests.
 
 ## Recommended Next Steps
 
 - Map approved Planned test cases to existing NUnit coverage, then add only missing targeted tests.
-- Run the optional manual Home Collection and replay-drop click-through before a user-requested commit.
+- Run the optional manual Home Collection and daily reward claim click-through before a user-requested commit.

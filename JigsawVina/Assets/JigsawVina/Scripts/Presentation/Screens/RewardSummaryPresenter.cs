@@ -13,6 +13,7 @@ namespace JigsawVina.Presentation.Screens
         private readonly ISaveDataService _saveDataService;
         private readonly IStaticDataService _staticDataService;
         private readonly IDropRewardService _dropRewardService;
+        private readonly IRewardApplier _rewardApplier;
 
         private string _lastRewardedItemsLabel = "";
 
@@ -25,7 +26,23 @@ namespace JigsawVina.Presentation.Screens
                 sessionService,
                 saveDataService,
                 staticDataService,
-                NoOpDropRewardService.Instance)
+                NoOpDropRewardService.Instance,
+                new RewardApplier(staticDataService))
+        {
+        }
+
+        public RewardSummaryPresenter(
+            RewardSummaryView view,
+            GameSessionService sessionService,
+            ISaveDataService saveDataService,
+            IStaticDataService staticDataService,
+            IDropRewardService dropRewardService) : this(
+                view,
+                sessionService,
+                saveDataService,
+                staticDataService,
+                dropRewardService,
+                new RewardApplier(staticDataService))
         {
         }
 
@@ -35,13 +52,15 @@ namespace JigsawVina.Presentation.Screens
             GameSessionService sessionService,
             ISaveDataService saveDataService,
             IStaticDataService staticDataService,
-            IDropRewardService dropRewardService)
+            IDropRewardService dropRewardService,
+            IRewardApplier rewardApplier)
         {
             _view = view;
             _sessionService = sessionService;
             _saveDataService = saveDataService;
             _staticDataService = staticDataService;
             _dropRewardService = dropRewardService ?? NoOpDropRewardService.Instance;
+            _rewardApplier = rewardApplier ?? new RewardApplier(staticDataService);
         }
 
         public void ProcessRewardsAndDisplay(float elapsedTimeSeconds)
@@ -107,24 +126,19 @@ namespace JigsawVina.Presentation.Screens
                     var rewardedNames = new List<string>();
                     if (config.FirstClearRewardItemIds != null)
                     {
-                        if (save.OwnedItemIds == null)
-                        {
-                            save.OwnedItemIds = new List<int>();
-                        }
                         foreach (var itemId in config.FirstClearRewardItemIds)
                         {
-                            if (!save.OwnedItemIds.Contains(itemId))
+                            var res = _rewardApplier.Apply(save, itemId, 1, RewardApplyPolicy.WithCompensation);
+                            if (res.Success)
                             {
-                                save.OwnedItemIds.Add(itemId);
-
-                                var itemDto = _staticDataService.GetItemById(itemId);
-                                if (itemDto != null)
+                                if (res.IsCompensated)
                                 {
-                                    rewardedNames.Add(itemDto.display_name);
+                                    coins += res.AppliedAmount; // Add 100 coins compensation to coins earned
+                                    rewardedNames.Add($"Duplicate Compensation (+{res.AppliedAmount} {res.DisplayName})");
                                 }
                                 else
                                 {
-                                    rewardedNames.Add($"Mục #{itemId}");
+                                    rewardedNames.Add(res.DisplayName);
                                 }
                             }
                         }
@@ -165,60 +179,30 @@ namespace JigsawVina.Presentation.Screens
                     continue;
                 }
 
-                if (reward.ItemId == 1)
+                var res = _rewardApplier.Apply(save, reward.ItemId, reward.Amount, RewardApplyPolicy.Standard);
+                if (res.Success)
                 {
-                    save.Coins += reward.Amount;
-                    coins += reward.Amount;
-                    continue;
-                }
-
-                if (reward.ItemId == 2)
-                {
-                    save.Hints += reward.Amount;
-                    rewardedNames.Add($"Hint x{reward.Amount}");
-                    continue;
-                }
-
-                var item = _staticDataService.GetItemById(reward.ItemId);
-                if (item == null)
-                {
-                    continue;
-                }
-
-                if (item.item_type == "key_item")
-                {
-                    if (!save.OwnedItemIds.Contains(item.id))
+                    if (res.ItemId == 1) // Coin
                     {
-                        save.OwnedItemIds.Add(item.id);
-                        rewardedNames.Add(item.display_name);
+                        coins += res.AppliedAmount;
                     }
-                    continue;
+                    else if (res.ItemId == 2) // Hint
+                    {
+                        rewardedNames.Add($"{res.DisplayName} x{res.AppliedAmount}");
+                    }
+                    else
+                    {
+                        var config = _staticDataService.GetItemById(res.ItemId);
+                        if (config != null && config.item_type == "consumable")
+                        {
+                            rewardedNames.Add($"{res.DisplayName} x{res.AppliedAmount}");
+                        }
+                        else
+                        {
+                            rewardedNames.Add(res.DisplayName);
+                        }
+                    }
                 }
-
-                if (item.item_type != "consumable")
-                {
-                    continue;
-                }
-
-                var inventoryItem = save.Inventory
-                    .FirstOrDefault(entry => entry.ItemId == item.id);
-                int currentAmount = inventoryItem?.Amount ?? 0;
-                int newAmount = System.Math.Min(
-                    item.max_stack,
-                    currentAmount + reward.Amount);
-                int appliedAmount = newAmount - currentAmount;
-                if (appliedAmount <= 0)
-                {
-                    continue;
-                }
-
-                if (inventoryItem == null)
-                {
-                    inventoryItem = new InventoryItem { ItemId = item.id };
-                    save.Inventory.Add(inventoryItem);
-                }
-                inventoryItem.Amount = newAmount;
-                rewardedNames.Add($"{item.display_name} x{appliedAmount}");
             }
         }
 

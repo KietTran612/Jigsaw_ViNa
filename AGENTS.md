@@ -1,5 +1,11 @@
 # Codex Project Rules
 
+## Communication Language
+
+Assistant responses addressed directly to the user must be in Vietnamese by default.
+
+All other work products should keep following the existing project context and conventions. Markdown documents, plans, handoff files, code comments, commit messages, and other project files may be written in English when appropriate.
+
 ## Superpowers Plan And Task Locations
 
 For this project, Codex Superpowers must use the same plan and task locations as the existing project workflow:

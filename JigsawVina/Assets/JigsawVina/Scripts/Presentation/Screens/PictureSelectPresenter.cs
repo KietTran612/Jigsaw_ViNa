@@ -34,7 +34,7 @@ namespace JigsawVina.Presentation.Screens
             Refresh();
         }
 
-        private void Refresh()
+        public void Refresh()
         {
             var pictures = _staticDataService.GetAllPictures();
             if (pictures == null || pictures.Count == 0)

@@ -3,6 +3,7 @@ using JigsawVina.Core.Services;
 using JigsawVina.Core.Data;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace JigsawVina.Tests
 {
@@ -29,7 +30,7 @@ namespace JigsawVina.Tests
             }";
 
             var service = new StaticDataService(false);
-            service.LoadFromText(json);
+            service.LoadFromTextEnriched(json);
 
             var pictures = service.GetAllPictures();
             Assert.AreEqual(1, pictures.Count);
@@ -65,7 +66,7 @@ namespace JigsawVina.Tests
             }";
 
             var service = new StaticDataService(false);
-            Assert.Throws<InvalidOperationException>(() => service.LoadFromText(json));
+            Assert.Throws<InvalidOperationException>(() => service.LoadFromTextEnriched(json));
         }
 
         [Test]
@@ -84,7 +85,7 @@ namespace JigsawVina.Tests
             }";
 
             var service = new StaticDataService(false);
-            Assert.Throws<InvalidOperationException>(() => service.LoadFromText(json));
+            Assert.Throws<InvalidOperationException>(() => service.LoadFromTextEnriched(json));
         }
 
         [Test]
@@ -100,7 +101,7 @@ namespace JigsawVina.Tests
             }";
 
             var service = new StaticDataService(false);
-            Assert.Throws<InvalidOperationException>(() => service.LoadFromText(json));
+            Assert.Throws<InvalidOperationException>(() => service.LoadFromTextEnriched(json));
         }
 
         [Test]
@@ -116,7 +117,7 @@ namespace JigsawVina.Tests
             }";
 
             var service = new StaticDataService(false);
-            Assert.Throws<InvalidOperationException>(() => service.LoadFromText(json));
+            Assert.Throws<InvalidOperationException>(() => service.LoadFromTextEnriched(json));
         }
 
         [Test]
@@ -137,7 +138,7 @@ namespace JigsawVina.Tests
             }";
 
             var service = new StaticDataService(false);
-            Assert.Throws<InvalidOperationException>(() => service.LoadFromText(json));
+            Assert.Throws<InvalidOperationException>(() => service.LoadFromTextEnriched(json));
         }
 
         [Test]
@@ -158,7 +159,7 @@ namespace JigsawVina.Tests
             }";
 
             var service = new StaticDataService(false);
-            Assert.Throws<InvalidOperationException>(() => service.LoadFromText(json));
+            Assert.Throws<InvalidOperationException>(() => service.LoadFromTextEnriched(json));
         }
 
         [Test]
@@ -188,7 +189,7 @@ namespace JigsawVina.Tests
             }";
 
             var service = new StaticDataService(false);
-            service.LoadFromText(json);
+            service.LoadFromTextEnriched(json);
 
             var tables = service.GetAllDropTables();
             Assert.AreEqual(1, tables.Count);
@@ -217,7 +218,7 @@ namespace JigsawVina.Tests
             }";
 
             var service = new StaticDataService(false);
-            Assert.Throws<InvalidOperationException>(() => service.LoadFromText(json));
+            Assert.Throws<InvalidOperationException>(() => service.LoadFromTextEnriched(json));
         }
 
         [Test]
@@ -238,7 +239,7 @@ namespace JigsawVina.Tests
             }";
 
             var service = new StaticDataService(false);
-            Assert.Throws<InvalidOperationException>(() => service.LoadFromText(json));
+            Assert.Throws<InvalidOperationException>(() => service.LoadFromTextEnriched(json));
         }
 
         [Test]
@@ -259,7 +260,7 @@ namespace JigsawVina.Tests
             }";
 
             var service = new StaticDataService(false);
-            Assert.Throws<InvalidOperationException>(() => service.LoadFromText(json));
+            Assert.Throws<InvalidOperationException>(() => service.LoadFromTextEnriched(json));
         }
 
         [Test]
@@ -277,7 +278,7 @@ namespace JigsawVina.Tests
             }";
 
             var service = new StaticDataService(false);
-            Assert.Throws<InvalidOperationException>(() => service.LoadFromText(json));
+            Assert.Throws<InvalidOperationException>(() => service.LoadFromTextEnriched(json));
         }
 
         [Test]
@@ -301,7 +302,7 @@ namespace JigsawVina.Tests
             }";
 
             var service = new StaticDataService(false);
-            Assert.Throws<InvalidOperationException>(() => service.LoadFromText(json));
+            Assert.Throws<InvalidOperationException>(() => service.LoadFromTextEnriched(json));
         }
 
         [Test]
@@ -322,7 +323,8 @@ namespace JigsawVina.Tests
             }";
 
             var service = new StaticDataService(false);
-            Assert.Throws<InvalidOperationException>(() => service.LoadFromText(json));
+            Assert.Throws<InvalidOperationException>(() => service.LoadFromTextEnriched(json));
         }
     }
 }
+

@@ -72,6 +72,8 @@ namespace JigsawVina.Core.Data
         public string LastSaveDateString;
         public List<DailyDropCount> DailyDropCounts = new();
         public List<InventoryItem> Inventory = new();
+        public string LastDailyRewardClaimDateString;
+        public int DailyRewardStreak;
 
         public void Normalize()
         {
@@ -80,6 +82,27 @@ namespace JigsawVina.Core.Data
             if (UnlockedPictureIds == null) UnlockedPictureIds = new();
             if (DailyDropCounts == null) DailyDropCounts = new();
             if (Inventory == null) Inventory = new();
+
+            // Reset invalid streak values (out of range [0, 7]) defensively to 0
+            if (DailyRewardStreak < 0 || DailyRewardStreak > 7)
+            {
+                DailyRewardStreak = 0;
+            }
+
+            // Defensively validate and repair LastDailyRewardClaimDateString using fully qualified System types
+            if (!string.IsNullOrEmpty(LastDailyRewardClaimDateString))
+            {
+                if (!System.DateTime.TryParseExact(
+                    LastDailyRewardClaimDateString, 
+                    "yyyy-MM-dd", 
+                    System.Globalization.CultureInfo.InvariantCulture, 
+                    System.Globalization.DateTimeStyles.None, 
+                    out _))
+                {
+                    // Repair invalid formats by resetting to null
+                    LastDailyRewardClaimDateString = null;
+                }
+            }
         }
 
         public void Normalize(string localDateString)

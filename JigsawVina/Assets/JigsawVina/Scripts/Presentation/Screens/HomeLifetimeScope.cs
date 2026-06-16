@@ -12,9 +12,11 @@ namespace JigsawVina.Presentation.Screens
             builder.RegisterComponentInHierarchy<PictureSelectView>();
             builder.RegisterComponentInHierarchy<DifficultySelectView>();
             builder.RegisterComponentInHierarchy<CollectionView>();
+            builder.RegisterComponentInHierarchy<DailyRewardView>();
             builder.Register<PictureSelectPresenter>(Lifetime.Singleton);
             builder.Register<DifficultySelectPresenter>(Lifetime.Singleton);
             builder.Register<CollectionPresenter>(Lifetime.Singleton);
+            builder.Register<DailyRewardPresenter>(Lifetime.Singleton);
             builder.RegisterEntryPoint<HomeFlowController>();
         }
     }
@@ -23,10 +25,14 @@ namespace JigsawVina.Presentation.Screens
     {
         private readonly PictureSelectView _pictureSelectView;
         private readonly DifficultySelectView _difficultySelectView;
+        private readonly PictureSelectPresenter _pictureSelectPresenter;
         private readonly DifficultySelectPresenter _difficultySelectPresenter;
         private readonly CollectionView _collectionView;
         private readonly CollectionPresenter _collectionPresenter;
         private readonly ProgressionService _progressionService;
+        private readonly DailyRewardPresenter _dailyRewardPresenter;
+        private readonly IDailyRewardService _dailyRewardService;
+        private readonly ISaveDataService _saveDataService;
 
         public HomeFlowController(
             PictureSelectView pictureSelectView,
@@ -38,6 +44,31 @@ namespace JigsawVina.Presentation.Screens
                 difficultySelectView,
                 pictureSelectPresenter,
                 difficultySelectPresenter,
+                null,
+                null,
+                null,
+                null,
+                null,
+                null)
+        {
+        }
+
+        public HomeFlowController(
+            PictureSelectView pictureSelectView,
+            DifficultySelectView difficultySelectView,
+            PictureSelectPresenter pictureSelectPresenter,
+            DifficultySelectPresenter difficultySelectPresenter,
+            CollectionView collectionView,
+            CollectionPresenter collectionPresenter,
+            ProgressionService progressionService)
+            : this(
+                pictureSelectView,
+                difficultySelectView,
+                pictureSelectPresenter,
+                difficultySelectPresenter,
+                collectionView,
+                collectionPresenter,
+                progressionService,
                 null,
                 null,
                 null)
@@ -52,15 +83,21 @@ namespace JigsawVina.Presentation.Screens
             DifficultySelectPresenter difficultySelectPresenter,
             CollectionView collectionView,
             CollectionPresenter collectionPresenter,
-            ProgressionService progressionService)
+            ProgressionService progressionService,
+            DailyRewardPresenter dailyRewardPresenter,
+            IDailyRewardService dailyRewardService,
+            ISaveDataService saveDataService)
         {
             _pictureSelectView = pictureSelectView;
             _difficultySelectView = difficultySelectView;
-            _ = pictureSelectPresenter;
+            _pictureSelectPresenter = pictureSelectPresenter;
             _difficultySelectPresenter = difficultySelectPresenter;
             _collectionView = collectionView;
             _collectionPresenter = collectionPresenter;
             _progressionService = progressionService;
+            _dailyRewardPresenter = dailyRewardPresenter;
+            _dailyRewardService = dailyRewardService;
+            _saveDataService = saveDataService;
         }
 
         public void Start()
@@ -71,6 +108,13 @@ namespace JigsawVina.Presentation.Screens
 
             _pictureSelectView.OnPictureSelected += HandlePictureSelected;
             _pictureSelectView.OnCollectionRequested += HandleCollectionRequested;
+            _pictureSelectView.OnDailyRewardRequested += HandleDailyRewardRequested;
+
+            if (_dailyRewardPresenter != null)
+            {
+                _dailyRewardPresenter.OnRewardClaimed += HandleDailyRewardClaimed;
+            }
+
             if (_collectionView != null)
             {
                 _collectionView.OnCloseRequested += HandleCollectionClosed;
@@ -85,6 +129,8 @@ namespace JigsawVina.Presentation.Screens
             {
                 _difficultySelectView.BackButton.onClick.AddListener(HandleBackButtonClicked);
             }
+
+            RefreshBadge();
         }
 
         private void HandlePictureSelected(int pictureId)
@@ -133,12 +179,43 @@ namespace JigsawVina.Presentation.Screens
             _pictureSelectView.SetActive(true);
         }
 
+        private void HandleDailyRewardRequested()
+        {
+            _dailyRewardPresenter?.OpenPopup();
+        }
+
+        private void HandleDailyRewardClaimed()
+        {
+            RefreshBadge();
+            _pictureSelectPresenter?.Refresh();
+            _collectionPresenter?.Refresh();
+        }
+
+        private void RefreshBadge()
+        {
+            if (_saveDataService != null && _dailyRewardService != null && _pictureSelectView != null)
+            {
+                var save = _saveDataService.Load();
+                if (save != null)
+                {
+                    save.Normalize();
+                    _pictureSelectView.SetDailyRewardNotificationBadge(_dailyRewardService.CanClaimToday(save));
+                }
+            }
+        }
+
         public void Dispose()
         {
             if (_pictureSelectView != null)
             {
                 _pictureSelectView.OnPictureSelected -= HandlePictureSelected;
                 _pictureSelectView.OnCollectionRequested -= HandleCollectionRequested;
+                _pictureSelectView.OnDailyRewardRequested -= HandleDailyRewardRequested;
+            }
+
+            if (_dailyRewardPresenter != null)
+            {
+                _dailyRewardPresenter.OnRewardClaimed -= HandleDailyRewardClaimed;
             }
 
             if (_difficultySelectView != null && _difficultySelectView.BackButton != null)

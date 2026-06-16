@@ -20,3 +20,5 @@ This file lists detailed implementation plans under `docs/plans/`.
 - [2026-06-15-daily-drop-and-inventory.md](2026-06-15-daily-drop-and-inventory.md) - Implement Milestone 3 Daily Drop Decay: drop tables serialization preservation, PlayerSave migration, IDropRewardService TDD & implementation, and Collection/Inventory UI.
 - [2026-06-15-game-test-case-system-design.md](2026-06-15-game-test-case-system-design.md) - Design a Markdown-first QA test case system with validated, manually requested Excel export and later NUnit mapping.
 - [2026-06-15-game-test-case-system-implementation.md](2026-06-15-game-test-case-system-implementation.md) - Implement the Living Test Plan, 31 initial Smoke/Critical cases, validated Markdown parser, and manually invoked Excel exporter.
+- [2026-06-16-daily-login-reward-system.md](2026-06-16-daily-login-reward-system.md) - Implement Task 47 Daily Login Reward System: configure daily rewards in static data, track login streak in PlayerSave, implement DailyRewardService, and add Popup UI to Home screen.
+

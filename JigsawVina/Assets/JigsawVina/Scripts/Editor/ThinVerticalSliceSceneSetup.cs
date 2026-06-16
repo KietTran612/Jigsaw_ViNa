@@ -132,7 +132,7 @@ namespace JigsawVina.Editor
 
         private static void CreateHomeScene()
         {
-            if (CheckSceneAlreadyUpdated(HomeScenePath, "SetupVersionMarker_v6"))
+            if (CheckSceneAlreadyUpdated(HomeScenePath, "SetupVersionMarker_v7"))
             {
                 return;
             }
@@ -140,7 +140,7 @@ namespace JigsawVina.Editor
             var scene = EditorSceneManager.NewScene(NewSceneSetup.EmptyScene, NewSceneMode.Single);
             scene.name = "Home";
 
-            new GameObject("SetupVersionMarker_v6");
+            new GameObject("SetupVersionMarker_v7");
 
             CreateCamera();
             CreateEventSystem();
@@ -160,6 +160,25 @@ namespace JigsawVina.Editor
                 "Collection",
                 new Vector2(690f, 320f),
                 new Vector2(260f, 60f));
+
+            var dailyRewardButton = CreateButton(
+                pictureScreen.transform,
+                "DailyRewardButton",
+                "Daily Reward",
+                new Vector2(410f, 320f),
+                new Vector2(260f, 60f));
+
+            var badgeGo = new GameObject("DailyRewardNotificationBadge", typeof(RectTransform), typeof(Image));
+            badgeGo.transform.SetParent(dailyRewardButton.transform, false);
+            var badgeRect = (RectTransform)badgeGo.transform;
+            badgeRect.anchorMin = new Vector2(1f, 1f);
+            badgeRect.anchorMax = new Vector2(1f, 1f);
+            badgeRect.pivot = new Vector2(0.5f, 0.5f);
+            badgeRect.anchoredPosition = new Vector2(0f, 0f);
+            badgeRect.sizeDelta = new Vector2(20f, 20f);
+            var badgeImage = badgeGo.GetComponent<Image>();
+            badgeImage.color = Color.red;
+            badgeGo.SetActive(false);
 
             var scrollViewObj = new GameObject("PictureScrollView", typeof(RectTransform));
             scrollViewObj.transform.SetParent(pictureScreen.transform, false);
@@ -216,6 +235,8 @@ namespace JigsawVina.Editor
             Assign(pictureView, "_contentContainer", contentRect);
             Assign(pictureView, "_scrollRect", scrollRect);
             Assign(pictureView, "_collectionButton", collectionButton);
+            Assign(pictureView, "_dailyRewardButton", dailyRewardButton);
+            Assign(pictureView, "_dailyRewardNotificationBadge", badgeGo);
             
             var difficultyScreen = CreateScreen(canvas.transform, "DifficultySelectScreen");
             var difficultyView = difficultyScreen.AddComponent<DifficultySelectView>();
@@ -353,6 +374,148 @@ namespace JigsawVina.Editor
             Assign(collectionView, "_sourceButtonTemplate", sourceButtonTemplate);
             Assign(collectionView, "_closeButton", closeCollectionButton);
             collectionScreen.SetActive(false);
+
+            // Create Daily Reward Popup Panel
+            var dailyRewardPopup = CreateScreen(canvas.transform, "DailyRewardPopup");
+            var dailyRewardView = dailyRewardPopup.AddComponent<DailyRewardView>();
+            dailyRewardPopup.AddComponent<Image>().color = new Color(0.04f, 0.06f, 0.1f, 0.98f);
+
+            AddHeader(
+                dailyRewardPopup.transform,
+                "Daily Login Rewards",
+                new Vector2(0f, 430f),
+                new Vector2(760f, 70f));
+
+            var closeDailyRewardButton = CreateButton(
+                dailyRewardPopup.transform,
+                "CloseDailyRewardButton",
+                "Close",
+                new Vector2(0f, -430f),
+                new Vector2(220f, 55f));
+
+            var claimDailyRewardButton = CreateButton(
+                dailyRewardPopup.transform,
+                "ClaimDailyRewardButton",
+                "Claim",
+                new Vector2(0f, -340f),
+                new Vector2(300f, 60f));
+
+            var feedbackText = AddText(
+                dailyRewardPopup.transform,
+                "",
+                new Vector2(0f, -260f),
+                new Vector2(800f, 50f));
+            feedbackText.color = new Color(0.18f, 0.65f, 0.95f);
+
+            var slotsContainer = new GameObject("SlotsContainer", typeof(RectTransform));
+            slotsContainer.transform.SetParent(dailyRewardPopup.transform, false);
+            var slotsContainerRect = (RectTransform)slotsContainer.transform;
+            slotsContainerRect.anchoredPosition = new Vector2(0f, 50f);
+            slotsContainerRect.sizeDelta = new Vector2(1200f, 300f);
+
+            var slotsLayout = slotsContainer.AddComponent<HorizontalLayoutGroup>();
+            slotsLayout.spacing = 15;
+            slotsLayout.childControlWidth = false;
+            slotsLayout.childControlHeight = false;
+            slotsLayout.childForceExpandWidth = false;
+            slotsLayout.childForceExpandHeight = false;
+            slotsLayout.childAlignment = TextAnchor.MiddleCenter;
+
+            var slotsList = new List<DailyRewardView.RewardSlotUI>();
+
+            for (int d = 1; d <= 7; d++)
+            {
+                var slotGo = new GameObject($"DaySlot_{d}", typeof(RectTransform), typeof(Image));
+                slotGo.transform.SetParent(slotsContainerRect.transform, false);
+                var slotRect = (RectTransform)slotGo.transform;
+                slotRect.sizeDelta = new Vector2(140f, 220f);
+                slotGo.GetComponent<Image>().color = new Color(0.12f, 0.18f, 0.28f, 0.95f);
+
+                var dayTxt = AddText(slotGo.transform, $"Day {d}", new Vector2(0f, 80f), new Vector2(120f, 30f));
+                dayTxt.fontSize = 20;
+
+                var imgGo = new GameObject("RewardImage", typeof(RectTransform), typeof(Image));
+                imgGo.transform.SetParent(slotGo.transform, false);
+                var imgRect = (RectTransform)imgGo.transform;
+                imgRect.anchoredPosition = new Vector2(0f, 10f);
+                imgRect.sizeDelta = new Vector2(64f, 64f);
+                var slotImg = imgGo.GetComponent<Image>();
+                slotImg.color = Color.white;
+                slotImg.preserveAspect = true;
+
+                var amtTxt = AddText(slotGo.transform, "+50", new Vector2(0f, -50f), new Vector2(120f, 30f));
+                amtTxt.fontSize = 18;
+
+                var claimedOverlay = new GameObject("ClaimedOverlay", typeof(RectTransform), typeof(Image));
+                claimedOverlay.transform.SetParent(slotGo.transform, false);
+                var claimedRect = (RectTransform)claimedOverlay.transform;
+                claimedRect.anchorMin = Vector2.zero;
+                claimedRect.anchorMax = Vector2.one;
+                claimedRect.offsetMin = Vector2.zero;
+                claimedRect.offsetMax = Vector2.zero;
+                claimedOverlay.GetComponent<Image>().color = new Color(0f, 0f, 0f, 0.6f);
+                var claimedTxt = AddText(claimedOverlay.transform, "Claimed", Vector2.zero, new Vector2(120f, 40f));
+                claimedTxt.fontSize = 20;
+                claimedTxt.color = Color.green;
+                claimedOverlay.SetActive(false);
+
+                var nextHighlight = new GameObject("NextHighlight", typeof(RectTransform), typeof(Image));
+                nextHighlight.transform.SetParent(slotGo.transform, false);
+                var highlightRect = (RectTransform)nextHighlight.transform;
+                highlightRect.anchorMin = Vector2.zero;
+                highlightRect.anchorMax = Vector2.one;
+                highlightRect.offsetMin = new Vector2(-4f, -4f);
+                highlightRect.offsetMax = new Vector2(4f, 4f);
+                var highlightImg = nextHighlight.GetComponent<Image>();
+                highlightImg.color = Color.yellow;
+                nextHighlight.transform.SetAsFirstSibling();
+                nextHighlight.SetActive(false);
+
+                var lockedOverlay = new GameObject("LockedOverlay", typeof(RectTransform), typeof(Image));
+                lockedOverlay.transform.SetParent(slotGo.transform, false);
+                var lockedRect = (RectTransform)lockedOverlay.transform;
+                lockedRect.anchorMin = Vector2.zero;
+                lockedRect.anchorMax = Vector2.one;
+                lockedRect.offsetMin = Vector2.zero;
+                lockedRect.offsetMax = Vector2.zero;
+                lockedOverlay.GetComponent<Image>().color = new Color(0f, 0f, 0f, 0.4f);
+                var lockedTxt = AddText(lockedOverlay.transform, "Locked", Vector2.zero, new Vector2(120f, 40f));
+                lockedTxt.fontSize = 20;
+                lockedTxt.color = Color.gray;
+                lockedOverlay.SetActive(false);
+
+                slotsList.Add(new DailyRewardView.RewardSlotUI
+                {
+                    dayText = dayTxt,
+                    rewardImage = slotImg,
+                    amountText = amtTxt,
+                    claimedOverlay = claimedOverlay,
+                    nextClaimableHighlight = nextHighlight,
+                    lockedOverlay = lockedOverlay
+                });
+            }
+
+            var dailyRewardSo = new SerializedObject(dailyRewardView);
+            Assign(dailyRewardView, "_claimButton", claimDailyRewardButton);
+            Assign(dailyRewardView, "_closeButton", closeDailyRewardButton);
+            Assign(dailyRewardView, "_popupPanel", dailyRewardPopup);
+            Assign(dailyRewardView, "_feedbackText", feedbackText);
+
+            var slotsProp = dailyRewardSo.FindProperty("_slots");
+            slotsProp.arraySize = 7;
+            for (int i = 0; i < 7; i++)
+            {
+                var element = slotsProp.GetArrayElementAtIndex(i);
+                element.FindPropertyRelative("dayText").objectReferenceValue = slotsList[i].dayText;
+                element.FindPropertyRelative("rewardImage").objectReferenceValue = slotsList[i].rewardImage;
+                element.FindPropertyRelative("amountText").objectReferenceValue = slotsList[i].amountText;
+                element.FindPropertyRelative("claimedOverlay").objectReferenceValue = slotsList[i].claimedOverlay;
+                element.FindPropertyRelative("nextClaimableHighlight").objectReferenceValue = slotsList[i].nextClaimableHighlight;
+                element.FindPropertyRelative("lockedOverlay").objectReferenceValue = slotsList[i].lockedOverlay;
+            }
+            dailyRewardSo.ApplyModifiedPropertiesWithoutUndo();
+
+            dailyRewardPopup.SetActive(false);
 
             EditorSceneManager.SaveScene(scene, HomeScenePath);
         }
@@ -913,6 +1076,27 @@ namespace JigsawVina.Editor
             text.color = new Color(0.8f, 0.8f, 0.8f);
             text.raycastTarget = false;
             return text;
+        }
+
+        private static Text AddText(Transform parent, string text, Vector2 anchoredPosition, Vector2 sizeDelta)
+        {
+            var textObject = new GameObject("Text_" + text.Replace(" ", string.Empty), typeof(RectTransform));
+            textObject.transform.SetParent(parent, false);
+            var rect = (RectTransform)textObject.transform;
+            rect.sizeDelta = sizeDelta;
+            rect.anchoredPosition = anchoredPosition;
+
+            var label = textObject.AddComponent<Text>();
+            label.text = text;
+            label.font = Resources.GetBuiltinResource<Font>("LegacyRuntime.ttf");
+            if (label.font == null)
+            {
+                label.font = Resources.GetBuiltinResource<Font>("Arial.ttf");
+            }
+            label.fontSize = 24;
+            label.alignment = TextAnchor.MiddleCenter;
+            label.color = Color.white;
+            return label;
         }
     }
 }

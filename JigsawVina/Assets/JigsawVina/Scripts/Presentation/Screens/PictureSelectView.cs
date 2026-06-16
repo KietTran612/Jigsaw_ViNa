@@ -13,11 +13,14 @@ namespace JigsawVina.Presentation.Screens
         public event Action<int> OnPictureSelected;
         public event Action<int> OnPictureUnlockRequested;
         public event Action OnCollectionRequested;
+        public event Action OnDailyRewardRequested;
 
         [SerializeField] private PictureSelectCard _cardPrefab;
         [SerializeField] private RectTransform _contentContainer;
         [SerializeField] private ScrollRect _scrollRect;
         [SerializeField] private Button _collectionButton;
+        [SerializeField] private Button _dailyRewardButton;
+        [SerializeField] private GameObject _dailyRewardNotificationBadge;
 
         private readonly List<PictureSelectCard> _instantiatedCards = new();
 
@@ -29,6 +32,10 @@ namespace JigsawVina.Presentation.Screens
             {
                 _collectionButton.onClick.AddListener(RequestCollection);
             }
+            if (_dailyRewardButton != null)
+            {
+                _dailyRewardButton.onClick.AddListener(RequestDailyReward);
+            }
         }
 
         private void OnDestroy()
@@ -36,6 +43,10 @@ namespace JigsawVina.Presentation.Screens
             if (_collectionButton != null)
             {
                 _collectionButton.onClick.RemoveListener(RequestCollection);
+            }
+            if (_dailyRewardButton != null)
+            {
+                _dailyRewardButton.onClick.RemoveListener(RequestDailyReward);
             }
             ClearExistingCards();
         }
@@ -116,6 +127,19 @@ namespace JigsawVina.Presentation.Screens
         private void RequestCollection()
         {
             OnCollectionRequested?.Invoke();
+        }
+
+        private void RequestDailyReward()
+        {
+            OnDailyRewardRequested?.Invoke();
+        }
+
+        public void SetDailyRewardNotificationBadge(bool visible)
+        {
+            if (_dailyRewardNotificationBadge != null)
+            {
+                _dailyRewardNotificationBadge.SetActive(visible);
+            }
         }
 
         private void ClearExistingCards()

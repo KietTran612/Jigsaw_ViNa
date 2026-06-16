@@ -15,5 +15,6 @@ namespace JigsawVina.Core.Services
         IReadOnlyList<DropTableConfig> GetAllDropTables();
         IReadOnlyList<DropTableItemConfig> GetDropTableItems(int dropTableId);
         IReadOnlyList<DropTableItemConfig> GetAllDropTableItems();
+        IReadOnlyList<DailyRewardConfig> GetDailyRewards();
     }
 }

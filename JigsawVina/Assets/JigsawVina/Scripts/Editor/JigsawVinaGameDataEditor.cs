@@ -2,6 +2,7 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using System.Runtime.CompilerServices;
 using JigsawVina.Core.Data;
 using JigsawVina.Core.Services;
@@ -87,7 +88,9 @@ namespace JigsawVina.Editor
         [SerializeField] internal List<ItemDto> _globalItems = new();
         [SerializeField] internal List<DropTableDto> _dropTables = new();
         [SerializeField] internal List<DropTableItemDto> _dropTableItems = new();
+        [SerializeField] internal List<DailyRewardDto> _dailyRewards = new();
         private Vector2 _itemsScroll;
+        private Vector2 _dailyRewardsScroll;
         private Vector2 _keyItemsScroll;
         private PlayerSave _cachedSave = new();
         [NonSerialized] private bool _saveLoaded = false;
@@ -130,6 +133,12 @@ namespace JigsawVina.Editor
             _tabs = tabs ?? new();
             _categories = categories ?? new();
             _globalItems = globalItems ?? new();
+            
+            _dailyRewards = new List<DailyRewardDto>();
+            for (int d = 1; d <= 7; d++)
+            {
+                _dailyRewards.Add(new DailyRewardDto { day_index = d, item_id = 1, amount = 50 * d });
+            }
         }
 
         private void LoadFromDisk()
@@ -169,6 +178,20 @@ namespace JigsawVina.Editor
             if (dto.drop_table_items != null)
             {
                 _dropTableItems = new List<DropTableItemDto>(dto.drop_table_items);
+            }
+
+            _dailyRewards.Clear();
+            if (dto.daily_rewards != null && dto.daily_rewards.Count == 7)
+            {
+                _dailyRewards = new List<DailyRewardDto>(dto.daily_rewards);
+            }
+            else
+            {
+                // Auto-seed/populate exactly 7 default rewards (using Item ID 1 for coins)
+                for (int d = 1; d <= 7; d++)
+                {
+                    _dailyRewards.Add(new DailyRewardDto { day_index = d, item_id = 1, amount = 50 * d });
+                }
             }
 
             // 1. Hydrate Categories first
@@ -490,7 +513,7 @@ namespace JigsawVina.Editor
             EditorGUILayout.Space();
 
             // Main Tab Selection Toolbar
-            string[] mainTabs = { "Cấu hình Tranh", "Quản lý Danh mục", "Quản lý Vật phẩm", "Trình sửa Save (Cheat)" };
+            string[] mainTabs = { "Cấu hình Tranh", "Quản lý Danh mục", "Quản lý Vật phẩm", "Trình sửa Save (Cheat)", "Cấu hình Daily Reward" };
             int prevMainTab = _mainTabSelected;
             _mainTabSelected = GUILayout.Toolbar(_mainTabSelected, mainTabs);
             if (_mainTabSelected != prevMainTab)
@@ -512,6 +535,9 @@ namespace JigsawVina.Editor
                     break;
                 case 3:
                     DrawSaveTab();
+                    break;
+                case 4:
+                    DrawDailyRewardsTab();
                     break;
             }
         }
@@ -938,6 +964,140 @@ namespace JigsawVina.Editor
             GUILayout.Label("Raw JSON Save Data (Read-only):", EditorStyles.miniBoldLabel);
             EditorGUILayout.TextArea(_saveJsonText, GUILayout.ExpandHeight(true));
 
+            GUILayout.EndVertical();
+        }
+
+        internal class AvailableRewardItem
+        {
+            public int id;
+            public string displayName;
+            public string itemType;
+            public string assetPath;
+        }
+
+        private List<AvailableRewardItem> GetAvailableRewardItems()
+        {
+            var list = new List<AvailableRewardItem>();
+            foreach (var item in _globalItems)
+            {
+                if (item.status == "active")
+                {
+                    list.Add(new AvailableRewardItem
+                    {
+                        id = item.id,
+                        displayName = $"{item.display_name} (ID: {item.id}, {item.item_type})",
+                        itemType = item.item_type,
+                        assetPath = item.asset_path
+                    });
+                }
+            }
+
+            foreach (var tab in _tabs)
+            {
+                tab.itemStates.Sort((a, b) => string.Compare(a.filename, b.filename, StringComparison.Ordinal));
+                for (int i = 0; i < tab.itemStates.Count; i++)
+                {
+                    int itemId = tab.pictureId * 100 + (i + 1);
+                    string name = string.IsNullOrEmpty(tab.itemStates[i].displayName)
+                        ? tab.itemStates[i].filename
+                        : tab.itemStates[i].displayName;
+                    
+                    list.Add(new AvailableRewardItem
+                    {
+                        id = itemId,
+                        displayName = $"[{tab.displayName}] {name} (ID: {itemId}, key_item)",
+                        itemType = "key_item",
+                        assetPath = ""
+                    });
+                }
+            }
+
+            return list;
+        }
+
+        private void DrawDailyRewardsTab()
+        {
+            GUILayout.BeginVertical(GUI.skin.box, GUILayout.ExpandWidth(true), GUILayout.ExpandHeight(true));
+            GUILayout.Label("Cấu hình Daily Reward (Điểm danh 7 ngày)", EditorStyles.boldLabel);
+            EditorGUILayout.HelpBox("Phần thưởng đăng nhập hàng ngày theo chu kỳ 7 ngày. Mỗi ngày index từ 1 đến 7 tương ứng với phần thưởng của ngày đó. Day Index là ngày cố định.", MessageType.Info);
+            EditorGUILayout.Space();
+
+            var availableItems = GetAvailableRewardItems();
+            if (availableItems.Count == 0)
+            {
+                GUILayout.Label("Không có vật phẩm nào được cấu hình hoạt động.", EditorStyles.boldLabel);
+                GUILayout.EndVertical();
+                return;
+            }
+
+            string[] optionNames = availableItems.Select(ai => ai.displayName).ToArray();
+            int[] itemIds = availableItems.Select(ai => ai.id).ToArray();
+
+            _dailyRewardsScroll = EditorGUILayout.BeginScrollView(_dailyRewardsScroll);
+
+            for (int i = 0; i < _dailyRewards.Count; i++)
+            {
+                var dr = _dailyRewards[i];
+                Color oldBgColor = GUI.backgroundColor;
+                GUI.backgroundColor = (i % 2 == 0)
+                    ? new Color(1.5f, 1.5f, 1.5f, 1.0f)
+                    : new Color(0.6f, 0.6f, 0.6f, 1.0f);
+
+                GUILayout.BeginVertical(GUI.skin.box);
+                GUILayout.BeginHorizontal();
+
+                GUILayout.Label($"Ngày {dr.day_index}", EditorStyles.boldLabel, GUILayout.Width(80));
+
+                int selectedIdx = Array.IndexOf(itemIds, dr.item_id);
+                if (selectedIdx < 0) selectedIdx = 0;
+                int newSelectedIdx = EditorGUILayout.Popup("Vật phẩm", selectedIdx, optionNames, GUILayout.Width(350));
+                if (newSelectedIdx >= 0 && newSelectedIdx < itemIds.Length)
+                {
+                    dr.item_id = itemIds[newSelectedIdx];
+                }
+
+                GUILayout.Space(10);
+
+                var selectedItem = availableItems[newSelectedIdx];
+                Texture2D previewTex = null;
+                if (selectedItem.itemType == "key_item")
+                {
+                    int picId = selectedItem.id / 100;
+                    int localIdx = (selectedItem.id % 100) - 1;
+                    var tab = _tabs.Find(t => t.pictureId == picId);
+                    if (tab != null && tab.folderAsset != null)
+                    {
+                        var (_, itemTextures) = ScanFolder(tab.folderAsset);
+                        if (localIdx >= 0 && localIdx < itemTextures.Count)
+                        {
+                            previewTex = itemTextures[localIdx];
+                        }
+                    }
+                }
+
+                if (previewTex != null)
+                {
+                    var rect = GUILayoutUtility.GetRect(24, 24, GUILayout.Width(24), GUILayout.Height(24));
+                    DrawTextureWithBorder(rect, previewTex, ScaleMode.ScaleToFit);
+                }
+                else
+                {
+                    var rect = GUILayoutUtility.GetRect(24, 24, GUILayout.Width(24), GUILayout.Height(24));
+                    EditorGUI.DrawRect(rect, new Color(0.18f, 0.18f, 0.18f, 1.0f));
+                }
+
+                GUILayout.Space(10);
+
+                dr.amount = EditorGUILayout.IntField("Số lượng", dr.amount, GUILayout.Width(180));
+
+                GUILayout.EndHorizontal();
+                GUILayout.EndVertical();
+
+                GUI.backgroundColor = oldBgColor;
+                EditorGUILayout.Space();
+            }
+
+            EditorGUILayout.EndScrollView();
             GUILayout.EndVertical();
         }
 
@@ -1451,7 +1611,8 @@ namespace JigsawVina.Editor
                 schema_version = 1,
                 data_version = 1,
                 drop_tables = new List<DropTableDto>(_dropTables ?? new()),
-                drop_table_items = new List<DropTableItemDto>(_dropTableItems ?? new())
+                drop_table_items = new List<DropTableItemDto>(_dropTableItems ?? new()),
+                daily_rewards = new List<DailyRewardDto>()
             };
             errorMessage = "";
 
@@ -1703,6 +1864,70 @@ namespace JigsawVina.Editor
                 AddDifficulty(config, tab.pictureId, 2, "Khó", tab.hardCols, tab.hardRows, tab.hardCoins, tab.hardReplayCoins, tab.hardHints, tab.hardKeyRewardIndex, itemFilenames, localItems, tab.hardDropTableId);
             }
 
+            if (_dailyRewards == null || _dailyRewards.Count != 7)
+            {
+                errorMessage = "Daily Rewards cấu hình phải có đúng 7 ngày.";
+                return false;
+            }
+
+            var activeIds = new HashSet<int>(GetActiveItemIds(scanFolders: false));
+            for (int i = 0; i < 7; i++)
+            {
+                var dr = _dailyRewards[i];
+                if (dr.day_index != i + 1)
+                {
+                    errorMessage = $"Daily Reward index không hợp lệ tại dòng {i + 1}. Phải là Ngày {i + 1}.";
+                    return false;
+                }
+                if (!activeIds.Contains(dr.item_id))
+                {
+                    errorMessage = $"Daily Reward Ngày {dr.day_index} tham chiếu Item ID {dr.item_id} không tồn tại hoặc không hoạt động.";
+                    return false;
+                }
+                if (dr.amount <= 0)
+                {
+                    errorMessage = $"Daily Reward Ngày {dr.day_index} có amount {dr.amount} phải là số nguyên dương (> 0).";
+                    return false;
+                }
+
+                // If it is a Key Item, amount must be exactly 1
+                var rewardItem = _globalItems.Find(item => item.id == dr.item_id);
+                bool isKeyItem = false;
+                if (rewardItem != null && rewardItem.item_type == "key_item")
+                {
+                    isKeyItem = true;
+                }
+                else if (rewardItem == null)
+                {
+                    foreach (var tab in _tabs)
+                    {
+                        for (int itIdx = 0; itIdx < tab.itemStates.Count; itIdx++)
+                        {
+                            int keyItemId = tab.pictureId * 100 + (itIdx + 1);
+                            if (keyItemId == dr.item_id)
+                            {
+                                isKeyItem = true;
+                                break;
+                            }
+                        }
+                        if (isKeyItem) break;
+                    }
+                }
+
+                if (isKeyItem && dr.amount != 1)
+                {
+                    errorMessage = $"Daily Reward Ngày {dr.day_index} là Key Item, số lượng (Amount) bắt buộc phải là 1.";
+                    return false;
+                }
+
+                config.daily_rewards.Add(new DailyRewardDto
+                {
+                    day_index = dr.day_index,
+                    item_id = dr.item_id,
+                    amount = dr.amount
+                });
+            }
+
             // Sort DTOs for deterministic, clean JSON output
             config.categories.Sort((a, b) => a.id.CompareTo(b.id));
             config.pictures.Sort((a, b) => a.id.CompareTo(b.id));
@@ -1713,6 +1938,7 @@ namespace JigsawVina.Editor
                 if (comp != 0) return comp;
                 return a.difficulty_id.CompareTo(b.difficulty_id);
             });
+            config.daily_rewards.Sort((a, b) => a.day_index.CompareTo(b.day_index));
 
             return true;
         }
