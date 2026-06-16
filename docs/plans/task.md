@@ -46,9 +46,12 @@
 | **Task 43: Daily Drop Decay Tests** | [x] | Added TDD coverage for independent rolls, decay/minimum clamp, inclusive amounts, exclusions, partial stacks, and daily counters. |
 | **Task 44: Implement Daily Drop Reward Service** | [x] | Implemented drop rolling and replay reward application for coins, hints, key items, and clamped consumables. |
 | **Task 45: Inventory / Collection UI** | [x] | Added Collection screen/presenter, owned key-item sources, quick navigation, lifecycle cleanup, Home scene v6 wiring, and targeted tests. |
+| **Task 46: Markdown Living Test Plan & Manual Excel Exporter** | [x] | Added Living Test Plan, 31 Smoke/Critical QA test cases, validated Markdown parser, manual PowerShell/Node Excel exporter, and exporter regression tests. |
 
 ## Completed
 
+- Designed the Markdown-first QA test case system for the full current game flow, including schema validation, manual Excel export, and later NUnit mapping.
+- Implemented the Markdown-first QA test case system with six module files, 31 initial test cases, strict validation, and manually invoked Excel export tooling.
 - Completed thin vertical slice Tasks 4-6: Home UI/presenters, Gameplay UI/presenters, reward progression tests, VContainer root settings, build settings, and generated Home/Gameplay scenes.
 - Fixed `.gitignore` to support Unity subfolder `JigsawVina/` and ensure nested local build/temporary/MCP-tooling files are correctly ignored.
 - Created the initial `docs/plans/` planning workflow files.
@@ -62,5 +65,6 @@
 
 ## Pending
 
+- Map approved Planned test cases to existing NUnit coverage, then add only missing targeted tests.
 - Manual full click-through from Home picture selection to Gameplay reward return can be run in the open Unity Editor if desired.
 - Manual full-flow/device verification remains optional before delivery.

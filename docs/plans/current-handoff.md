@@ -1,5 +1,23 @@
 # Current Handoff
 
+- **Game Test Case System Design**:
+  - Approved a Markdown-first test case workflow for QA, Codex, and Antigravity.
+  - Scoped coverage to the full current player flow, save/load, progression, daily drops, Collection, and error cases; Game Data Editor is excluded.
+  - Defined module files, strict test case schema, validation rules, manual Excel export, and the later NUnit mapping workflow.
+  - Clarified document lifecycle: the dated plan is a historical design decision record, while `docs/test-cases/README.md` and module files are living documents updated through normal Git history.
+  - Review fixes added case lifecycle/deprecation, schema versioning, safe workbook replacement, Excel worksheet-name validation, and support for multiple NUnit mappings.
+  - Export architecture uses a manual PowerShell entrypoint plus a tested Node.js module backed by the bundled `@oai/artifact-tool`; no Excel installation or global package is required.
+  - Added the implementation plan at `docs/plans/2026-06-15-game-test-case-system-implementation.md`.
+  - Added the detailed design at `docs/plans/2026-06-15-game-test-case-system-design.md`.
+
+- **Task 46: Markdown Living Test Plan & Manual Excel Exporter**:
+  - Created `docs/test-cases/README.md` as the Living Test Plan and six module files: Gameplay, Save Load, Progression, Daily Drop, Collection, and Error Handling.
+  - Added 31 initial `Active` / `Critical` / `Smoke` / `Planned` QA test cases plus a 15-topic Regression backlog without reserving IDs.
+  - Added `.gitignore` rules for generated QA workbook artifacts and exporter runtime/preview scratch paths.
+  - Implemented `tools/test-cases/export_test_cases_to_excel.mjs` with strict UTF-8 parsing, schema validation, source-module binding, escaped-pipe table parsing, duplicate metadata detection, workbook content verification, direct CLI support, and `.xlsx` output guards.
+  - Implemented `tools/test-cases/export_test_cases_to_excel.ps1` as the manual entrypoint that receives bundled Node/runtime paths, creates a verified temp junction, and cleans up safely.
+  - No project `.xlsx` was generated; fixture workbook exports were created only in OS temp for verification and then cleaned up.
+
 - **Tasks 43-45: Daily Drop Rewards & Collection UI**:
   - Implemented `DropRewardService` with per-item daily decay, minimum-rate clamping, independent active-entry rolls, inclusive amount ranges, owned Key Item/full consumable exclusion, partial-stack rewards, and success counters.
   - Integrated replay drops into `RewardSummaryPresenter` while preserving its old constructor; applied coins, hints, Key Items, and consumables using the actual granted amount.
@@ -149,6 +167,15 @@
 
 ## Verification
 
+- **Task 46 targeted verification**:
+  - Exporter tests: `tools/test-cases/test/export_test_cases_to_excel.test.mjs` passed 31/31.
+  - Real Living Test Plan validation: `VALID: schema=1 modules=6 cases=31`.
+  - In-memory workbook verification for real cases: 31 cases across 8 sheets.
+  - Manual PowerShell wrapper fixture export/render succeeded: 1 fixture case, 3 sheets.
+  - Project artifact cleanup check: `PROJECT_XLSX=0`, `PROJECT_PREVIEW_DIRS=0`, `LOCAL_NODE_MODULES_JUNCTION=False`.
+  - Unity validation not run - not relevant to Markdown documentation and non-Unity exporter tooling.
+- **Game Test Case System Design**:
+  - Documentation-only change; Unity validation not run - not relevant to this change.
 - **Tasks 43-45 targeted verification**:
   - Unity script compilation completed with no compiler errors.
   - Task 44 route (`DropRewardTests` + `ProgressionTests`): 31/31 passed.
@@ -166,8 +193,9 @@
 
 ## Current Uncommitted Scope
 
-- Tasks 43-45 drop reward logic, replay presenter integration, Collection UI/navigation, Home v6 scene regeneration, tests, and handoff documentation.
+- Tasks 43-45 drop reward logic, replay presenter integration, Collection UI/navigation, Home v6 scene regeneration, tests, handoff documentation, game test case system design, Living Test Plan, 31 test case Markdown files, and manual Excel exporter tooling.
 
 ## Recommended Next Steps
 
+- Map approved Planned test cases to existing NUnit coverage, then add only missing targeted tests.
 - Run the optional manual Home Collection and replay-drop click-through before a user-requested commit.

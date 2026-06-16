@@ -51,3 +51,9 @@ Thumbs.db
 # Unity Recovery
 **/Assets/_Recovery/
 **/Assets/_Recovery.meta
+
+# Generated QA test case artifacts
+/docs/test-cases/generated/*.xlsx
+/tools/test-cases/.runtime/
+/tools/test-cases/.preview/
+/tools/test-cases/node_modules
