@@ -1,3 +1,4 @@
+using System;
 using System.Collections;
 using JigsawVina.Core.Data;
 using JigsawVina.Core.Services;
@@ -25,6 +26,24 @@ namespace JigsawVina.Tests
             {
                 SaveData = save;
             }
+        }
+
+        private class MockLocalizationService : ILocalizationService
+        {
+            public event System.Action OnLanguageChanged;
+            public string CurrentLanguage => "vi";
+            public void SetLanguage(string langCode) { OnLanguageChanged?.Invoke(); }
+            public string Get(string key) => key;
+            public string GetFormat(string key, params object[] args) => string.Format(key, args);
+        }
+
+        private class MockAudioService : IAudioService
+        {
+            public void PlayBGM(string clipPath, bool loop = true, float fadeDuration = 0.5f) {}
+            public void StopBGM(float fadeDuration = 0.5f) {}
+            public void PlaySFX(string clipPath, float volumeScale = 1f) {}
+            public void SetMusicEnabled(bool enabled) {}
+            public void SetSfxEnabled(bool enabled) {}
         }
 
         private GameObject _root;
@@ -96,15 +115,17 @@ namespace JigsawVina.Tests
 
             _saveService = new MockSaveDataService();
             _staticDataService = new StaticDataService();
+            var mockLoc = new MockLocalizationService();
+            var mockAudio = new MockAudioService();
 
-            _presenter = new PuzzlePlayingPresenter(_view, _sessionService, _staticDataService, _saveService);
+            _presenter = new PuzzlePlayingPresenter(_view, _sessionService, _staticDataService, _saveService, mockLoc, mockAudio);
         }
 
         [TearDown]
         public void TearDown()
         {
             _presenter.Cleanup();
-            Object.DestroyImmediate(_root);
+            UnityEngine.Object.DestroyImmediate(_root);
         }
 
         [UnityTest]

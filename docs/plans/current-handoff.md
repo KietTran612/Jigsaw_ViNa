@@ -1,5 +1,12 @@
 # Current Handoff
 
+- **Task 50: Implement Game Settings, Audio & Localization Systems**:
+  - Implemented pause/settings popup flow, globally registered audio service, and custom dictionary-based runtime localization without adopting I2 Localization at runtime.
+  - Fixed Task 50 review issues: corrected compile-breaking test fixtures, restored debug Cheat Win event wiring after the flow-controller refactor, hardened `GameSettingsPopup` against missing `CanvasGroup`, and added a targeted `RunTask50Tests` route.
+  - Follow-up review fixes hardened missing-popup pause handling, made settings popup localization setup idempotent, and changed missing audio clip warnings to log once per clip path.
+  - Filled empty localization description values with language-appropriate fallback text so runtime lookups do not surface blank strings.
+  - Removed the accidental `I2Languages.asset` side effect and reverted the unrelated `TextMeshPro` scripting define change in `ProjectSettings.asset`; local ignored I2 editor auto-detection was disabled to stop recreating those side effects during this session.
+
 - **Task 49: Map Planned Test Cases to NUnit Coverage**:
   - Mapped 25 of the 31 planned test cases in the Living Test Plan (`docs/test-cases/` modules) to their corresponding C# NUnit tests.
   - Updated all 6 test modules (`gameplay.md`, `save-load.md`, `progression.md`, `daily-drop.md`, `collection.md`, and `error-handling.md`) to mark the mapped test cases as `Automated` with their fully qualified NUnit test names (`Namespace.Class.Method`) and cleaned up `Automation Notes`.
@@ -208,6 +215,10 @@
 
 ## Verification
 
+- **Task 50 targeted verification**:
+  - Unity Editor status checked after fixes: `isCompiling=false`, `isPlaying=false`, `isPaused=false`.
+  - Task 50 EditMode route (`SaveDataServiceTests`, `LocalizationServiceTests`, `GameplayPauseTests`, `GameplayFlowTests`) passed 17/17.
+  - Relevant PlayMode gameplay suite passed 8/8.
 - **Task 46 targeted verification**:
   - Exporter tests: `tools/test-cases/test/export_test_cases_to_excel.test.mjs` passed 31/31.
   - Real Living Test Plan validation: `VALID: schema=1 modules=6 cases=31`.
@@ -252,6 +263,12 @@
 
 ## Current Uncommitted Scope
 
+- Task 50 changes:
+  - Modified core save/session data, audio/localization services, gameplay pause/settings flow, VContainer registrations, Gameplay scene wiring, localization resources, and targeted tests.
+  - Modified [TestRunnerHelper.cs](file:///D:/soflware/Unity/Source/Jigsaw_ViNa/JigsawVina/Assets/JigsawVina/Scripts/Editor/TestRunnerHelper.cs) to add `RunTask50Tests`.
+  - Modified task tracker, current handoff, plan index, and added the Task 50 plan file.
+  - Confirmed no `I2Languages.asset` side-effect remains in the working tree.
+  - Note: `Assets/Packages/` is ignored; the local I2 auto-detection guard is not shown in normal `git status` unless the package is intentionally promoted/tracked.
 - Task 49 changes:
   - Modified six Markdown test case modules under `docs/test-cases/` with NUnit mappings.
   - Modified [SaveDataServiceTests.cs](file:///D:/soflware/Unity/Source/Jigsaw_ViNa/JigsawVina/Assets/JigsawVina/Tests/SaveDataServiceTests.cs) (line 33) to extend assertions for TC-SAVE-003.
@@ -261,7 +278,7 @@
 
 ## Recommended Next Steps
 
-- Review and commit Task 49 changes (including C# code changes, test mapping documents, and tracker logs).
-- Plan and execute Task 50 (Implement Dynamic Game Board Rendering) to parse board sizes, handle safe bounds scaling, and dynamically load picture sprites in Gameplay.
+- Review and commit Task 49 and Task 50 changes together if the combined scope is intended.
+- Optionally perform one manual Unity Editor click-through for pause/settings/audio/localization UX before commit.
 - Review and later convert the approved UI/UX design system into scoped implementation plans when ready.
 - Use `2026-06-16-ui-ux-ai-image-brief.md` with the UI/UX design spec when asking an AI image assistant to produce prompt strategy, mood boards, or layered asset plans.

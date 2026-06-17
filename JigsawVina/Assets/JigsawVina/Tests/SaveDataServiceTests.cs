@@ -72,6 +72,37 @@ namespace JigsawVina.Tests
             Assert.AreEqual(0, loadedNextDay.DailyDropCounts.Count);
         }
 
+        [Test]
+        public void SaveAndLoad_Settings_PreservesValues()
+        {
+            var service = new SaveDataService();
+            var save = service.Load();
+            save.MusicEnabledState = 0; // disabled
+            save.SfxEnabledState = 1;  // enabled
+            save.Language = "en";
+            service.Save(save);
+
+            var loadedSave = service.Load();
+            Assert.AreEqual(0, loadedSave.MusicEnabledState);
+            Assert.AreEqual(1, loadedSave.SfxEnabledState);
+            Assert.AreEqual("en", loadedSave.Language);
+        }
+
+        [Test]
+        public void Load_OldSaveJsonWithoutSettings_NormalizesCorrectly()
+        {
+            string oldSaveJson = "{\"Coins\":50,\"CompletedPuzzles\":[]}";
+            PlayerPrefs.SetString(SaveDataService.SaveKey, oldSaveJson);
+            PlayerPrefs.Save();
+
+            var service = new SaveDataService();
+            var save = service.Load();
+
+            Assert.AreEqual(1, save.MusicEnabledState);
+            Assert.AreEqual(1, save.SfxEnabledState);
+            Assert.AreEqual("vi", save.Language);
+        }
+
         private class MockLocalDateProvider : ILocalDateProvider
         {
             public string DateString;

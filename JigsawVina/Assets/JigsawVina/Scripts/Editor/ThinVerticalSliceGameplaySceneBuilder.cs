@@ -5,6 +5,7 @@ using UnityEditor;
 using UnityEditor.SceneManagement;
 using UnityEngine;
 using UnityEngine.UI;
+using TMPro;
 
 namespace JigsawVina.Editor
 {
@@ -12,7 +13,7 @@ namespace JigsawVina.Editor
     {
         public static void CreateGameplayScene(string gameplayScenePath)
         {
-            if (ThinVerticalSliceSceneSetup.CheckSceneAlreadyUpdated(gameplayScenePath, "SetupVersionMarker_v4"))
+            if (ThinVerticalSliceSceneSetup.CheckSceneAlreadyUpdated(gameplayScenePath, "SetupVersionMarker_v5"))
             {
                 return;
             }
@@ -20,7 +21,7 @@ namespace JigsawVina.Editor
             var scene = EditorSceneManager.NewScene(NewSceneSetup.EmptyScene, NewSceneMode.Single);
             scene.name = "Gameplay";
 
-            new GameObject("SetupVersionMarker_v4");
+            new GameObject("SetupVersionMarker_v5");
 
             ThinVerticalSliceUiFactory.CreateCamera();
             ThinVerticalSliceUiFactory.CreateEventSystem();
@@ -58,7 +59,8 @@ namespace JigsawVina.Editor
             var previewOpacitySlider = ThinVerticalSliceUiFactory.CreateSlider(topBar.transform, "PreviewOpacitySlider", new Vector2(435f, 0f), new Vector2(150f, 30f), 0.2f);
             var hintButton = ThinVerticalSliceUiFactory.CreateButton(topBar.transform, "HintButton", "Gợi ý", new Vector2(590f, 0f), new Vector2(150f, 60f));
             var returnToTrayButton = ThinVerticalSliceUiFactory.CreateButton(topBar.transform, "ReturnToTrayButton", "Xếp lại", new Vector2(755f, 0f), new Vector2(150f, 60f));
-            var cheatButton = ThinVerticalSliceUiFactory.CreateButton(topBar.transform, "CheatWinButton", "Debug Win", new Vector2(900f, 0f), new Vector2(120f, 60f));
+            var pauseButton = ThinVerticalSliceUiFactory.CreateButton(topBar.transform, "PauseButton", "Tạm dừng", new Vector2(900f, 0f), new Vector2(120f, 60f));
+            var cheatButton = ThinVerticalSliceUiFactory.CreateButton(topBar.transform, "CheatWinButton", "Debug Win", new Vector2(1020f, 0f), new Vector2(120f, 60f));
 
             var mainArea = new GameObject("MainArea", typeof(RectTransform));
             mainArea.transform.SetParent(playingScreen.transform, false);
@@ -176,6 +178,63 @@ namespace JigsawVina.Editor
             ThinVerticalSliceUiFactory.Assign(playingView, "_trayContent", contentRect);
             ThinVerticalSliceUiFactory.Assign(playingView, "_dragContainer", dragContainerRect);
             ThinVerticalSliceUiFactory.Assign(playingView, "_canvas", canvas);
+
+            // Create Settings Popup
+            var settingsPopupGo = new GameObject("GameSettingsPopup", typeof(RectTransform), typeof(CanvasGroup), typeof(GameSettingsPopup));
+            settingsPopupGo.transform.SetParent(playingScreen.transform, false);
+            var settingsPopupRect = (RectTransform)settingsPopupGo.transform;
+            settingsPopupRect.anchorMin = new Vector2(0.5f, 0.5f);
+            settingsPopupRect.anchorMax = new Vector2(0.5f, 0.5f);
+            settingsPopupRect.pivot = new Vector2(0.5f, 0.5f);
+            settingsPopupRect.anchoredPosition = Vector2.zero;
+            settingsPopupRect.sizeDelta = new Vector2(600f, 500f);
+
+            var popupBg = settingsPopupGo.AddComponent<Image>();
+            popupBg.color = new Color(0.1f, 0.12f, 0.16f, 0.95f);
+
+            var settingsPopup = settingsPopupGo.GetComponent<GameSettingsPopup>();
+
+            // Title
+            var title = ThinVerticalSliceUiFactory.AddHeader(settingsPopupGo.transform, "CÀI ĐẶT", new Vector2(0f, 200f), new Vector2(500f, 60f));
+
+            // Music label & toggle
+            var musicLabel = ThinVerticalSliceUiFactory.AddHeader(settingsPopupGo.transform, "Âm nhạc", new Vector2(-150f, 100f), new Vector2(200f, 50f));
+            musicLabel.alignment = TextAlignmentOptions.Left;
+            musicLabel.fontSize = 24f;
+            var musicToggle = ThinVerticalSliceUiFactory.CreateToggle(settingsPopupGo.transform, "MusicToggle", new Vector2(150f, 100f), new Vector2(40f, 40f));
+
+            // SFX label & toggle
+            var sfxLabel = ThinVerticalSliceUiFactory.AddHeader(settingsPopupGo.transform, "Âm thanh", new Vector2(-150f, 20f), new Vector2(200f, 50f));
+            sfxLabel.alignment = TextAlignmentOptions.Left;
+            sfxLabel.fontSize = 24f;
+            var sfxToggle = ThinVerticalSliceUiFactory.CreateToggle(settingsPopupGo.transform, "SfxToggle", new Vector2(150f, 20f), new Vector2(40f, 40f));
+
+            // Language label & dropdown
+            var langLabel = ThinVerticalSliceUiFactory.AddHeader(settingsPopupGo.transform, "Ngôn ngữ", new Vector2(-150f, -60f), new Vector2(200f, 50f));
+            langLabel.alignment = TextAlignmentOptions.Left;
+            langLabel.fontSize = 24f;
+            var langDropdown = ThinVerticalSliceUiFactory.CreateDropdown(settingsPopupGo.transform, "LanguageDropdown", new Vector2(150f, -60f), new Vector2(200f, 40f));
+
+            // Buttons
+            var resumeButton = ThinVerticalSliceUiFactory.CreateButton(settingsPopupGo.transform, "ResumeButton", "Tiếp tục", new Vector2(-120f, -180f), new Vector2(200f, 60f));
+            var quitButton = ThinVerticalSliceUiFactory.CreateButton(settingsPopupGo.transform, "QuitButton", "Thoát", new Vector2(120f, -180f), new Vector2(200f, 60f));
+
+            // Assign settings popup fields
+            ThinVerticalSliceUiFactory.Assign(settingsPopup, "_titleText", title);
+            ThinVerticalSliceUiFactory.Assign(settingsPopup, "_musicLabel", musicLabel);
+            ThinVerticalSliceUiFactory.Assign(settingsPopup, "_sfxLabel", sfxLabel);
+            ThinVerticalSliceUiFactory.Assign(settingsPopup, "_languageLabel", langLabel);
+            ThinVerticalSliceUiFactory.Assign(settingsPopup, "_musicToggle", musicToggle);
+            ThinVerticalSliceUiFactory.Assign(settingsPopup, "_sfxToggle", sfxToggle);
+            ThinVerticalSliceUiFactory.Assign(settingsPopup, "_languageDropdown", langDropdown);
+            ThinVerticalSliceUiFactory.Assign(settingsPopup, "_resumeButton", resumeButton);
+            ThinVerticalSliceUiFactory.Assign(settingsPopup, "_quitButton", quitButton);
+
+            settingsPopupGo.SetActive(false);
+
+            ThinVerticalSliceUiFactory.Assign(playingView, "_pauseButton", pauseButton);
+            ThinVerticalSliceUiFactory.Assign(playingView, "_settingsPopup", settingsPopup);
+
             dragContainerRect.SetAsLastSibling();
 
             var rewardScreen = ThinVerticalSliceUiFactory.CreateScreen(canvas.transform, "RewardSummaryScreen");

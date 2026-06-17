@@ -63,9 +63,11 @@ namespace JigsawVina.Core.Data
             }
         }
 
+        public bool IsPaused { get; set; } = false;
+
         public void Tick(float deltaTime)
         {
-            if (!IsCompleted)
+            if (!IsCompleted && !IsPaused)
             {
                 ElapsedTime += deltaTime;
             }

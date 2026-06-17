@@ -112,6 +112,17 @@ namespace JigsawVina.Editor
             });
         }
 
+        public static void RunTask50Tests()
+        {
+            RunTests(TestMode.EditMode, new[]
+            {
+                "JigsawVina.Tests.SaveDataServiceTests",
+                "JigsawVina.Tests.LocalizationServiceTests",
+                "JigsawVina.Tests.GameplayPauseTests",
+                "JigsawVina.Tests.GameplayFlowTests"
+            });
+        }
+
         [MenuItem("JigsawVina/Run PlayMode Tests")]
         public static void RunPlayModeTests()
         {

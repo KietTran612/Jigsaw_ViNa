@@ -1,0 +1,512 @@
+{
+    "Entries": [
+        {
+            "Key": "ui.gameplay.back",
+            "Value": "Back"
+        },
+        {
+            "Key": "ui.gameplay.timer",
+            "Value": "Time: {0}"
+        },
+        {
+            "Key": "ui.gameplay.hint",
+            "Value": "Hint ({0})"
+        },
+        {
+            "Key": "ui.gameplay.reset",
+            "Value": "Reset"
+        },
+        {
+            "Key": "ui.gameplay.cheat",
+            "Value": "Debug Win"
+        },
+        {
+            "Key": "ui.settings.title",
+            "Value": "SETTINGS"
+        },
+        {
+            "Key": "ui.settings.music",
+            "Value": "Music"
+        },
+        {
+            "Key": "ui.settings.sfx",
+            "Value": "SFX"
+        },
+        {
+            "Key": "ui.settings.language",
+            "Value": "Language"
+        },
+        {
+            "Key": "ui.settings.resume",
+            "Value": "Resume"
+        },
+        {
+            "Key": "ui.settings.quit",
+            "Value": "Quit"
+        },
+        {
+            "Key": "category.vietnam_landscapes.name",
+            "Value": "Phong Cảnh Việt Nam"
+        },
+        {
+            "Key": "category.vietnam_landscapes.description",
+            "Value": "Description coming soon."
+        },
+        {
+            "Key": "picture.house_oldvillage_1.name",
+            "Value": "House OldVillage 1"
+        },
+        {
+            "Key": "picture.house_oldvillage_1.description",
+            "Value": "Description coming soon."
+        },
+        {
+            "Key": "picture.old_village_central_001.name",
+            "Value": "old village central 001"
+        },
+        {
+            "Key": "picture.old_village_central_001.description",
+            "Value": "Description coming soon."
+        },
+        {
+            "Key": "picture.old_village_south_001.name",
+            "Value": "old village south 001"
+        },
+        {
+            "Key": "picture.old_village_south_001.description",
+            "Value": "Description coming soon."
+        },
+        {
+            "Key": "picture.festival_tet_001.name",
+            "Value": "festival tet 001"
+        },
+        {
+            "Key": "picture.festival_tet_001.description",
+            "Value": "Description coming soon."
+        },
+        {
+            "Key": "picture.bridge_001.name",
+            "Value": "bridge 001"
+        },
+        {
+            "Key": "picture.bridge_001.description",
+            "Value": "Description coming soon."
+        },
+        {
+            "Key": "picture.old_city_001.name",
+            "Value": "old city 001"
+        },
+        {
+            "Key": "picture.old_city_001.description",
+            "Value": "Description coming soon."
+        },
+        {
+            "Key": "picture.cuisine_001.name",
+            "Value": "cuisine 001"
+        },
+        {
+            "Key": "picture.cuisine_001.description",
+            "Value": "Description coming soon."
+        },
+        {
+            "Key": "picture.river_001.name",
+            "Value": "river 001"
+        },
+        {
+            "Key": "picture.river_001.description",
+            "Value": "Description coming soon."
+        },
+        {
+            "Key": "item.coin.name",
+            "Value": "Xu"
+        },
+        {
+            "Key": "item.coin.description",
+            "Value": "Đơn vị tiền cơ bản trong game."
+        },
+        {
+            "Key": "item.hint.name",
+            "Value": "Gợi Ý"
+        },
+        {
+            "Key": "item.hint.description",
+            "Value": "Vật phẩm hỗ trợ người chơi ghép tranh."
+        },
+        {
+            "Key": "item.postcard_stamp.name",
+            "Value": "Tem Bưu Thiếp"
+        },
+        {
+            "Key": "item.postcard_stamp.description",
+            "Value": "Tem thư dùng để gửi bưu thiếp kỷ niệm."
+        },
+        {
+            "Key": "item.harvest_token.name",
+            "Value": "Xu Mùa Gặt"
+        },
+        {
+            "Key": "item.harvest_token.description",
+            "Value": "Đồng xu kỷ niệm mùa gặt lúa vàng."
+        },
+        {
+            "Key": "item.bananatree_1.name",
+            "Value": "BananaTree 1"
+        },
+        {
+            "Key": "item.bananatree_1.description",
+            "Value": "Mô tả cho vật phẩm BananaTree 1."
+        },
+        {
+            "Key": "item.bicycle_1.name",
+            "Value": "Bicycle 1"
+        },
+        {
+            "Key": "item.bicycle_1.description",
+            "Value": "Mô tả cho vật phẩm Bicycle 1."
+        },
+        {
+            "Key": "item.hanging_dried_crop_bundle_decor_1.name",
+            "Value": "Hanging dried crop bundle decor 1"
+        },
+        {
+            "Key": "item.hanging_dried_crop_bundle_decor_1.description",
+            "Value": "Mô tả cho vật phẩm Hanging dried crop bundle decor 1."
+        },
+        {
+            "Key": "item.haystack_hut_1.name",
+            "Value": "Haystack Hut 1"
+        },
+        {
+            "Key": "item.haystack_hut_1.description",
+            "Value": "Mô tả cho vật phẩm Haystack Hut 1."
+        },
+        {
+            "Key": "item.house_oldvillage_1.name",
+            "Value": "House OldVillage 1"
+        },
+        {
+            "Key": "item.house_oldvillage_1.description",
+            "Value": "Mô tả cho vật phẩm House OldVillage 1."
+        },
+        {
+            "Key": "item.pottedplant_foreground_1.name",
+            "Value": "PottedPlant Foreground 1"
+        },
+        {
+            "Key": "item.pottedplant_foreground_1.description",
+            "Value": "Mô tả cho vật phẩm PottedPlant Foreground 1."
+        },
+        {
+            "Key": "item.waterjar_large_1.name",
+            "Value": "WaterJar Large 1"
+        },
+        {
+            "Key": "item.waterjar_large_1.description",
+            "Value": "Mô tả cho vật phẩm WaterJar Large 1."
+        },
+        {
+            "Key": "item.bamboo_chair_2.name",
+            "Value": "Bamboo chair 2"
+        },
+        {
+            "Key": "item.bamboo_chair_2.description",
+            "Value": "Mô tả cho vật phẩm Bamboo chair 2."
+        },
+        {
+            "Key": "item.coconut_palm_tree_2.name",
+            "Value": "Coconut palm tree 2"
+        },
+        {
+            "Key": "item.coconut_palm_tree_2.description",
+            "Value": "Mô tả cho vật phẩm Coconut palm tree 2."
+        },
+        {
+            "Key": "item.metal_water_basin_2.name",
+            "Value": "Metal water basin 2"
+        },
+        {
+            "Key": "item.metal_water_basin_2.description",
+            "Value": "Mô tả cho vật phẩm Metal water basin 2."
+        },
+        {
+            "Key": "item.old_village_house_2.name",
+            "Value": "Old village house 2"
+        },
+        {
+            "Key": "item.old_village_house_2.description",
+            "Value": "Mô tả cho vật phẩm Old village house 2."
+        },
+        {
+            "Key": "item.small_rectangular_2.name",
+            "Value": "Small rectangular 2"
+        },
+        {
+            "Key": "item.small_rectangular_2.description",
+            "Value": "Mô tả cho vật phẩm Small rectangular 2."
+        },
+        {
+            "Key": "item.stack_of_lids_2.name",
+            "Value": "Stack of lids 2"
+        },
+        {
+            "Key": "item.stack_of_lids_2.description",
+            "Value": "Mô tả cho vật phẩm Stack of lids 2."
+        },
+        {
+            "Key": "item.bamboo_cluster_2.name",
+            "Value": "Bamboo cluster 2"
+        },
+        {
+            "Key": "item.bamboo_cluster_2.description",
+            "Value": "Mô tả cho vật phẩm Bamboo cluster 2."
+        },
+        {
+            "Key": "item.banana_tree_2.name",
+            "Value": "Banana tree 2"
+        },
+        {
+            "Key": "item.banana_tree_2.description",
+            "Value": "Mô tả cho vật phẩm Banana tree 2."
+        },
+        {
+            "Key": "item.dried_garlic_bundle_2.name",
+            "Value": "Dried garlic bundle 2"
+        },
+        {
+            "Key": "item.dried_garlic_bundle_2.description",
+            "Value": "Mô tả cho vật phẩm Dried garlic bundle 2."
+        },
+        {
+            "Key": "item.hanging_bird_cage_2.name",
+            "Value": "Hanging bird cage 2"
+        },
+        {
+            "Key": "item.hanging_bird_cage_2.description",
+            "Value": "Mô tả cho vật phẩm Hanging bird cage 2."
+        },
+        {
+            "Key": "item.lotus_cluster_3.name",
+            "Value": "Lotus cluster 3"
+        },
+        {
+            "Key": "item.lotus_cluster_3.description",
+            "Value": "Mô tả cho vật phẩm Lotus cluster 3."
+        },
+        {
+            "Key": "item.wooden_boat_floating_2.name",
+            "Value": "Wooden boat floating 2"
+        },
+        {
+            "Key": "item.wooden_boat_floating_2.description",
+            "Value": "Mô tả cho vật phẩm Wooden boat floating 2."
+        },
+        {
+            "Key": "item.wooden_bridge_2.name",
+            "Value": "Wooden bridge 2"
+        },
+        {
+            "Key": "item.wooden_bridge_2.description",
+            "Value": "Mô tả cho vật phẩm Wooden bridge 2."
+        },
+        {
+            "Key": "item.wooden_chair_2.name",
+            "Value": "Wooden chair 2"
+        },
+        {
+            "Key": "item.wooden_chair_2.description",
+            "Value": "Mô tả cho vật phẩm Wooden chair 2."
+        },
+        {
+            "Key": "item.woven_bamboo_tray_2.name",
+            "Value": "Woven bamboo tray 2"
+        },
+        {
+            "Key": "item.woven_bamboo_tray_2.description",
+            "Value": "Mô tả cho vật phẩm Woven bamboo tray 2."
+        },
+        {
+            "Key": "item.blue-gray_motorbike_4.name",
+            "Value": "Blue-gray motorbike 4"
+        },
+        {
+            "Key": "item.blue-gray_motorbike_4.description",
+            "Value": "Mô tả cho vật phẩm Blue-gray motorbike 4."
+        },
+        {
+            "Key": "item.green_motorbike_4.name",
+            "Value": "Green motorbike 4"
+        },
+        {
+            "Key": "item.green_motorbike_4.description",
+            "Value": "Mô tả cho vật phẩm Green motorbike 4."
+        },
+        {
+            "Key": "item.orange_market_umbrella_4.name",
+            "Value": "Orange market umbrella 4"
+        },
+        {
+            "Key": "item.orange_market_umbrella_4.description",
+            "Value": "Mô tả cho vật phẩm Orange market umbrella 4."
+        },
+        {
+            "Key": "item.potted_kumquat_tree_sticker_4.name",
+            "Value": "Potted kumquat tree sticker 4"
+        },
+        {
+            "Key": "item.potted_kumquat_tree_sticker_4.description",
+            "Value": "Mô tả cho vật phẩm Potted kumquat tree sticker 4."
+        },
+        {
+            "Key": "item.red_tet_lantern_4.name",
+            "Value": "Red Tet lantern 4"
+        },
+        {
+            "Key": "item.red_tet_lantern_4.description",
+            "Value": "Mô tả cho vật phẩm Red Tet lantern 4."
+        },
+        {
+            "Key": "item.red_lantern_2.name",
+            "Value": "Red lantern 2"
+        },
+        {
+            "Key": "item.red_lantern_2.description",
+            "Value": "Mô tả cho vật phẩm Red lantern 2."
+        },
+        {
+            "Key": "item.yellow_apricot_4.name",
+            "Value": "Yellow apricot 4"
+        },
+        {
+            "Key": "item.yellow_apricot_4.description",
+            "Value": "Mô tả cho vật phẩm Yellow apricot 4."
+        },
+        {
+            "Key": "item.blue_riverside_house_5.name",
+            "Value": "Blue riverside house 5"
+        },
+        {
+            "Key": "item.blue_riverside_house_5.description",
+            "Value": "Mô tả cho vật phẩm Blue riverside house 5."
+        },
+        {
+            "Key": "item.blue_truck_on_5.name",
+            "Value": "Blue truck on 5"
+        },
+        {
+            "Key": "item.blue_truck_on_5.description",
+            "Value": "Mô tả cho vật phẩm Blue truck on 5."
+        },
+        {
+            "Key": "item.motorbike_rider_on_bridge_5.name",
+            "Value": "Motorbike rider on bridge 5"
+        },
+        {
+            "Key": "item.motorbike_rider_on_bridge_5.description",
+            "Value": "Mô tả cho vật phẩm Motorbike rider on bridge 5."
+        },
+        {
+            "Key": "item.motorbike_rider_yellow_shirt_5.name",
+            "Value": "Motorbike rider yellow shirt 5"
+        },
+        {
+            "Key": "item.motorbike_rider_yellow_shirt_5.description",
+            "Value": "Mô tả cho vật phẩm Motorbike rider yellow shirt 5."
+        },
+        {
+            "Key": "item.wooden_boat_5.name",
+            "Value": "Wooden boat 5"
+        },
+        {
+            "Key": "item.wooden_boat_5.description",
+            "Value": "Mô tả cho vật phẩm Wooden boat 5."
+        },
+        {
+            "Key": "item.wooden_river_boat_5.name",
+            "Value": "Wooden river boat 5"
+        },
+        {
+            "Key": "item.wooden_river_boat_5.description",
+            "Value": "Mô tả cho vật phẩm Wooden river boat 5."
+        },
+        {
+            "Key": "item.blue_white_ceramic_teapot_6.name",
+            "Value": "Blue white ceramic teapot 6"
+        },
+        {
+            "Key": "item.blue_white_ceramic_teapot_6.description",
+            "Value": "Description coming soon."
+        },
+        {
+            "Key": "item.cyclo_6.name",
+            "Value": "Cyclo 6"
+        },
+        {
+            "Key": "item.cyclo_6.description",
+            "Value": "Description coming soon."
+        },
+        {
+            "Key": "item.glass_of_yellow_tea_6.name",
+            "Value": "Glass of yellow tea 6"
+        },
+        {
+            "Key": "item.glass_of_yellow_tea_6.description",
+            "Value": "Description coming soon."
+        },
+        {
+            "Key": "item.bowl_7.name",
+            "Value": "Bowl 7"
+        },
+        {
+            "Key": "item.bowl_7.description",
+            "Value": "Description coming soon."
+        },
+        {
+            "Key": "item.condiment_7.name",
+            "Value": "Condiment 7"
+        },
+        {
+            "Key": "item.condiment_7.description",
+            "Value": "Description coming soon."
+        },
+        {
+            "Key": "item.herb_basket_7.name",
+            "Value": "Herb basket 7"
+        },
+        {
+            "Key": "item.herb_basket_7.description",
+            "Value": "Description coming soon."
+        },
+        {
+            "Key": "item.pho_bowl_7.name",
+            "Value": "Pho bowl 7"
+        },
+        {
+            "Key": "item.pho_bowl_7.description",
+            "Value": "Description coming soon."
+        },
+        {
+            "Key": "item.thatched_riverside_hut_8.name",
+            "Value": "Thatched riverside hut 8"
+        },
+        {
+            "Key": "item.thatched_riverside_hut_8.description",
+            "Value": "Description coming soon."
+        },
+        {
+            "Key": "item.woven_basket8.name",
+            "Value": "Woven basket8"
+        },
+        {
+            "Key": "item.woven_basket8.description",
+            "Value": "Description coming soon."
+        },
+        {
+            "Key": "item.woven_cone_fish_trap8.name",
+            "Value": "Woven cone fish trap8"
+        },
+        {
+            "Key": "item.woven_cone_fish_trap8.description",
+            "Value": "Description coming soon."
+        }
+    ]
+}

@@ -75,6 +75,10 @@ namespace JigsawVina.Core.Data
         public string LastDailyRewardClaimDateString;
         public int DailyRewardStreak;
 
+        public int MusicEnabledState = -1; // -1: uninitialized, 0: disabled, 1: enabled
+        public int SfxEnabledState = -1;   // -1: uninitialized, 0: disabled, 1: enabled
+        public string Language = null;     // null: uninitialized, defaults to "vi"
+
         public void Normalize()
         {
             if (CompletedPuzzles == null) CompletedPuzzles = new();
@@ -82,6 +86,10 @@ namespace JigsawVina.Core.Data
             if (UnlockedPictureIds == null) UnlockedPictureIds = new();
             if (DailyDropCounts == null) DailyDropCounts = new();
             if (Inventory == null) Inventory = new();
+
+            if (MusicEnabledState == -1) MusicEnabledState = 1;
+            if (SfxEnabledState == -1) SfxEnabledState = 1;
+            if (string.IsNullOrEmpty(Language)) Language = "vi";
 
             // Reset invalid streak values (out of range [0, 7]) defensively to 0
             if (DailyRewardStreak < 0 || DailyRewardStreak > 7)

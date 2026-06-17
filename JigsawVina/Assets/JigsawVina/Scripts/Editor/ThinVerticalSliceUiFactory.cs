@@ -237,6 +237,182 @@ namespace JigsawVina.Editor
             label.color = Color.white;
             return label;
         }
+
+        public static Toggle CreateToggle(Transform parent, string name, Vector2 anchoredPosition, Vector2 sizeDelta)
+        {
+            var toggleGo = new GameObject(name, typeof(RectTransform), typeof(Toggle));
+            toggleGo.transform.SetParent(parent, false);
+            var rect = (RectTransform)toggleGo.transform;
+            rect.anchoredPosition = anchoredPosition;
+            rect.sizeDelta = sizeDelta;
+
+            var toggle = toggleGo.GetComponent<Toggle>();
+
+            // Background
+            var bgGo = new GameObject("Background", typeof(RectTransform), typeof(Image));
+            bgGo.transform.SetParent(toggleGo.transform, false);
+            var bgRect = (RectTransform)bgGo.transform;
+            bgRect.anchorMin = Vector2.zero;
+            bgRect.anchorMax = Vector2.one;
+            bgRect.offsetMin = Vector2.zero;
+            bgRect.offsetMax = Vector2.zero;
+            var bgImage = bgGo.GetComponent<Image>();
+            bgImage.color = new Color(0.15f, 0.15f, 0.15f, 1f);
+            toggle.targetGraphic = bgImage;
+
+            // Checkmark
+            var checkGo = new GameObject("Checkmark", typeof(RectTransform), typeof(Image));
+            checkGo.transform.SetParent(bgGo.transform, false);
+            var checkRect = (RectTransform)checkGo.transform;
+            checkRect.anchorMin = new Vector2(0.5f, 0.5f);
+            checkRect.anchorMax = new Vector2(0.5f, 0.5f);
+            checkRect.pivot = new Vector2(0.5f, 0.5f);
+            checkRect.anchoredPosition = Vector2.zero;
+            checkRect.sizeDelta = new Vector2(sizeDelta.x - 10f, sizeDelta.y - 10f);
+            var checkImage = checkGo.GetComponent<Image>();
+            checkImage.color = new Color(0.18f, 0.65f, 0.95f);
+            toggle.graphic = checkImage;
+
+            return toggle;
+        }
+
+        public static TMP_Dropdown CreateDropdown(Transform parent, string name, Vector2 anchoredPosition, Vector2 sizeDelta)
+        {
+            var dropdownGo = new GameObject(name, typeof(RectTransform), typeof(Image), typeof(TMP_Dropdown));
+            dropdownGo.transform.SetParent(parent, false);
+            var rect = (RectTransform)dropdownGo.transform;
+            rect.anchoredPosition = anchoredPosition;
+            rect.sizeDelta = sizeDelta;
+
+            var dropdown = dropdownGo.GetComponent<TMP_Dropdown>();
+            var bgImage = dropdownGo.GetComponent<Image>();
+            bgImage.color = new Color(0.15f, 0.15f, 0.15f, 1f);
+            dropdown.targetGraphic = bgImage;
+
+            // Caption Text
+            var captionGo = new GameObject("Label", typeof(RectTransform), typeof(TextMeshProUGUI));
+            captionGo.transform.SetParent(dropdownGo.transform, false);
+            var captionRect = (RectTransform)captionGo.transform;
+            captionRect.anchorMin = Vector2.zero;
+            captionRect.anchorMax = Vector2.one;
+            captionRect.offsetMin = new Vector2(10f, 0f);
+            captionRect.offsetMax = new Vector2(-30f, 0f);
+            var captionText = captionGo.GetComponent<TextMeshProUGUI>();
+            captionText.color = Color.white;
+            captionText.fontSize = 20f;
+            captionText.alignment = TextAlignmentOptions.Left;
+            dropdown.captionText = captionText;
+
+            // Arrow
+            var arrowGo = new GameObject("Arrow", typeof(RectTransform), typeof(Image));
+            arrowGo.transform.SetParent(dropdownGo.transform, false);
+            var arrowRect = (RectTransform)arrowGo.transform;
+            arrowRect.anchorMin = new Vector2(1f, 0.5f);
+            arrowRect.anchorMax = new Vector2(1f, 0.5f);
+            arrowRect.pivot = new Vector2(1f, 0.5f);
+            arrowRect.anchoredPosition = new Vector2(-10f, 0f);
+            arrowRect.sizeDelta = new Vector2(20f, 20f);
+            arrowGo.GetComponent<Image>().color = Color.white;
+
+            // Template
+            var templateGo = new GameObject("Template", typeof(RectTransform), typeof(Image), typeof(ScrollRect));
+            templateGo.transform.SetParent(dropdownGo.transform, false);
+            var templateRect = (RectTransform)templateGo.transform;
+            templateRect.anchorMin = new Vector2(0f, 0f);
+            templateRect.anchorMax = new Vector2(1f, 0f);
+            templateRect.pivot = new Vector2(0.5f, 1f);
+            templateRect.anchoredPosition = new Vector2(0f, -2f);
+            templateRect.sizeDelta = new Vector2(0f, 150f);
+            templateGo.GetComponent<Image>().color = new Color(0.1f, 0.1f, 0.1f, 1f);
+            templateGo.SetActive(false);
+
+            var scrollRect = templateGo.GetComponent<ScrollRect>();
+            scrollRect.horizontal = false;
+            scrollRect.vertical = true;
+
+            dropdown.template = templateRect;
+
+            // Viewport
+            var viewportGo = new GameObject("Viewport", typeof(RectTransform), typeof(Mask), typeof(Image));
+            viewportGo.transform.SetParent(templateGo.transform, false);
+            var viewportRect = (RectTransform)viewportGo.transform;
+            viewportRect.anchorMin = Vector2.zero;
+            viewportRect.anchorMax = Vector2.one;
+            viewportRect.offsetMin = Vector2.zero;
+            viewportRect.offsetMax = Vector2.zero;
+            viewportGo.GetComponent<Mask>().showMaskGraphic = false;
+            viewportGo.GetComponent<Image>().color = new Color(0f, 0f, 0f, 0.1f);
+
+            scrollRect.viewport = viewportRect;
+
+            // Content
+            var contentGo = new GameObject("Content", typeof(RectTransform));
+            contentGo.transform.SetParent(viewportGo.transform, false);
+            var contentRect = (RectTransform)contentGo.transform;
+            contentRect.anchorMin = new Vector2(0f, 1f);
+            contentRect.anchorMax = new Vector2(1f, 1f);
+            contentRect.pivot = new Vector2(0.5f, 1f);
+            contentRect.offsetMin = Vector2.zero;
+            contentRect.offsetMax = Vector2.zero;
+            contentRect.sizeDelta = new Vector2(0f, 80f);
+
+            scrollRect.content = contentRect;
+
+            // Item
+            var itemGo = new GameObject("Item", typeof(RectTransform), typeof(Toggle));
+            itemGo.transform.SetParent(contentRect.transform, false);
+            var itemRect = (RectTransform)itemGo.transform;
+            itemRect.anchorMin = new Vector2(0f, 0.5f);
+            itemRect.anchorMax = new Vector2(1f, 0.5f);
+            itemRect.sizeDelta = new Vector2(0f, 40f);
+
+            var itemToggle = itemGo.GetComponent<Toggle>();
+
+            // Item Background
+            var itemBgGo = new GameObject("Item Background", typeof(RectTransform), typeof(Image));
+            itemBgGo.transform.SetParent(itemGo.transform, false);
+            var itemBgRect = (RectTransform)itemBgGo.transform;
+            itemBgRect.anchorMin = Vector2.zero;
+            itemBgRect.anchorMax = Vector2.one;
+            itemBgRect.offsetMin = Vector2.zero;
+            itemBgRect.offsetMax = Vector2.zero;
+            var itemBgImage = itemBgGo.GetComponent<Image>();
+            itemBgImage.color = new Color(0.2f, 0.2f, 0.2f, 1f);
+            itemToggle.targetGraphic = itemBgImage;
+
+            // Item Checkmark
+            var itemCheckGo = new GameObject("Item Checkmark", typeof(RectTransform), typeof(Image));
+            itemCheckGo.transform.SetParent(itemGo.transform, false);
+            var itemCheckRect = (RectTransform)itemCheckGo.transform;
+            itemCheckRect.anchorMin = new Vector2(0f, 0.5f);
+            itemCheckRect.anchorMax = new Vector2(0f, 0.5f);
+            itemCheckRect.pivot = new Vector2(0f, 0.5f);
+            itemCheckRect.anchoredPosition = new Vector2(10f, 0f);
+            itemCheckRect.sizeDelta = new Vector2(20f, 20f);
+            var itemCheckImage = itemCheckGo.GetComponent<Image>();
+            itemCheckImage.color = Color.green;
+            itemToggle.graphic = itemCheckImage;
+
+            // Item Label
+            var itemLabelGo = new GameObject("Item Label", typeof(RectTransform), typeof(TextMeshProUGUI));
+            itemLabelGo.transform.SetParent(itemGo.transform, false);
+            var itemLabelRect = (RectTransform)itemLabelGo.transform;
+            itemLabelRect.anchorMin = Vector2.zero;
+            itemLabelRect.anchorMax = Vector2.one;
+            itemLabelRect.offsetMin = new Vector2(40f, 0f);
+            itemLabelRect.offsetMax = new Vector2(-10f, 0f);
+            var itemLabelText = itemLabelGo.GetComponent<TextMeshProUGUI>();
+            itemLabelText.color = Color.white;
+            itemLabelText.fontSize = 18f;
+            itemLabelText.alignment = TextAlignmentOptions.Left;
+            dropdown.itemText = itemLabelText;
+
+            dropdown.options.Clear();
+            dropdown.options.Add(new TMP_Dropdown.OptionData("Tiếng Việt"));
+            dropdown.options.Add(new TMP_Dropdown.OptionData("English"));
+
+            return dropdown;
+        }
     }
 }
 #endif

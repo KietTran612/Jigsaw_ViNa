@@ -8,6 +8,7 @@ namespace JigsawVina.Presentation.Screens
     public class PuzzlePlayingView : MonoBehaviour
     {
         public event Action OnBackClicked;
+        public event Action OnPauseClicked;
         public event Action<float> OnPreviewOpacityChanged;
         public event Action OnHintClicked;
         public event Action OnReturnToTrayClicked;
@@ -17,6 +18,7 @@ namespace JigsawVina.Presentation.Screens
         [SerializeField] private TMP_Text _timerText;
         [SerializeField] private TMP_Text _previewOpacityText;
         [SerializeField] private Button _backButton;
+        [SerializeField] private Button _pauseButton;
         [SerializeField] private Slider _previewOpacitySlider;
         [SerializeField] private Button _hintButton;
         [SerializeField] private Button _returnToTrayButton;
@@ -26,16 +28,21 @@ namespace JigsawVina.Presentation.Screens
         [SerializeField] private RectTransform _trayContent;
         [SerializeField] private RectTransform _dragContainer;
         [SerializeField] private Canvas _canvas;
+        [SerializeField] private GameSettingsPopup _settingsPopup;
 
         public PuzzleBoardView BoardView => _boardView;
         public RectTransform TrayContent => _trayContent;
         public RectTransform DragContainer => _dragContainer;
         public Canvas Canvas => _canvas;
+        public Button PauseButton => _pauseButton;
+        public GameSettingsPopup SettingsPopup => _settingsPopup;
 
         private void Awake()
         {
             if (_backButton != null)
                 _backButton.onClick.AddListener(() => OnBackClicked?.Invoke());
+            if (_pauseButton != null)
+                _pauseButton.onClick.AddListener(() => OnPauseClicked?.Invoke());
             if (_previewOpacitySlider != null)
                 _previewOpacitySlider.onValueChanged.AddListener(HandlePreviewOpacityChanged);
             if (_hintButton != null)

@@ -5,6 +5,7 @@ using JigsawVina.Core.Services;
 using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.UI;
+using TMPro;
 
 namespace JigsawVina.Presentation.Screens
 {
@@ -13,11 +14,15 @@ namespace JigsawVina.Presentation.Screens
         private const float DefaultPreviewOpacity = 0.2f;
 
         public event Action<float> OnPuzzleCompleted;
+        public event Action OnBackRequested;
+        public event Action OnQuitRequested;
 
         private readonly PuzzlePlayingView _view;
         private readonly GameSessionService _sessionService;
         private readonly IStaticDataService _staticDataService;
         private readonly ISaveDataService _saveDataService;
+        private readonly ILocalizationService _localizationService;
+        private readonly IAudioService _audioService;
 
         private PuzzleSession _puzzleSession;
         private List<PuzzlePieceView> _pieceViews = new();
@@ -30,12 +35,16 @@ namespace JigsawVina.Presentation.Screens
             PuzzlePlayingView view,
             GameSessionService sessionService,
             IStaticDataService staticDataService,
-            ISaveDataService saveDataService)
+            ISaveDataService saveDataService,
+            ILocalizationService localizationService,
+            IAudioService audioService)
         {
             _view = view;
             _sessionService = sessionService;
             _staticDataService = staticDataService;
             _saveDataService = saveDataService;
+            _localizationService = localizationService;
+            _audioService = audioService;
         }
 
         public void Initialize()
@@ -57,7 +66,6 @@ namespace JigsawVina.Presentation.Screens
             _puzzleSession = new PuzzleSession(config.Columns, config.Rows);
             _isCompleted = false;
 
-            _view.Setup(picture.DisplayName ?? "Chưa biết", config.DisplayName);
             _view.UpdateTimer(0f);
             _view.SetPreviewOpacity(DefaultPreviewOpacity);
 
@@ -67,7 +75,6 @@ namespace JigsawVina.Presentation.Screens
             _texture = Resources.Load<Texture2D>(picture.AssetPath);
             if (_texture == null)
             {
-                // Fallback to absolute/legacy if resources fails
                 _texture = Resources.Load<Texture2D>("Textures/" + picture.AssetPath);
             }
             if (_texture == null)
@@ -118,19 +125,93 @@ namespace JigsawVina.Presentation.Screens
 
             ShuffleTrayPieces();
 
+            _view.OnBackClicked += HandleBackClicked;
+            _view.OnPauseClicked += HandlePauseClicked;
             _view.OnHintClicked += ApplyHint;
             _view.OnReturnToTrayClicked += ReturnAllFloatingToTray;
             _view.OnPreviewOpacityChanged += SetPreviewOpacity;
+#if UNITY_EDITOR || DEVELOPMENT_BUILD
+            _view.OnCheatWinClicked += CheatWin;
+#endif
+
+            if (_view.SettingsPopup != null)
+            {
+                _view.SettingsPopup.Setup(_localizationService);
+                _view.SettingsPopup.OnMusicToggleChanged += HandleMusicToggle;
+                _view.SettingsPopup.OnSfxToggleChanged += HandleSfxToggle;
+                _view.SettingsPopup.OnLanguageSelectionChanged += HandleLanguageSelection;
+                _view.SettingsPopup.OnResumeClicked += HandleResume;
+                _view.SettingsPopup.OnQuitClicked += HandleQuit;
+                _view.SettingsPopup.Hide();
+            }
+
+            if (_localizationService != null)
+            {
+                _localizationService.OnLanguageChanged += TranslateTexts;
+            }
+
+            TranslateTexts();
+
+            _audioService?.PlayBGM("Audio/BGM/bgm_gameplay");
         }
 
         public void Cleanup()
         {
             if (_view != null)
             {
+                _view.OnBackClicked -= HandleBackClicked;
+                _view.OnPauseClicked -= HandlePauseClicked;
                 _view.OnHintClicked -= ApplyHint;
                 _view.OnReturnToTrayClicked -= ReturnAllFloatingToTray;
                 _view.OnPreviewOpacityChanged -= SetPreviewOpacity;
+#if UNITY_EDITOR || DEVELOPMENT_BUILD
+                _view.OnCheatWinClicked -= CheatWin;
+#endif
+
+                if (_view.SettingsPopup != null)
+                {
+                    _view.SettingsPopup.OnMusicToggleChanged -= HandleMusicToggle;
+                    _view.SettingsPopup.OnSfxToggleChanged -= HandleSfxToggle;
+                    _view.SettingsPopup.OnLanguageSelectionChanged -= HandleLanguageSelection;
+                    _view.SettingsPopup.OnResumeClicked -= HandleResume;
+                    _view.SettingsPopup.OnQuitClicked -= HandleQuit;
+                }
             }
+
+            if (_localizationService != null)
+            {
+                _localizationService.OnLanguageChanged -= TranslateTexts;
+            }
+        }
+
+        private void TranslateTexts()
+        {
+            if (_view == null || _localizationService == null) return;
+
+            var picture = _staticDataService.GetPictureById(_sessionService.SelectedPictureId);
+            var config = _staticDataService.GetPictureDifficulty(_sessionService.SelectedPictureId, _sessionService.SelectedDifficultyId);
+
+            string picTranslatedName = _localizationService.Get(picture.DisplayNameKey);
+            string diffTranslatedName = _localizationService.Get(config.DisplayName); // Difficulty name might be direct key
+
+            _view.Setup(picTranslatedName, diffTranslatedName);
+            _view.UpdateTimer(_puzzleSession != null ? _puzzleSession.ElapsedTime : 0f);
+
+            var save = _saveDataService.Load();
+            _view.UpdateHintButtonLabel(save.Hints);
+
+            // Translate Static UI Buttons
+            var backBtnText = _view.transform.Find("TopBar/BackButton")?.GetComponentInChildren<TMP_Text>();
+            if (backBtnText != null)
+                backBtnText.text = _localizationService.Get(LocalizationKeys.GameplayBack);
+
+            var resetBtnText = _view.transform.Find("TopBar/ReturnToTrayButton")?.GetComponentInChildren<TMP_Text>();
+            if (resetBtnText != null)
+                resetBtnText.text = _localizationService.Get(LocalizationKeys.GameplayReset);
+
+            var cheatBtnText = _view.transform.Find("TopBar/CheatWinButton")?.GetComponentInChildren<TMP_Text>();
+            if (cheatBtnText != null)
+                cheatBtnText.text = _localizationService.Get(LocalizationKeys.GameplayCheat);
         }
 
         public float GetElapsedTime()
@@ -150,17 +231,70 @@ namespace JigsawVina.Presentation.Screens
             _view.UpdateTimer(_puzzleSession.ElapsedTime);
         }
 
-        private void HandlePiecePointerDown(PuzzlePieceView piece)
+        private void HandleBackClicked()
         {
+            if (_puzzleSession != null && _puzzleSession.IsPaused) return;
+            _audioService?.PlaySFX("Audio/SFX/sfx_button_click");
+            OnBackRequested?.Invoke();
+        }
+
+        private void HandlePauseClicked()
+        {
+            if (_puzzleSession == null || _puzzleSession.IsCompleted || _view.SettingsPopup == null) return;
+            _audioService?.PlaySFX("Audio/SFX/sfx_button_click");
+
+            _puzzleSession.IsPaused = true;
+            var save = _saveDataService.Load();
+            _view.SettingsPopup.Show(save.MusicEnabledState == 1, save.SfxEnabledState == 1, save.Language);
+        }
+
+        private void HandleMusicToggle(bool isOn)
+        {
+            _audioService?.SetMusicEnabled(isOn);
+        }
+
+        private void HandleSfxToggle(bool isOn)
+        {
+            _audioService?.SetSfxEnabled(isOn);
+            _audioService?.PlaySFX("Audio/SFX/sfx_button_click");
+        }
+
+        private void HandleLanguageSelection(string langCode)
+        {
+            _localizationService?.SetLanguage(langCode);
+        }
+
+        private void HandleResume()
+        {
+            _audioService?.PlaySFX("Audio/SFX/sfx_button_click");
             if (_puzzleSession != null)
             {
-                _puzzleSession.LastInteractedPieceIndex = piece.Index;
+                _puzzleSession.IsPaused = false;
             }
+            _view.SettingsPopup?.Hide();
+        }
+
+        private void HandleQuit()
+        {
+            _audioService?.PlaySFX("Audio/SFX/sfx_button_click");
+            if (_puzzleSession != null)
+            {
+                _puzzleSession.IsPaused = false;
+            }
+            _view.SettingsPopup?.Hide();
+            OnQuitRequested?.Invoke();
+        }
+
+        private void HandlePiecePointerDown(PuzzlePieceView piece)
+        {
+            if (_puzzleSession == null || _puzzleSession.IsPaused) return;
+            _puzzleSession.LastInteractedPieceIndex = piece.Index;
+            _audioService?.PlaySFX("Audio/SFX/sfx_drag_start");
         }
 
         private void HandlePieceDragBegin(PuzzlePieceView piece, PointerEventData eventData)
         {
-            if (_puzzleSession == null) return;
+            if (_puzzleSession == null || _puzzleSession.IsPaused) return;
             _puzzleSession.LastInteractedPieceIndex = piece.Index;
             _puzzleSession.UpdatePieceState(piece.Index, PuzzleSession.PieceState.Floating);
 
@@ -184,6 +318,7 @@ namespace JigsawVina.Presentation.Screens
 
         private void HandlePieceDrag(PuzzlePieceView piece, PointerEventData eventData)
         {
+            if (_puzzleSession == null || _puzzleSession.IsPaused) return;
             if (RectTransformUtility.ScreenPointToWorldPointInRectangle(
                 _view.DragContainer,
                 eventData.position,
@@ -196,7 +331,7 @@ namespace JigsawVina.Presentation.Screens
 
         private void HandlePieceDragEnd(PuzzlePieceView piece, Vector2 screenPosition)
         {
-            if (_puzzleSession == null) return;
+            if (_puzzleSession == null || _puzzleSession.IsPaused) return;
 
             var boardRect = _view.BoardView.RectTransform;
             Vector2 boardSize = boardRect.rect.size;
@@ -206,19 +341,20 @@ namespace JigsawVina.Presentation.Screens
             if (snapped)
             {
                 LockPieceView(piece, boardSize);
-
+                _audioService?.PlaySFX("Audio/SFX/sfx_snap_success");
                 CheckWinCondition();
             }
             else
             {
                 _puzzleSession.UpdatePieceState(piece.Index, PuzzleSession.PieceState.Floating);
                 piece.ShowIncorrectFeedback();
+                _audioService?.PlaySFX("Audio/SFX/sfx_snap_fail");
             }
         }
 
         public void ApplyHint()
         {
-            if (_puzzleSession == null) return;
+            if (_puzzleSession == null || _puzzleSession.IsPaused) return;
 
             var save = _saveDataService.Load();
             if (save.Hints <= 0) return;
@@ -236,13 +372,15 @@ namespace JigsawVina.Presentation.Screens
             var boardSize = _view.BoardView.RectTransform.rect.size;
             LockPieceView(piece, boardSize);
 
+            _audioService?.PlaySFX("Audio/SFX/sfx_hint");
             CheckWinCondition();
         }
 
         public void ReturnAllFloatingToTray()
         {
-            if (_puzzleSession == null) return;
+            if (_puzzleSession == null || _puzzleSession.IsPaused) return;
 
+            _audioService?.PlaySFX("Audio/SFX/sfx_button_click");
             for (int i = 0; i < _puzzleSession.Pieces.Count; i++)
             {
                 if (_puzzleSession.Pieces[i].State == PuzzleSession.PieceState.Floating)
@@ -314,13 +452,14 @@ namespace JigsawVina.Presentation.Screens
             if (_puzzleSession.IsCompleted && !_isCompleted)
             {
                 _isCompleted = true;
+                _audioService?.PlaySFX("Audio/SFX/sfx_win");
                 OnPuzzleCompleted?.Invoke(_puzzleSession.ElapsedTime);
             }
         }
 
         public void CheatWin()
         {
-            if (_puzzleSession == null || _isCompleted) return;
+            if (_puzzleSession == null || _puzzleSession.IsPaused || _isCompleted) return;
 
             var boardSize = _view.BoardView.RectTransform.rect.size;
             for (int i = 0; i < _puzzleSession.PieceCount; i++)

@@ -12,6 +12,9 @@ namespace JigsawVina.Presentation.App
             builder.Register<UnityRandomSource>(Lifetime.Singleton).AsImplementedInterfaces();
             builder.Register<DropRewardService>(Lifetime.Singleton).AsImplementedInterfaces();
 
+            builder.Register<AudioService>(Lifetime.Singleton).AsImplementedInterfaces();
+            builder.Register<LocalizationService>(Lifetime.Singleton).AsImplementedInterfaces();
+
             builder.Register(c => new SaveDataService(c.Resolve<ILocalDateProvider>()), Lifetime.Singleton).AsImplementedInterfaces();
             builder.Register(c => new StaticDataService(), Lifetime.Singleton).AsImplementedInterfaces();
             builder.Register<RewardApplier>(Lifetime.Singleton).AsImplementedInterfaces();
