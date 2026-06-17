@@ -86,75 +86,15 @@ namespace JigsawVina.Core.Services
 
             StaticDataValidator.Validate(dto);
 
-            _items = dto.items;
-            _itemsById = _items.ToDictionary(i => i.id);
-
-            _pictures = dto.pictures.Select(p => new PictureConfig(
-                p.id, 
-                p.id_string, 
-                p.display_name, 
-                p.asset_path,
-                p.display_name_key,
-                p.description_key,
-                p.is_initially_unlocked,
-                p.difficulty_unlock_policy,
-                p.unlock_requirements
-            )).ToList();
-
-            _difficulties = new Dictionary<(int, int), PictureDifficultyConfig>();
-            foreach (var diff in dto.picture_difficulties)
-            {
-                var key = (diff.picture_id, diff.difficulty_id);
-                var config = new PictureDifficultyConfig(
-                    diff.picture_id,
-                    diff.difficulty_id,
-                    diff.display_name,
-                    diff.grid_columns,
-                    diff.grid_rows,
-                    diff.star_reward,
-                    diff.first_clear_coin,
-                    diff.first_clear_hint,
-                    diff.replay_coin,
-                    diff.first_clear_reward_item_ids,
-                    diff.drop_table_id
-                );
-                _difficulties[key] = config;
-            }
-
-            _dropTables = dto.drop_tables.Select(d => new DropTableConfig(
-                d.id,
-                d.id_string,
-                d.display_name,
-                d.display_name_key,
-                d.description_key,
-                d.reset_rule,
-                d.status,
-                d.sort_order
-            )).ToList();
-
-            _allDropTableItems = dto.drop_table_items.Select(di => new DropTableItemConfig(
-                di.id,
-                di.id_string,
-                di.display_name,
-                di.drop_table_id,
-                di.item_id,
-                di.base_rate,
-                di.decay_per_success,
-                di.min_rate,
-                di.amount_min,
-                di.amount_max,
-                di.status
-            )).ToList();
-
-            _dropTableItemsByTableId = _allDropTableItems
-                .GroupBy(di => di.DropTableId)
-                .ToDictionary(g => g.Key, g => g.ToList());
-
-            _dailyRewards = dto.daily_rewards.Select(dr => new DailyRewardConfig(
-                dr.day_index,
-                dr.item_id,
-                dr.amount
-            )).ToList();
+            var catalog = StaticDataCatalogBuilder.Build(dto);
+            _pictures = catalog.Pictures;
+            _items = catalog.Items;
+            _itemsById = catalog.ItemsById;
+            _difficulties = catalog.Difficulties;
+            _dropTables = catalog.DropTables;
+            _dropTableItemsByTableId = catalog.DropTableItemsByTableId;
+            _allDropTableItems = catalog.AllDropTableItems;
+            _dailyRewards = catalog.DailyRewards;
         }
 
         public IReadOnlyList<PictureConfig> GetAllPictures() => _pictures;

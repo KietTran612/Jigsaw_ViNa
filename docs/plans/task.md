@@ -48,7 +48,7 @@
 | **Task 45: Inventory / Collection UI** | [x] | Added Collection screen/presenter, owned key-item sources, quick navigation, lifecycle cleanup, Home scene v6 wiring, and targeted tests. |
 | **Task 46: Markdown Living Test Plan & Manual Excel Exporter** | [x] | Added Living Test Plan, 31 Smoke/Critical QA test cases, validated Markdown parser, manual PowerShell/Node Excel exporter, and exporter regression tests. |
 | **Task 47: Daily Login Reward System** | [x] | Configure daily rewards in static data, track login streak in PlayerSave, implement DailyRewardService, and add Popup UI to Home screen. |
-| **Task 48: Long C# Files Refactor** | [/] | Plan created to improve the longest project-owned C# files with focused helper extraction while excluding third-party plugins and line-count-only test churn. |
+| **Task 48: Long C# Files Refactor** | [x] | Extracted focused helpers from long project-owned C# files: StaticDataService validation/mapping, Game Data Editor build/validation, Thin Vertical Slice scene builders, and HomeFlowController file split. |
 
 ## Completed
 
@@ -74,7 +74,7 @@
 
 ## Pending
 
-- Execute Task 48: refactor long project-owned C# files with targeted helper extraction and focused verification.
+- Review and commit the refactored code for Task 48 (including generated .meta files).
 - Review and later convert the approved UI/UX design system into scoped implementation plans when ready.
 - Use the AI image brief together with the UI/UX design system when asking another AI to create image prompt strategy, mood boards, or layered asset plans.
 - Use large mockups only for visual review and prompt iteration; generate separate layered assets for Unity production use.

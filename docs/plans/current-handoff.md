@@ -15,13 +15,14 @@
   - Added explicit guidance for large full-screen mockups used only for AI review, art-direction alignment, and prompt iteration; these mockups are not Unity slicing sources or production assets.
   - Added the companion brief to `docs/plans/index.md`.
 
-- **Task 48: Long C# Files Refactor Plan**:
-  - Replaced the narrow Game Data Editor-only plan with `docs/plans/2026-06-16-long-csharp-files-refactor.md`.
+- **Task 48: Long C# Files Refactor**:
   - Audited all `.cs` files with 200+ lines and classified them by project runtime/editor/test vs third-party plugin code.
-  - Recommended focused extraction for project-owned long files: `StaticDataService.cs`, `JigsawVinaGameDataEditor.cs`, `ThinVerticalSliceSceneSetup.cs`, and move-only split for `HomeFlowController`.
-  - Explicitly excludes third-party DOTween files and line-count-only test file churn.
-  - Review fix: line counts are now documented as snapshot-only and Task 1 reruns the baseline before implementation. `HomeFlowController` namespace preservation remains explicit. Stub-like plan snippets were replaced with move-only instructions or signature references.
-  - Final review fix: Task 5 now names `JigsawVinaGameDataBuildInput.cs` correctly; Task 6 now requires scene builders to replace `HomeScenePath`/`GameplayScenePath` with method parameters, share `ThinVerticalSliceSceneSetup.CheckSceneAlreadyUpdated(...)`, and update `CreatePictureSelectCardPrefabForTask38` to call moved UI factory helpers.
+  - Created the refactor plan at `docs/plans/2026-06-16-long-csharp-files-refactor.md`.
+  - Extracted `StaticDataValidator` and `StaticDataCatalogBuilder` from `StaticDataService.cs` to handle validation and mapping logic.
+  - Fixed compilation error `CS0518` in Unity Editor by changing `StaticDataCatalog` properties from `init;` to `set;` in `StaticDataCatalogBuilder.cs`.
+  - Extracted `JigsawVinaGameDataBuilder` and `JigsawVinaGameDataBuildInput` from `JigsawVinaGameDataEditor.cs` to decouple game data construction and validation.
+  - Extracted UI creation helpers and scene builders (`ThinVerticalSliceUiFactory`, `ThinVerticalSliceHomeSceneBuilder`, `ThinVerticalSliceGameplaySceneBuilder`) from `ThinVerticalSliceSceneSetup.cs`.
+  - Moved `HomeFlowController` out of `HomeLifetimeScope.cs` to its own file (`HomeFlowController.cs`) with explicit namespace preservation.
 
 - **Game Test Case System Design**:
   - Approved a Markdown-first test case workflow for QA, Codex, and Antigravity.
@@ -218,11 +219,10 @@
   - Chạy toàn bộ EditMode test suite: 120/120 tests PASS.
   - Chạy toàn bộ PlayMode test suite: 8/8 tests PASS.
   - Home v7 scene setup và cấu hình daily reward button, badge, popup panel hoàn tất.
-- **Task 48 plan verification**:
-  - Docs-only change; Unity validation not run - not relevant to plan-only change.
-  - Plan index updated with the new detailed plan.
-  - Review fix verified with placeholder scan against `docs/plans/2026-06-16-long-csharp-files-refactor.md`.
-  - Final review verified by scanning source usages of `CreateButton`, `Assign`, `CheckSceneAlreadyUpdated`, `CreateHomeScene`, and `CreateGameplayScene` before updating the plan.
+- **Task 48 targeted verification**:
+  - Unity script compilation completed successfully with zero warnings/errors.
+  - Verified that all 120 EditMode tests and 8 PlayMode tests pass cleanly.
+  - Verified scene setup regeneration idempotency: generated scenes twice and verified SHA-256 hashes of `Home.unity` and `Gameplay.unity` remain unchanged.
 - **UI/UX design verification**:
   - Docs-only change; Unity validation not run - not relevant to design-only change.
   - Spec self-review completed for placeholders, contradictory requirements, scope drift, and implementation ambiguity.
@@ -241,15 +241,14 @@
 
 ## Current Uncommitted Scope
 
-- Tasks 43-45 drop reward logic, replay presenter integration, Collection UI/navigation, Home v6 scene regeneration, tests, handoff documentation, game test case system design, Living Test Plan, 31 test case Markdown files, and manual Excel exporter tooling.
-- Task 47 daily login reward system: RewardApplier, DailyRewardService, DailyRewardPresenter/View, Home v7 scene layout/badge wiring, daily reward config in static JSON, and EditMode tests.
-- Task 48 planning docs: long C# files refactor plan, plan index update, task tracker update, and current handoff update.
+- Task 48 source code changes: refactored classes and new C# scripts (`StaticDataValidator`, `StaticDataCatalogBuilder`, `JigsawVinaGameDataBuilder`, `JigsawVinaGameDataBuildInput`, `ThinVerticalSliceUiFactory`, `ThinVerticalSliceHomeSceneBuilder`, `ThinVerticalSliceGameplaySceneBuilder`, `HomeFlowController`) and updated original files.
+- Task 48 planning/tracker/handoff updates.
 - UI/UX planning docs: mobile landscape design system and screen specification, plan index update, task tracker update, and current handoff update.
 - AI image planning docs: companion image brief, plan index update, task tracker update, and current handoff update.
 
 ## Recommended Next Steps
 
-- Execute Task 48 long C# files refactor with targeted touched-area verification.
+- Review and commit the refactored code for Task 48 (including generated `.meta` files).
 - Review the UI/UX design doc, then split approved UI work into focused implementation plans when ready.
 - Use `2026-06-16-ui-ux-ai-image-brief.md` with the UI/UX design spec when asking an AI image assistant to produce prompt strategy, mood boards, or layered asset plans.
 - Map approved Planned test cases to existing NUnit coverage, then add only missing targeted tests.
