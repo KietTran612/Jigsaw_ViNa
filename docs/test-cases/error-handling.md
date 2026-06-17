@@ -8,9 +8,9 @@
 - **Priority:** Critical
 - **Test Suite:** Smoke
 - **Test Level:** Integration
-- **Automation Status:** Planned
+- **Automation Status:** Automated
 - **Execution Mode:** EditMode
-- **NUnit Test:** none
+- **NUnit Test:** JigsawVina.Tests.PictureSelectFlowTests.Card_Locked_DisablesSelectionAndShowsMissingItemHint
 
 ### Preconditions
 
@@ -36,7 +36,7 @@
 
 ### Automation Notes
 
-Planned EditMode integration test sẽ bind locked card, simulate click và kiểm tra callback, session cùng save đều không đổi.
+Automated via JigsawVina.Tests.PictureSelectFlowTests.Card_Locked_DisablesSelectionAndShowsMissingItemHint.
 
 ## TC-ERROR-002: Chặn chọn difficulty chưa mở khóa
 
@@ -46,9 +46,9 @@ Planned EditMode integration test sẽ bind locked card, simulate click và ki�
 - **Priority:** Critical
 - **Test Suite:** Smoke
 - **Test Level:** Integration
-- **Automation Status:** Planned
+- **Automation Status:** Automated
 - **Execution Mode:** EditMode
-- **NUnit Test:** none
+- **NUnit Test:** JigsawVina.Tests.DifficultySelectFlowTests.Presenter_HandleDifficultySelected_DoesNotLoadSceneIfLocked; JigsawVina.Tests.ProgressionTests.IsDifficultyUnlocked_SequentialPolicy
 
 ### Preconditions
 
@@ -75,7 +75,7 @@ Planned EditMode integration test sẽ bind locked card, simulate click và ki�
 
 ### Automation Notes
 
-Planned EditMode integration test sẽ dùng recording `SceneLoader` và kiểm tra locked selection bị guard trước session mutation.
+Automated via JigsawVina.Tests.DifficultySelectFlowTests.Presenter_HandleDifficultySelected_DoesNotLoadSceneIfLocked and JigsawVina.Tests.ProgressionTests.IsDifficultyUnlocked_SequentialPolicy.
 
 ## TC-ERROR-003: Unlock thất bại không thay đổi save
 
@@ -85,9 +85,9 @@ Planned EditMode integration test sẽ dùng recording `SceneLoader` và kiểm 
 - **Priority:** Critical
 - **Test Suite:** Smoke
 - **Test Level:** Unit
-- **Automation Status:** Planned
+- **Automation Status:** Automated
 - **Execution Mode:** EditMode
-- **NUnit Test:** none
+- **NUnit Test:** JigsawVina.Tests.ProgressionTests.TryUnlockPicture_FlowAndConstraints
 
 ### Preconditions
 
@@ -114,7 +114,7 @@ Planned EditMode integration test sẽ dùng recording `SceneLoader` và kiểm 
 
 ### Automation Notes
 
-Planned EditMode unit test sẽ dùng recording save service và deep state assertions để chứng minh failed unlock không có partial mutation.
+Automated via JigsawVina.Tests.ProgressionTests.TryUnlockPicture_FlowAndConstraints.
 
 ## TC-ERROR-004: Lặp thao tác complete không cấp duplicate reward
 
@@ -124,9 +124,9 @@ Planned EditMode unit test sẽ dùng recording save service và deep state asse
 - **Priority:** Critical
 - **Test Suite:** Smoke
 - **Test Level:** Integration
-- **Automation Status:** Planned
+- **Automation Status:** Automated
 - **Execution Mode:** PlayMode
-- **NUnit Test:** none
+- **NUnit Test:** JigsawVina.Tests.PuzzleGameplayPlayModeTests.PuzzlePlay_CompleteLifecycle_LocksInputTimerAndPersistsSingleRecord
 
 ### Preconditions
 
@@ -158,7 +158,7 @@ Planned EditMode unit test sẽ dùng recording save service và deep state asse
 
 ### Automation Notes
 
-Planned PlayMode integration test sẽ gọi completion helper hai lần, đồng thời đếm save calls, completion events và Reward Summary activation transitions.
+Automated via JigsawVina.Tests.PuzzleGameplayPlayModeTests.PuzzlePlay_CompleteLifecycle_LocksInputTimerAndPersistsSingleRecord.
 
 ## TC-ERROR-005: Static data không hợp lệ dừng load với lỗi rõ ràng
 
@@ -168,9 +168,9 @@ Planned PlayMode integration test sẽ gọi completion helper hai lần, đồn
 - **Priority:** Critical
 - **Test Suite:** Smoke
 - **Test Level:** Integration
-- **Automation Status:** Planned
+- **Automation Status:** Automated
 - **Execution Mode:** EditMode
-- **NUnit Test:** none
+- **NUnit Test:** JigsawVina.Tests.StaticDataServiceTests.LoadFromText_DuplicatePictureId_ThrowsException; JigsawVina.Tests.ProgressionTests.ValidateStaticData_DeadlockRequiredItemUnreachable_ThrowsException; JigsawVina.Tests.ProgressionTests.ValidateStaticData_DeadlockCircularRequirement_ThrowsException; JigsawVina.Tests.ProgressionTests.ValidateStaticData_UnlockRequirementNotKeyItem_ThrowsException; JigsawVina.Tests.ProgressionTests.ValidateStaticData_UnlockRequirementMissingActiveStatus_ThrowsException; JigsawVina.Tests.ProgressionTests.ValidateStaticData_UnlockRequirementConsumable_ThrowsException; JigsawVina.Tests.ProgressionTests.ValidateStaticData_DuplicateUnlockRequirement_ThrowsException; JigsawVina.Tests.ProgressionTests.ValidateStaticData_InvalidDifficultyPolicy_ThrowsException; JigsawVina.Tests.ProgressionTests.ValidateStaticData_SequentialDifficultyGap_ThrowsException
 
 ### Preconditions
 
@@ -196,4 +196,4 @@ Planned PlayMode integration test sẽ gọi completion helper hai lần, đồn
 
 ### Automation Notes
 
-Planned EditMode integration test sẽ dùng malformed in-memory JSON, assert loại/message lỗi và xác nhận valid load vẫn hoạt động trên clean service.
+Automated via JigsawVina.Tests.StaticDataServiceTests.LoadFromText_DuplicatePictureId_ThrowsException and validation tests under ProgressionTests and StaticDataServiceTests.

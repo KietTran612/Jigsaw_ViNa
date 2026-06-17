@@ -46,9 +46,9 @@ Planned PlayMode test sẽ click các button thật trong scene `Home` và kiể
 - **Priority:** Critical
 - **Test Suite:** Smoke
 - **Test Level:** Integration
-- **Automation Status:** Planned
+- **Automation Status:** Automated
 - **Execution Mode:** EditMode
-- **NUnit Test:** none
+- **NUnit Test:** JigsawVina.Tests.CollectionFlowTests.CollectionPresenter_BuildsOwnedItemWithDeduplicatedSortedSources
 
 ### Preconditions
 
@@ -75,7 +75,7 @@ Planned PlayMode test sẽ click các button thật trong scene `Home` và kiể
 
 ### Automation Notes
 
-Planned EditMode integration test sẽ dùng mixed item fixture và kiểm tra filtering, ordering cùng model bind của `CollectionPresenter`.
+Automated via JigsawVina.Tests.CollectionFlowTests.CollectionPresenter_BuildsOwnedItemWithDeduplicatedSortedSources.
 
 ## TC-COLLECTION-003: Điều hướng tới tranh đã mở khóa từ source
 

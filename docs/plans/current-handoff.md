@@ -1,5 +1,11 @@
 # Current Handoff
 
+- **Task 49: Map Planned Test Cases to NUnit Coverage**:
+  - Mapped 25 of the 31 planned test cases in the Living Test Plan (`docs/test-cases/` modules) to their corresponding C# NUnit tests.
+  - Updated all 6 test modules (`gameplay.md`, `save-load.md`, `progression.md`, `daily-drop.md`, `collection.md`, and `error-handling.md`) to mark the mapped test cases as `Automated` with their fully qualified NUnit test names (`Namespace.Class.Method`) and cleaned up `Automation Notes`.
+  - Reverted 4 gameplay test cases (`TC-GAMEPLAY-001`, `TC-GAMEPLAY-002`, `TC-GAMEPLAY-003`, and `TC-GAMEPLAY-007`) and 2 collection test cases (`TC-COLLECTION-001` and `TC-COLLECTION-003`) to `Planned` as they require PlayMode end-to-end UI actions, actual scene transitions, or production data loading which are not covered by current EditMode tests or mock fixtures.
+  - Extended assertions in `SaveDataServiceTests.SaveAndLoad_SavesCorrectData` to fully cover `TC-SAVE-003` (asserting PictureId, DifficultyId, BestStar, and BestTimeSeconds).
+
 - **UI/UX Design System and Screen Specification**:
   - Added `docs/plans/2026-06-16-ui-ux-design-system-and-screen-spec.md`.
   - Captures the approved mobile landscape direction: 16:9 primary layout, 4:3-safe responsive behavior, two-handed play, icon-first Vietnamese-supported UI, and localization-ready text rules.
@@ -237,19 +243,25 @@
   - Unity script compilation completed with no compiler errors.
   - `StaticDataServiceTests`: Verified drop table configurations and strict constraints (rates, IDs, references). Passed.
   - `JigsawVinaGameDataEditorTests`: Verified that configurations round-trip correctly. Passed.
-- **Compiler Status**: Unity compiled successfully with no compiler errors. All 120 EditMode and 8 PlayMode tests passed cleanly.
+- **Task 49 targeted verification**:
+  - Audited NUnit tests and mapped 25 of the 31 planned test cases.
+  - Reverted 4 gameplay cases (`TC-GAMEPLAY-001`, `TC-GAMEPLAY-002`, `TC-GAMEPLAY-003`, `TC-GAMEPLAY-007`) and 2 collection cases (`TC-COLLECTION-001`, `TC-COLLECTION-003`) to `Planned` due to partial PlayMode test coverage (EditMode integrated mocks/unit tests do not satisfy runtime clicking/loading requirements).
+  - Extended assertions in `SaveDataServiceTests.SaveAndLoad_SavesCorrectData` to verify `TC-SAVE-003` completion picture ID, difficulty ID, best star, and best time values.
+  - Verified compilation completes successfully with no compiler errors.
+  - Ran targeted EditMode `SaveDataServiceTests` in Unity Editor and verified 3/3 tests passed successfully (recording actual pass in `latest-test-results.txt`). PlayMode tests remain verified (8/8) from previous runs.
 
 ## Current Uncommitted Scope
 
-- Task 48 source code changes: refactored classes and new C# scripts (`StaticDataValidator`, `StaticDataCatalogBuilder`, `JigsawVinaGameDataBuilder`, `JigsawVinaGameDataBuildInput`, `ThinVerticalSliceUiFactory`, `ThinVerticalSliceHomeSceneBuilder`, `ThinVerticalSliceGameplaySceneBuilder`, `HomeFlowController`) and updated original files.
-- Task 48 planning/tracker/handoff updates.
-- UI/UX planning docs: mobile landscape design system and screen specification, plan index update, task tracker update, and current handoff update.
-- AI image planning docs: companion image brief, plan index update, task tracker update, and current handoff update.
+- Task 49 changes:
+  - Modified six Markdown test case modules under `docs/test-cases/` with NUnit mappings.
+  - Modified [SaveDataServiceTests.cs](file:///D:/soflware/Unity/Source/Jigsaw_ViNa/JigsawVina/Assets/JigsawVina/Tests/SaveDataServiceTests.cs) (line 33) to extend assertions for TC-SAVE-003.
+  - Modified [TestRunnerHelper.cs](file:///D:/soflware/Unity/Source/Jigsaw_ViNa/JigsawVina/Assets/JigsawVina/Scripts/Editor/TestRunnerHelper.cs) (line 107) to add targeted `RunTask49Tests` runner.
+  - Plan index update, task tracker update, and current handoff update.
+- Untracked: `docs/plans/2026-06-17-map-planned-test-cases.md`.
 
 ## Recommended Next Steps
 
-- Review and commit the refactored code for Task 48 (including generated `.meta` files).
-- Review the UI/UX design doc, then split approved UI work into focused implementation plans when ready.
+- Review and commit Task 49 changes (including C# code changes, test mapping documents, and tracker logs).
+- Plan and execute Task 50 (Implement Dynamic Game Board Rendering) to parse board sizes, handle safe bounds scaling, and dynamically load picture sprites in Gameplay.
+- Review and later convert the approved UI/UX design system into scoped implementation plans when ready.
 - Use `2026-06-16-ui-ux-ai-image-brief.md` with the UI/UX design spec when asking an AI image assistant to produce prompt strategy, mood boards, or layered asset plans.
-- Map approved Planned test cases to existing NUnit coverage, then add only missing targeted tests.
-- Run the optional manual Home Collection and daily reward claim click-through before a user-requested commit.

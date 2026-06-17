@@ -35,13 +35,16 @@ namespace JigsawVina.Tests
             var service = new SaveDataService();
             var save = service.Load();
             save.Coins = 100;
-            save.CompletedPuzzles.Add(new CompletedPuzzleData { PictureId = 1, DifficultyId = 0, BestTimeSeconds = 45f, BestStar = 3 });
+            save.CompletedPuzzles.Add(new CompletedPuzzleData { PictureId = 1, DifficultyId = 0, BestTimeSeconds = 42.5f, BestStar = 1 });
             service.Save(save);
 
             var loadedSave = service.Load();
             Assert.AreEqual(100, loadedSave.Coins);
             Assert.AreEqual(1, loadedSave.CompletedPuzzles.Count);
-            Assert.AreEqual(45f, loadedSave.CompletedPuzzles[0].BestTimeSeconds);
+            Assert.AreEqual(1, loadedSave.CompletedPuzzles[0].PictureId);
+            Assert.AreEqual(0, loadedSave.CompletedPuzzles[0].DifficultyId);
+            Assert.AreEqual(42.5f, loadedSave.CompletedPuzzles[0].BestTimeSeconds);
+            Assert.AreEqual(1, loadedSave.CompletedPuzzles[0].BestStar);
         }
 
         [Test]

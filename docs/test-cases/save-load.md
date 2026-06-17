@@ -8,9 +8,9 @@
 - **Priority:** Critical
 - **Test Suite:** Smoke
 - **Test Level:** Integration
-- **Automation Status:** Planned
+- **Automation Status:** Automated
 - **Execution Mode:** EditMode
-- **NUnit Test:** none
+- **NUnit Test:** JigsawVina.Tests.SaveDataServiceTests.Load_WhenNoSaveExists_ReturnsDefaultSave
 
 ### Preconditions
 
@@ -35,7 +35,7 @@
 
 ### Automation Notes
 
-Planned EditMode test sẽ cô lập `PlayerPrefs`, inject fake `ILocalDateProvider` và kiểm tra toàn bộ default state.
+Automated via JigsawVina.Tests.SaveDataServiceTests.Load_WhenNoSaveExists_ReturnsDefaultSave.
 
 ## TC-SAVE-002: Lưu và tải coins, hints, inventory
 
@@ -45,9 +45,9 @@ Planned EditMode test sẽ cô lập `PlayerPrefs`, inject fake `ILocalDateProvi
 - **Priority:** Critical
 - **Test Suite:** Smoke
 - **Test Level:** Integration
-- **Automation Status:** Planned
+- **Automation Status:** Automated
 - **Execution Mode:** EditMode
-- **NUnit Test:** none
+- **NUnit Test:** JigsawVina.Tests.SaveDataServiceTests.SaveAndLoad_SavesCorrectData
 
 ### Preconditions
 
@@ -74,7 +74,7 @@ Planned EditMode test sẽ cô lập `PlayerPrefs`, inject fake `ILocalDateProvi
 
 ### Automation Notes
 
-Planned EditMode test sẽ round-trip qua `PlayerPrefs` thật trong test scope và cleanup key sau khi chạy.
+Automated via JigsawVina.Tests.SaveDataServiceTests.SaveAndLoad_SavesCorrectData.
 
 ## TC-SAVE-003: Lưu completion và best result
 
@@ -84,9 +84,9 @@ Planned EditMode test sẽ round-trip qua `PlayerPrefs` thật trong test scope 
 - **Priority:** Critical
 - **Test Suite:** Smoke
 - **Test Level:** Integration
-- **Automation Status:** Planned
+- **Automation Status:** Automated
 - **Execution Mode:** EditMode
-- **NUnit Test:** none
+- **NUnit Test:** JigsawVina.Tests.SaveDataServiceTests.SaveAndLoad_SavesCorrectData
 
 ### Preconditions
 
@@ -113,7 +113,7 @@ Planned EditMode test sẽ round-trip qua `PlayerPrefs` thật trong test scope 
 
 ### Automation Notes
 
-Planned EditMode integration test sẽ xác nhận completion composite key và best-result values sống qua serialization round-trip.
+Automated via JigsawVina.Tests.SaveDataServiceTests.SaveAndLoad_SavesCorrectData.
 
 ## TC-SAVE-004: Reset DailyDropCounts khi đổi local date
 
@@ -123,9 +123,9 @@ Planned EditMode integration test sẽ xác nhận completion composite key và 
 - **Priority:** Critical
 - **Test Suite:** Smoke
 - **Test Level:** Integration
-- **Automation Status:** Planned
+- **Automation Status:** Automated
 - **Execution Mode:** EditMode
-- **NUnit Test:** none
+- **NUnit Test:** JigsawVina.Tests.SaveDataServiceTests.Load_DailyDropCounts_ResetsOnDateChange
 
 ### Preconditions
 
@@ -152,4 +152,4 @@ Planned EditMode integration test sẽ xác nhận completion composite key và 
 
 ### Automation Notes
 
-Planned EditMode test sẽ dùng mutable fake date provider để chứng minh reset chỉ xảy ra khi local calendar date thay đổi.
+Automated via JigsawVina.Tests.SaveDataServiceTests.Load_DailyDropCounts_ResetsOnDateChange.

@@ -37,7 +37,7 @@
 
 ### Automation Notes
 
-Planned PlayMode test sẽ load `Home`, đọc production static data source, chờ VContainer khởi tạo và fail nếu bất kỳ configured thumbnail nào không load thành `Sprite`.
+Planned. Mapped NUnit tests (HomeScene_PictureSelectView_IsWiredCorrectly and Setup_SpawnsCorrectNumberOfCards) are EditMode unit/fixture tests using mocks or scene configurations. They do not load the production static data from disk, verify actual Resources.Load<Sprite>() output for production images, or run in a full PlayMode runtime environment.
 
 ## TC-GAMEPLAY-002: Chọn tranh đã mở khóa và mở Difficulty Select
 
@@ -75,7 +75,7 @@ Planned PlayMode test sẽ load `Home`, đọc production static data source, ch
 
 ### Automation Notes
 
-Planned PlayMode test sẽ click card thật và kiểm tra screen state, selected session picture cùng trạng thái difficulty.
+Planned. Mapped NUnit tests (Card_Unlocked_EnablesSelectionAndHidesLockUi and HomeFlowController_RefreshesPresenter_OnPictureSelected) only test presentation models and controllers in EditMode isolation. They do not simulate actual UI clicks in a running scene, verify the transition from Picture Select to Difficulty Select screens, or assert GameSessionService.SelectedPictureId update in PlayMode.
 
 ## TC-GAMEPLAY-003: Chọn độ khó đã mở khóa và tải Gameplay
 
@@ -114,7 +114,7 @@ Planned PlayMode test sẽ click card thật và kiểm tra screen state, select
 
 ### Automation Notes
 
-Planned PlayMode test sẽ điều khiển Difficulty Select, chờ scene `Gameplay` và xác nhận session state trước khi puzzle khởi tạo.
+Planned. Mapped NUnit tests only verify presenter-level callbacks and scene load trigger mocks in EditMode. They do not perform a real scene transition to the Gameplay scene or verify that the Gameplay UI hierarchy compiles and initializes properly at runtime.
 
 ## TC-GAMEPLAY-004: Tạo đúng số puzzle pieces theo cấu hình
 
@@ -124,9 +124,9 @@ Planned PlayMode test sẽ điều khiển Difficulty Select, chờ scene `Gamep
 - **Priority:** Critical
 - **Test Suite:** Smoke
 - **Test Level:** Integration
-- **Automation Status:** Planned
+- **Automation Status:** Automated
 - **Execution Mode:** PlayMode
-- **NUnit Test:** none
+- **NUnit Test:** JigsawVina.Tests.PuzzleGameplayPlayModeTests.PuzzlePlay_InitializesCorrectPieceCount; JigsawVina.Tests.PuzzleSessionTests.PuzzleSession_InitializesCorrectGridAndPositions
 
 ### Preconditions
 
@@ -153,7 +153,7 @@ Planned PlayMode test sẽ điều khiển Difficulty Select, chờ scene `Gamep
 
 ### Automation Notes
 
-Planned PlayMode integration test sẽ dùng cấu hình production của Picture `1` / Difficulty `0` và kiểm tra session cùng hierarchy được tạo.
+Automated via JigsawVina.Tests.PuzzleGameplayPlayModeTests.PuzzlePlay_InitializesCorrectPieceCount and JigsawVina.Tests.PuzzleSessionTests.PuzzleSession_InitializesCorrectGridAndPositions.
 
 ## TC-GAMEPLAY-005: Kéo và snap piece vào đúng vị trí
 
@@ -163,9 +163,9 @@ Planned PlayMode integration test sẽ dùng cấu hình production của Pictur
 - **Priority:** Critical
 - **Test Suite:** Smoke
 - **Test Level:** End-to-End
-- **Automation Status:** Planned
+- **Automation Status:** Automated
 - **Execution Mode:** PlayMode
-- **NUnit Test:** none
+- **NUnit Test:** JigsawVina.Tests.PuzzleGameplayPlayModeTests.PuzzlePlay_SnapClosePiece_LocksAssertsCorrectly; JigsawVina.Tests.PuzzleSessionTests.PuzzleSession_SnapsClosePiece
 
 ### Preconditions
 
@@ -192,7 +192,7 @@ Planned PlayMode integration test sẽ dùng cấu hình production của Pictur
 
 ### Automation Notes
 
-Planned PlayMode test sẽ phát pointer events hoặc gọi interaction boundary tương đương, rồi kiểm tra state và transform sau snap.
+Automated via JigsawVina.Tests.PuzzleGameplayPlayModeTests.PuzzlePlay_SnapClosePiece_LocksAssertsCorrectly and JigsawVina.Tests.PuzzleSessionTests.PuzzleSession_SnapsClosePiece.
 
 ## TC-GAMEPLAY-006: Hoàn thành puzzle và mở Reward Summary
 
@@ -202,9 +202,9 @@ Planned PlayMode test sẽ phát pointer events hoặc gọi interaction boundar
 - **Priority:** Critical
 - **Test Suite:** Smoke
 - **Test Level:** End-to-End
-- **Automation Status:** Planned
+- **Automation Status:** Automated
 - **Execution Mode:** PlayMode
-- **NUnit Test:** none
+- **NUnit Test:** JigsawVina.Tests.PuzzleGameplayPlayModeTests.PuzzlePlay_CompleteLifecycle_LocksInputTimerAndPersistsSingleRecord
 
 ### Preconditions
 
@@ -231,7 +231,7 @@ Planned PlayMode test sẽ phát pointer events hoặc gọi interaction boundar
 
 ### Automation Notes
 
-Planned PlayMode test sẽ dùng deterministic completion helper, đếm completion event và chờ `ShowRewardSequence` hoàn tất.
+Automated via JigsawVina.Tests.PuzzleGameplayPlayModeTests.PuzzlePlay_CompleteLifecycle_LocksInputTimerAndPersistsSingleRecord.
 
 ## TC-GAMEPLAY-007: Nhận reward và quay về Home
 
@@ -272,4 +272,4 @@ Planned PlayMode test sẽ dùng deterministic completion helper, đếm complet
 
 ### Automation Notes
 
-Planned PlayMode end-to-end test sẽ dùng save sạch, hoàn thành puzzle, xác nhận first-clear reward và click Return về `Home`.
+Planned. Mapped PlayMode test (PuzzlePlay_CompleteLifecycle_LocksInputTimerAndPersistsSingleRecord) covers puzzle completion and data persistence, but does not verify the Return button click-through, the scene transition back to Home, or the UI state refresh on the Home screen after returning.

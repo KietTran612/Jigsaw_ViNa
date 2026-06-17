@@ -8,9 +8,9 @@
 - **Priority:** Critical
 - **Test Suite:** Smoke
 - **Test Level:** Unit
-- **Automation Status:** Planned
+- **Automation Status:** Automated
 - **Execution Mode:** EditMode
-- **NUnit Test:** none
+- **NUnit Test:** JigsawVina.Tests.DropRewardTests.RollDropRewards_ActiveEntriesRollIndependently
 
 ### Preconditions
 
@@ -37,7 +37,7 @@
 
 ### Automation Notes
 
-Planned EditMode unit test sẽ dùng ordered fake random values để chứng minh mỗi active entry được evaluate độc lập.
+Automated via JigsawVina.Tests.DropRewardTests.RollDropRewards_ActiveEntriesRollIndependently.
 
 ## TC-DROP-002: Drop rate decay theo số lần item đã drop trong ngày
 
@@ -47,9 +47,9 @@ Planned EditMode unit test sẽ dùng ordered fake random values để chứng m
 - **Priority:** Critical
 - **Test Suite:** Smoke
 - **Test Level:** Unit
-- **Automation Status:** Planned
+- **Automation Status:** Automated
 - **Execution Mode:** EditMode
-- **NUnit Test:** none
+- **NUnit Test:** JigsawVina.Tests.DropRewardTests.RollDropRewards_DecaysAndClampsToMinimumRate; JigsawVina.Tests.DropRewardTests.RollDropRewards_Success_ReturnsRewardAndIncrementsCounter
 
 ### Preconditions
 
@@ -79,7 +79,7 @@ Planned EditMode unit test sẽ dùng ordered fake random values để chứng m
 
 ### Automation Notes
 
-Planned EditMode unit test sẽ inject deterministic random source và kiểm tra rate được suy ra qua success/failure boundary.
+Automated via JigsawVina.Tests.DropRewardTests.RollDropRewards_DecaysAndClampsToMinimumRate and JigsawVina.Tests.DropRewardTests.RollDropRewards_Success_ReturnsRewardAndIncrementsCounter.
 
 ## TC-DROP-003: Replay reward cấp coins và hints đúng amount
 
@@ -89,9 +89,9 @@ Planned EditMode unit test sẽ inject deterministic random source và kiểm tr
 - **Priority:** Critical
 - **Test Suite:** Smoke
 - **Test Level:** Integration
-- **Automation Status:** Planned
+- **Automation Status:** Automated
 - **Execution Mode:** EditMode
-- **NUnit Test:** none
+- **NUnit Test:** JigsawVina.Tests.ProgressionTests.ProcessRewards_Replay_AppliesDropRewardsAndDisplaysActualAmounts
 
 ### Preconditions
 
@@ -122,7 +122,7 @@ Planned EditMode unit test sẽ inject deterministic random source và kiểm tr
 
 ### Automation Notes
 
-Planned EditMode integration test sẽ dùng fake `IDropRewardService` và kiểm tra actual applied amounts trong save cùng summary state.
+Automated via JigsawVina.Tests.ProgressionTests.ProcessRewards_Replay_AppliesDropRewardsAndDisplaysActualAmounts.
 
 ## TC-DROP-004: Không drop Key Item đã sở hữu
 
@@ -132,9 +132,9 @@ Planned EditMode integration test sẽ dùng fake `IDropRewardService` và kiể
 - **Priority:** Critical
 - **Test Suite:** Smoke
 - **Test Level:** Unit
-- **Automation Status:** Planned
+- **Automation Status:** Automated
 - **Execution Mode:** EditMode
-- **NUnit Test:** none
+- **NUnit Test:** JigsawVina.Tests.DropRewardTests.RollDropRewards_OwnedKeyItem_IsExcludedBeforeRandom
 
 ### Preconditions
 
@@ -161,7 +161,7 @@ Planned EditMode integration test sẽ dùng fake `IDropRewardService` và kiể
 
 ### Automation Notes
 
-Planned EditMode unit test sẽ dùng recording random source để xác nhận exclusion xảy ra trước roll và không mutate counter.
+Automated via JigsawVina.Tests.DropRewardTests.RollDropRewards_OwnedKeyItem_IsExcludedBeforeRandom.
 
 ## TC-DROP-005: Chỉ tăng DailyDropCounts khi grant thành công
 
@@ -171,9 +171,9 @@ Planned EditMode unit test sẽ dùng recording random source để xác nhận 
 - **Priority:** Critical
 - **Test Suite:** Smoke
 - **Test Level:** Integration
-- **Automation Status:** Planned
+- **Automation Status:** Automated
 - **Execution Mode:** EditMode
-- **NUnit Test:** none
+- **NUnit Test:** JigsawVina.Tests.DropRewardTests.RollDropRewards_FullConsumable_IsExcludedBeforeRandom; JigsawVina.Tests.DropRewardTests.RollDropRewards_PartialConsumableCapacity_ReturnsAmountThatFits; JigsawVina.Tests.DropRewardTests.RollDropRewards_RollEqualToRate_FailsWithoutCounter
 
 ### Preconditions
 
@@ -211,4 +211,4 @@ Planned EditMode unit test sẽ dùng recording random source để xác nhận 
 
 ### Automation Notes
 
-Planned EditMode integration test sẽ chạy ba save fixtures độc lập: failed roll, partial-stack nonzero grant và full-stack exclusion.
+Automated via JigsawVina.Tests.DropRewardTests.RollDropRewards_FullConsumable_IsExcludedBeforeRandom, JigsawVina.Tests.DropRewardTests.RollDropRewards_PartialConsumableCapacity_ReturnsAmountThatFits, and JigsawVina.Tests.DropRewardTests.RollDropRewards_RollEqualToRate_FailsWithoutCounter.

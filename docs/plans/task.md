@@ -49,9 +49,12 @@
 | **Task 46: Markdown Living Test Plan & Manual Excel Exporter** | [x] | Added Living Test Plan, 31 Smoke/Critical QA test cases, validated Markdown parser, manual PowerShell/Node Excel exporter, and exporter regression tests. |
 | **Task 47: Daily Login Reward System** | [x] | Configure daily rewards in static data, track login streak in PlayerSave, implement DailyRewardService, and add Popup UI to Home screen. |
 | **Task 48: Long C# Files Refactor** | [x] | Extracted focused helpers from long project-owned C# files: StaticDataService validation/mapping, Game Data Editor build/validation, Thin Vertical Slice scene builders, and HomeFlowController file split. |
+| **Task 49: Map Planned Test Cases to NUnit Coverage** | [x] | Mapped 25 of the 31 planned test cases to NUnit tests and updated metadata; 4 gameplay and 2 collection cases remain Planned due to lack of full PlayMode runtime E2E UI testing. Verified SaveDataServiceTests assertions pass. |
+| **Task 50: Implement Dynamic Game Board Rendering** | [ ] | Plan and implement board size parsing, safe bounds scaling, and dynamically load picture sprites in Gameplay presenter. |
 
 ## Completed
 
+- Mapped 25 of the 31 planned test cases to NUnit tests and updated metadata for Task 49, leaving 4 gameplay and 2 collection cases as Planned. Verified newly added assertions via targeted SaveDataServiceTests run.
 - Designed the Markdown-first QA test case system for the full current game flow, including schema validation, manual Excel export, and later NUnit mapping.
 - Implemented the Markdown-first QA test case system with six module files, 31 initial test cases, strict validation, and manually invoked Excel export tooling.
 - Completed thin vertical slice Tasks 4-6: Home UI/presenters, Gameplay UI/presenters, reward progression tests, VContainer root settings, build settings, and generated Home/Gameplay scenes.
@@ -74,10 +77,8 @@
 
 ## Pending
 
-- Review and commit the refactored code for Task 48 (including generated .meta files).
 - Review and later convert the approved UI/UX design system into scoped implementation plans when ready.
 - Use the AI image brief together with the UI/UX design system when asking another AI to create image prompt strategy, mood boards, or layered asset plans.
 - Use large mockups only for visual review and prompt iteration; generate separate layered assets for Unity production use.
-- Map approved Planned test cases to existing NUnit coverage, then add only missing targeted tests (Deferred).
 - Manual full click-through from Home picture selection to Gameplay reward return can be run in the open Unity Editor if desired.
 - Manual full-flow/device verification remains optional before delivery.

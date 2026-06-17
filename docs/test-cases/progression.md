@@ -8,9 +8,9 @@
 - **Priority:** Critical
 - **Test Suite:** Smoke
 - **Test Level:** Integration
-- **Automation Status:** Planned
+- **Automation Status:** Automated
 - **Execution Mode:** EditMode
-- **NUnit Test:** none
+- **NUnit Test:** JigsawVina.Tests.ProgressionTests.GetPictureState_InitiallyUnlocked_ReturnsUnlockedOrCompleted
 
 ### Preconditions
 
@@ -37,7 +37,7 @@
 
 ### Automation Notes
 
-Planned EditMode integration test sẽ kết hợp `ProgressionService`, presentation model và card state với static-data fixture tối thiểu.
+Automated via JigsawVina.Tests.ProgressionTests.GetPictureState_InitiallyUnlocked_ReturnsUnlockedOrCompleted.
 
 ## TC-PROGRESSION-002: Tranh khóa hiển thị required Key Items
 
@@ -47,9 +47,9 @@ Planned EditMode integration test sẽ kết hợp `ProgressionService`, present
 - **Priority:** Critical
 - **Test Suite:** Smoke
 - **Test Level:** Integration
-- **Automation Status:** Planned
+- **Automation Status:** Automated
 - **Execution Mode:** EditMode
-- **NUnit Test:** none
+- **NUnit Test:** JigsawVina.Tests.ProgressionTests.GetPictureState_NotInitiallyUnlocked_Locked_AndTransitionToReadyToUnlock; JigsawVina.Tests.PictureSelectFlowTests.Card_Locked_DisablesSelectionAndShowsMissingItemHint
 
 ### Preconditions
 
@@ -76,7 +76,7 @@ Planned EditMode integration test sẽ kết hợp `ProgressionService`, present
 
 ### Automation Notes
 
-Planned EditMode test sẽ dùng fixture Picture `2` yêu cầu Item `101` và kiểm tra cả service state lẫn UI presentation state.
+Automated via JigsawVina.Tests.ProgressionTests.GetPictureState_NotInitiallyUnlocked_Locked_AndTransitionToReadyToUnlock and JigsawVina.Tests.PictureSelectFlowTests.Card_Locked_DisablesSelectionAndShowsMissingItemHint.
 
 ## TC-PROGRESSION-003: Đủ Key Items chuyển tranh sang ReadyToUnlock
 
@@ -86,9 +86,9 @@ Planned EditMode test sẽ dùng fixture Picture `2` yêu cầu Item `101` và k
 - **Priority:** Critical
 - **Test Suite:** Smoke
 - **Test Level:** Integration
-- **Automation Status:** Planned
+- **Automation Status:** Automated
 - **Execution Mode:** EditMode
-- **NUnit Test:** none
+- **NUnit Test:** JigsawVina.Tests.ProgressionTests.GetPictureState_NotInitiallyUnlocked_Locked_AndTransitionToReadyToUnlock; JigsawVina.Tests.PictureSelectFlowTests.Card_ReadyToUnlock_ShowsUnlockButtonAndRaisesRequest
 
 ### Preconditions
 
@@ -114,7 +114,7 @@ Planned EditMode test sẽ dùng fixture Picture `2` yêu cầu Item `101` và k
 
 ### Automation Notes
 
-Planned EditMode integration test sẽ mutate save fixture, refresh presenter và kiểm tra transition `Locked` sang `ReadyToUnlock`.
+Automated via JigsawVina.Tests.ProgressionTests.GetPictureState_NotInitiallyUnlocked_Locked_AndTransitionToReadyToUnlock and JigsawVina.Tests.PictureSelectFlowTests.Card_ReadyToUnlock_ShowsUnlockButtonAndRaisesRequest.
 
 ## TC-PROGRESSION-004: Unlock tranh atomically và persist
 
@@ -124,9 +124,9 @@ Planned EditMode integration test sẽ mutate save fixture, refresh presenter v�
 - **Priority:** Critical
 - **Test Suite:** Smoke
 - **Test Level:** Integration
-- **Automation Status:** Planned
+- **Automation Status:** Automated
 - **Execution Mode:** EditMode
-- **NUnit Test:** none
+- **NUnit Test:** JigsawVina.Tests.ProgressionTests.TryUnlockPicture_FlowAndConstraints; JigsawVina.Tests.PictureSelectFlowTests.Presenter_UnlockSuccess_RefreshesCardAsUnlocked
 
 ### Preconditions
 
@@ -154,7 +154,7 @@ Planned EditMode integration test sẽ mutate save fixture, refresh presenter v�
 
 ### Automation Notes
 
-Planned EditMode integration test sẽ dùng recording save service để kiểm tra mutation và persistence là một successful operation duy nhất.
+Automated via JigsawVina.Tests.ProgressionTests.TryUnlockPicture_FlowAndConstraints and JigsawVina.Tests.PictureSelectFlowTests.Presenter_UnlockSuccess_RefreshesCardAsUnlocked.
 
 ## TC-PROGRESSION-005: Unlock không consume Key Items
 
@@ -164,9 +164,9 @@ Planned EditMode integration test sẽ dùng recording save service để kiểm
 - **Priority:** Critical
 - **Test Suite:** Smoke
 - **Test Level:** Unit
-- **Automation Status:** Planned
+- **Automation Status:** Automated
 - **Execution Mode:** EditMode
-- **NUnit Test:** none
+- **NUnit Test:** JigsawVina.Tests.ProgressionTests.TryUnlockPicture_FlowAndConstraints
 
 ### Preconditions
 
@@ -192,7 +192,7 @@ Planned EditMode integration test sẽ dùng recording save service để kiểm
 
 ### Automation Notes
 
-Planned EditMode unit test sẽ so sánh owned-item state trước/sau và xác nhận repeated unlock không consume hoặc duplicate dữ liệu.
+Automated via JigsawVina.Tests.ProgressionTests.TryUnlockPicture_FlowAndConstraints.
 
 ## TC-PROGRESSION-006: Sequential policy mở difficulty sau khi clear
 
@@ -202,9 +202,9 @@ Planned EditMode unit test sẽ so sánh owned-item state trước/sau và xác 
 - **Priority:** Critical
 - **Test Suite:** Smoke
 - **Test Level:** Integration
-- **Automation Status:** Planned
+- **Automation Status:** Automated
 - **Execution Mode:** EditMode
-- **NUnit Test:** none
+- **NUnit Test:** JigsawVina.Tests.ProgressionTests.IsDifficultyUnlocked_SequentialPolicy; JigsawVina.Tests.DifficultySelectFlowTests.Presenter_Refresh_UpdatesUIAccordingToProgression
 
 ### Preconditions
 
@@ -231,7 +231,7 @@ Planned EditMode unit test sẽ so sánh owned-item state trước/sau và xác 
 
 ### Automation Notes
 
-Planned EditMode integration test sẽ kiểm tra từng transition của `ProgressionService.IsDifficultyUnlocked`.
+Automated via JigsawVina.Tests.ProgressionTests.IsDifficultyUnlocked_SequentialPolicy and JigsawVina.Tests.DifficultySelectFlowTests.Presenter_Refresh_UpdatesUIAccordingToProgression.
 
 ## TC-PROGRESSION-007: First-clear reward chỉ cấp một lần
 
@@ -241,9 +241,9 @@ Planned EditMode integration test sẽ kiểm tra từng transition của `Progr
 - **Priority:** Critical
 - **Test Suite:** Smoke
 - **Test Level:** Integration
-- **Automation Status:** Planned
+- **Automation Status:** Automated
 - **Execution Mode:** EditMode
-- **NUnit Test:** none
+- **NUnit Test:** JigsawVina.Tests.ProgressionTests.ProcessRewards_FirstClear_AwardsFirstClearCoinsHintsAndItems; JigsawVina.Tests.ProgressionTests.ProcessRewards_Replay_AwardsReplayCoinsOnly; JigsawVina.Tests.ProgressionTests.ProcessRewards_FirstClear_DoesNotRollDropTable
 
 ### Preconditions
 
@@ -271,4 +271,4 @@ Planned EditMode integration test sẽ kiểm tra từng transition của `Progr
 
 ### Automation Notes
 
-Planned EditMode integration test sẽ tạo hai puzzle sessions liên tiếp với no-op drop service và kiểm tra reward delta cùng duplicate protection.
+Automated via JigsawVina.Tests.ProgressionTests.ProcessRewards_FirstClear_AwardsFirstClearCoinsHintsAndItems, JigsawVina.Tests.ProgressionTests.ProcessRewards_Replay_AwardsReplayCoinsOnly, and JigsawVina.Tests.ProgressionTests.ProcessRewards_FirstClear_DoesNotRollDropTable.
